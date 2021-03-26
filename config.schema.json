@@ -1,5 +1,5 @@
 {
-  "pluginAlias": "ExampleHomebridgePlugin",
+  "pluginAlias": "AmbientHue",
   "pluginType": "platform",
   "singular": true,
   "schema": {

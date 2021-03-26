@@ -1,16 +1,16 @@
 {
   "private": true,
-  "displayName": "Plugin Name",
-  "name": "homebridge-plugin-name",
+  "displayName": "Homebridge Ambient Hue",
+  "name": "homebridge-ambient-hue",
   "version": "1.0.0",
-  "description": "A short description about what your plugin does.",
+  "description": "Dynamically adjusts your Philips Hue lights throughout the day.",
   "license": "Apache-2.0",
   "repository": {
     "type": "git",
-    "url": "git://github.com/USERNAME/GITHUB_PROJECT_NAME.git"
+    "url": "git://github.com/LukasPatzke/homebridge-ambient-hue.git"
   },
   "bugs": {
-    "url": "https://github.com/USERNAME/GITHUB_PROJECT_NAME/issues"
+    "url": "https://github.com/LukasPatzke/homebridge-ambient-hue/issues"
   },
   "engines": {
     "node": ">=10.17.0",
