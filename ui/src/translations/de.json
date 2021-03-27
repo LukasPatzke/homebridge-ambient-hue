@@ -1,0 +1,174 @@
+{
+    "common": {
+        "tabs": {
+            "home": "Start",
+            "lights": "Leuchten",
+            "groups": "Gruppen",
+            "curves": "Kurven",
+            "settings": "Einstellungen"
+        },
+        "charts": {
+            "colorTemp": "Farbtemperatur",
+            "brightness": "Helligkeit"
+        },
+        "actions": {
+            "delete": "Löschen",
+            "addBefore": "Hinzufügen vor",
+            "addAfter": "Hinzufügen nach",
+            "done": "Fertig",
+            "cancel": "Abbrechen",
+            "reset": "Zurücksetzen",
+            "update": "Aktualisieren",
+            "edit": "Bearbeiten",
+            "hide": "Verbergen",
+            "add": "Hinzufügen",
+            "next": "Weiter",
+            "back": "Zurück",
+            "reorder": "Anordnen",
+            "copy": "In Zwischenablage Kopieren"
+        },
+        "state": {
+            "loading": "Laden"
+        },
+        "settings": {
+            "status": "Status",
+            "offset": "Offset",
+            "enabled": "Aktiv",
+            "disabled": "Inaktiv",
+            "on": "Ein",
+            "off": "Aus",
+            "smart_off": "Smart Off",
+            "favorites": "Favoriten",
+            "add_favorites": "Favoriten hinzufügen"
+        },
+        "serviceWorker": {
+            "initialized": "Die Seite ist für die offline Nutzung geladen.",
+            "updated": "Eine neue Version der Anwendung ist verfügbar"
+        }
+    },
+    "lights": {
+        "title": "Leuchten",
+        "settings": {
+            "title": "Einstellungen",
+            "on": "Ein/Aus",
+            "status": "Ein/Aus steuern",
+            "threshold": "Ein/Aus Schwellwert",
+            "colorTemp": "Farbtemperatur steuern",
+            "brightness": "Helligkeit steuern",
+            "maxBrightness": "Maximale Helligkeit"
+        },
+        "info": {
+            "title": "Info",
+            "type": "Typ",
+            "manufacturer": "Hersteller",
+            "model": "Modell"
+        }
+    },
+    "groups": {
+        "title": "Gruppen",
+        "rooms": "Räume",
+        "zones": "Zonen"
+    },
+    "curves": {
+        "title": "Kurven",
+        "defaults": "Standard",
+        "custom": "Benutzerdefiniert",
+        "default_names": {
+            "ct": "Farbtemperatur",
+            "bri": "Helligkeit",
+            "hue": "Farbton",
+            "sat": "Sättigung"
+        },
+        "offset": "Versatz",
+        "descriptions": {
+            "offset": "Temporärer Versatz zur Kurve, der über Nacht zurückgesetzt wird."
+        },
+        "create": {
+            "title": "Kurve hinzufügen",
+            "name": "Kurvenname",
+            "type": "Kurventyp",
+            "point_count": "Anzahl Punkte"
+        },
+        "delete": {
+            "title": "Löschen bestätigen",
+            "text": "Löschen der Kurve {{name}} bestätigen"
+        },
+        "rename": {
+            "title": "Umbenennen"
+        }
+    },
+    "webhooks": {
+        "title": "Webhooks",
+        "on": "Aktiv",
+        "name": "Name",
+        "url": "URL",
+        "method": "Methode",
+        "body": "Body",
+        "create": "Webhook erstellen",
+        "edit": "Webhook bearbeiten",
+        "trigger": "Auslöser",
+        "trigger_status": "Status",
+        "trigger_lights": "Lampen",
+        "trigger_groups": "Gruppen",
+        "params": {
+            "description": "In URL und Body können folgende Variablen verwendet werden:",
+            "item": "\"light\" oder \"group\"",
+            "id": "Id der Lampe/Gruppe",
+            "name": "Name der Lampe/Gruppe",
+            "type": "Typ der Lampe/Gruppe",
+            "on": "\"true\" oder \"false\""
+        }
+    },
+    "homebridge": {
+        "title": "Homebridge",
+        "description": "Dieser Assistent ermöglicht die einfache Erstellung der Konfiguration für das Homebridge Plugin homebridge-http-webhooks",
+        "configuration": "Konfiguration",
+        "url": "URL",
+        "url_placeholder": "http://<homebrigeIp>:<port>",
+        "prefix": "Prefix",
+        "trigger": "Trigger",
+        "copy": "Füge die generierte Konfiguration in die homebridge-http-webhook config.json entweder unter \"switches\" oder unter \"lights\" ein."
+    },
+    "settings": {
+        "title": "Einstellungen",
+        "reload": "Seite neu laden",
+        "smart_off": "Smart Off",
+        "smart_off_text": "Erkennt wenn eine Lampe von einer anderen Quelle gesteuert wurde und deaktivert die Steuerung der Lampe temporär.",
+        "language": "Sprache",
+        "languageOptions": {
+            "en": "Englisch",
+            "de": "Deutsch"
+        },
+        "homebridge": "Homebridge Webhook Assistent",
+        "languageOptionsLocal": {
+            "en": "English",
+            "de": "Deutsch"
+        },
+        "server": {
+            "title": "Server",
+            "server": "Server",
+            "secure": "SSL verwenden",
+            "port": "Port"
+        },
+        "init": {
+            "1": {
+                "title": "Einrichtung der Hue Bridge",
+                "autoconfig": "Automatisch entdeckte Hue Bridges",
+                "manualconfig": "Manuelle Konfiguration",
+                "ipaddress": "IP Adresse",
+                "noresults": "Kein Hue Bridge gefunden"
+            },
+            "2": {
+                "loading": "Drücke den Knopf auf der Oberseite deiner Hue Bridge",
+                "success": "Einrichtung erfolgreich",
+                "failure": "Fehler bei der Einrichtung",
+                "found": "$t(settings:init.2.foundLights, {'count': {{lights}}}) und $t(settings:init.2.foundGroups, {'count': {{groups}}}) gefunden",
+                "foundLights": "{{count}} Lampe",
+                "foundLights_plural": "{{count}} Lampen",
+                "foundGroups": "{{count}} Gruppe",
+                "foundGroups_plural": "{{count}} Gruppen"
+            }
+            
+        }
+    }
+}

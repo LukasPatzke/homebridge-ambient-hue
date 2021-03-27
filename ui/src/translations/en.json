@@ -1,0 +1,166 @@
+{
+    "common": {
+        "tabs": {
+            "home": "Home",
+            "lights": "Lights",
+            "groups": "Groups",
+            "curves": "Curves",
+            "settings": "Settings"
+        },
+        "charts": {
+            "colorTemp": "Color Temperature",
+            "brightness": "Brightness"
+        },
+        "actions": {
+            "delete": "Delete",
+            "addBefore": "Add before",
+            "addAfter": "Add after",
+            "done": "Done",
+            "cancel": "Cancel",
+            "reset": "Reset",
+            "update": "Update",
+            "edit": "Edit",
+            "hide": "Hide",
+            "add": "Add",
+            "next": "Next",
+            "back": "Back",
+            "reorder": "Reorder",
+            "copy": "Copy to Clipboard"
+        },
+        "state": {
+            "loading": "Laden"
+        },
+        "settings": {
+            "status": "Status",
+            "offset": "Offset",
+            "enabled": "Enabled",
+            "disabled": "Disabled",
+            "on": "On",
+            "off": "Off",
+            "smart_off": "Smart Off"
+        },
+        "serviceWorker": {
+            "initialized": "Page has been saved for offline use.",
+            "updated": "There is a new version available."
+        }
+    },
+    "lights": {
+        "title": "Lights",
+        "settings": {
+            "title": "Settings",
+            "on": "On/Off",
+            "status": "Manage On/Off",
+            "threshold": "On/Off Threshold",
+            "colorTemp": "Manage Color Temperature",
+            "brightness": "Manage Brightness",
+            "maxBrightness": "Max Brightness"
+        },
+        "info": {
+            "title": "Info",
+            "type": "Type",
+            "manufacturer": "Manufacturer",
+            "model": "Model"
+        }
+    },
+    "groups": {
+        "title": "Groups",
+        "rooms": "Rooms",
+        "zones": "Zones"
+    },
+    "curves": {
+        "title": "Curves",
+        "defaults": "Defaults",
+        "custom": "Custom",
+        "default_names": {
+            "ct": "Color Temperature",
+            "bri": "Brightness"
+        },
+        "offset": "Offset",
+        "descriptions": {
+            "offset": "Temporary offset to the curve, that will be reset over night."
+        },
+        "create": {
+            "title": "Add curve",
+            "name": "Curve name",
+            "type": "Curve type",
+            "point_count": "Point count"
+        },
+        "delete": {
+            "title": "Confirm deletion",
+            "text": "Confirm deletion of curve {{name}}"
+        },
+        "rename": {
+            "title": "Rename"
+        }
+    },
+    "webhooks": {
+        "title": "Webhooks",
+        "on": "Enabled",
+        "name": "Name",
+        "url": "URL",
+        "method": "Method",
+        "create": "Create Webhook",
+        "edit": "Edit Webhook",
+        "trigger": "Trigger",
+        "trigger_status": "State",
+        "trigger_lights": "Lights",
+        "trigger_groups": "Groups",
+        "params": {
+            "description": "The following variables can be used in url and body:",
+            "item": "\"light\" or \"group\"",
+            "id": "Id of light/group",
+            "name": "Name of light/group",
+            "type": "Type of light/group",
+            "on": "\"true\" or \"false\""
+        }
+    },
+    "homebridge": {
+        "title": "Homebridge",
+        "description": "This assistant enables the easy creation of the configuration for the homrbidge plugin homebridge-http-webhooks",
+        "configuration": "Configuration",
+        "url": "URL",
+        "url_placeholder": "http://<homebrigeIp>:<port>",
+        "prefix": "Prefix",
+        "trigger": "Trigger",
+        "copy": "Add the generated configuration to the config.json of homebridge-http-webhook at \"switches\" or \"lights\"."
+    },
+    "settings": {
+        "title": "Settings",
+        "reload": "Reload",
+        "smart_off": "Smart Off",
+        "smart_off_text": "Detects lights that where modified from another source and deactivates the automation temporarily.",
+        "language": "Language",
+        "languageOptions": {
+            "en": "English",
+            "de": "German"
+        },
+        "languageOptionsLocal": {
+            "en": "English",
+            "de": "Deutsch"
+        },
+        "server": {
+            "title": "Server",
+            "server": "Server",
+            "secure": "Secure Connection",
+            "port": "Port"
+        },
+        "init": {
+            "1": {
+                "title": "Setup your Hue Bridge",
+                "autoconfig": "Auto discovered bridges",
+                "manualconfig": "Manual configuration",
+                "ipaddress": "IP Address"
+            },
+            "2": {
+                "loading": "Press the button on top of your Hue Bridge",
+                "success": "Configuration successful",
+                "failure": "Error during configuration",
+                "found": "Found $t(settings:init.2.foundLights, {'count': {{lights}}}) und $t(settings:init.2.foundGroups, {'count': {{groups}}})",
+                "foundLights": "{{count}} light",
+                "foundLights_plural": "{{count}} lights",
+                "foundGroups": "{{count}} group",
+                "foundGroups_plural": "{{count}} groups"
+            }
+        }
+    }
+}
