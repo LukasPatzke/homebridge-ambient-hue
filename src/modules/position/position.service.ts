@@ -40,7 +40,8 @@ export class PositionService {
   async update(id: number, updatePositionDto: UpdatePositionDto) {
     const position = await this.findOne(id);
     this.positionRepository.merge(position, updatePositionDto);
-    return this.positionRepository.save(position);
+    await this.positionRepository.save(position);
+    return this.findAll();
   }
 
   async remove(id: number) {
@@ -56,6 +57,7 @@ export class PositionService {
     for (let index = 0; index < positions.length; index++) {
       positions[index].position = index;
     }
-    return this.positionRepository.save(positions);
+    await this.positionRepository.save(positions);
+    return this.findAll();
   }
 }

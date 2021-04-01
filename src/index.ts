@@ -1,11 +1,11 @@
 import { API } from 'homebridge';
 
 import { PLATFORM_NAME } from './homebridge/settings';
-import { ExampleHomebridgePlatform } from './homebridge/platform';
+import { AmbientHueHomebridgePlatform } from './homebridge/platform';
 
 /**
  * This method registers the platform with Homebridge
  */
 export = (api: API) => {
-  api.registerPlatform(PLATFORM_NAME, ExampleHomebridgePlatform);
+  api.registerPlatform(PLATFORM_NAME, AmbientHueHomebridgePlatform);
 };

@@ -39,18 +39,18 @@ export const lightInfo: ILightInfo = {
   manufacturername: 'Dummy Manufaturer',
   productname: 'Dummt Product',
   on: false,
-  smart_off_active: false
+  smartOffActive: false
 }
 
 export const light: ILight = {
   ...lightInfo,
-  on_controlled: false,
-  on_threshold: 0,
-  ct_controlled: false,
-  bri_controlled: false,
-  bri_max: 0,
-  bri_curve: {...curve, kind:'bri'},
-  ct_curve: {...curve, kind:'ct'}
+  onControlled: false,
+  onThreshold: 0,
+  ctControlled: false,
+  briControlled: false,
+  briMax: 0,
+  briCurve: {...curve, kind:'bri'},
+  ctCurve: {...curve, kind:'ct'}
 }
 
 export const position: IPosition = {

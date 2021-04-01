@@ -1,5 +1,4 @@
 import { Module } from '@nestjs/common';
-import { ConfigModule } from '@nestjs/config';
 import { ScheduleModule } from '@nestjs/schedule';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AppController } from './app.controller';
@@ -11,24 +10,28 @@ import { PositionModule } from './modules/position/position.module';
 import { HueModule } from './modules/hue/hue.module';
 import { PointModule } from './modules/point/point.module';
 import { TasksModule } from './modules/tasks/tasks.module';
+import { HealthModule } from './modules/health/health.module';
+import { ConfigModule } from './modules/config/config.module';
+import { ConfigService } from './modules/config/config.service';
 
 @Module({
   imports: [
-    TypeOrmModule.forRoot({
-      type: 'sqlite',
-      database: './db.sqlite',
-      entities: [],
-      logging: false,
-      synchronize: true,
-      keepConnectionAlive: true,
-      autoLoadEntities: true,
-      migrations: ['migration/*.ts'],
-      cli: {
-        'migrationsDir': 'migration',
-      },
-    }),
-    ConfigModule.forRoot({
-      isGlobal: true,
+    TypeOrmModule.forRootAsync({
+      imports: [ConfigModule],
+      useFactory: (configService: ConfigService) => ({
+        type: 'sqlite',
+        database: configService.database,
+        entities: [],
+        logging: false,
+        synchronize: true,
+        keepConnectionAlive: true,
+        autoLoadEntities: true,
+        migrations: ['migration/*.ts'],
+        cli: {
+          migrationsDir: 'migration',
+        },
+      }),
+      inject: [ConfigService],
     }),
     ScheduleModule.forRoot(),
     HueModule,
@@ -38,6 +41,8 @@ import { TasksModule } from './modules/tasks/tasks.module';
     PointModule,
     PositionModule,
     TasksModule,
+    HealthModule,
+    ConfigModule,
   ],
   controllers: [AppController],
   providers: [AppService],

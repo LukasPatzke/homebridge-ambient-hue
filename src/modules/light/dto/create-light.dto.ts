@@ -1,5 +1,6 @@
 export class CreateLightDto {
     id: number;
+    uniqueId: string;
     name: string;
     type: string;
     modelid: string;

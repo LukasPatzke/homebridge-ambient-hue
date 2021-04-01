@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { CreatePointDto } from './dto/create-point.dto';
@@ -47,12 +47,22 @@ export class PointService {
 
   async update(id: number, updatePointDto: UpdatePointDto) {
     const point = await this.findOne(id);
+    if (point.first || point.last) {
+      updatePointDto.x = undefined;
+    }
     this.pointRepository.merge(point, updatePointDto);
     return this.pointRepository.save(point);
   }
 
   async remove(id: number) {
-    return this.pointRepository.delete(id);
+    const point = await this.findOne(id);
+    if (point.first) {
+      throw new BadRequestException('The first point can not be deleted.');
+    } else if (point.last) {
+      throw new BadRequestException('The last point can not be deleted.');
+    } else {
+      return this.pointRepository.delete(id);
+    }
   }
 
   /**

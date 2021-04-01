@@ -8,6 +8,6 @@ import { Position } from './entities/position.entity';
   imports: [TypeOrmModule.forFeature([Position])],
   controllers: [PositionController],
   providers: [PositionService],
-  exports: [TypeOrmModule, PositionService]
+  exports: [TypeOrmModule, PositionService],
 })
 export class PositionModule {}

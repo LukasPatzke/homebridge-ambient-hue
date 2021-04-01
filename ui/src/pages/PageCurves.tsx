@@ -23,7 +23,7 @@ const PageCurves: React.FC<IPageCurvesProps> = () => {
   })
 
   const update = () => (
-    get({url: '/curves/'}).then(setCurves)
+    get({url: '/curves'}).then(setCurves)
   )
 
   const handleDelete = (curve: ICurve) => (

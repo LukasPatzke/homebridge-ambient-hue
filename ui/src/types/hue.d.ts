@@ -12,6 +12,7 @@ export interface IPoint {
 }
 
 export interface IPointCreate {
+  id: number
   position: 'before'|'after'
 }
 
@@ -34,28 +35,28 @@ interface ILightBase {
   manufacturername: string;
   productname: string;
   on: boolean
-  smart_off_active: boolean
+  smartOffActive: boolean
 }
 export interface ILight extends ILightBase {
-  on_controlled: boolean
-  on_threshold: number
-  ct_controlled: boolean
-  bri_controlled: boolean
-  bri_max: number
-  bri_curve?: ICurve
-  ct_curve?: ICurve
+  onControlled: boolean
+  onThreshold: number
+  ctControlled: boolean
+  briControlled: boolean
+  briMax: number
+  briCurve?: ICurve
+  ctCurve?: ICurve
 }
 export interface ILightInfo extends ILightBase {}
 
 export interface ILightUpdate {
   on?: boolean
-  on_controlled?: boolean
-  on_threshold?: number
-  ct_controlled?: boolean
-  bri_controlled?: boolean
-  bri_max?: number
-  bri_curve_id?: number
-  ct_curve_id?: number
+  onControlled?: boolean
+  onThreshold?: number
+  ctControlled?: boolean
+  briControlled?: boolean
+  briMax?: number
+  briCurveId?: number
+  ctCurveId?: number
 }
 
 interface IGroupBase {
@@ -83,8 +84,8 @@ export interface IPositionUpdate {
   visible: boolean
 }
 export interface IPositionMove {
-  move_from: number,
-  move_to: number
+  from: number,
+  to: number
 }
 
 interface IBridgeBase {

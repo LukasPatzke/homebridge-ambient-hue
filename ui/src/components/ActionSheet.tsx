@@ -18,15 +18,17 @@ export const ActionSheet: React.FC<IActionSheetProps> = ({isOpen, itemIndex, dat
 
   var buttons: ActionSheetButton[] = [
     {
-      text: t('actions.delete'),
-      role: 'destructive',
-      handler: () => onDelete(itemIndex)
-    },
-    {
       text: t('actions.edit'),
       handler: () => onEdit()
     }
   ]
+  if ((itemIndex > 0) && (itemIndex < dataLenght-1)) {
+    buttons.unshift({
+      text: t('actions.delete'),
+      role: 'destructive',
+      handler: () => onDelete(itemIndex)
+    })
+  }
   if (itemIndex !== 0) {
     buttons.push({
       text: t('actions.addBefore'),

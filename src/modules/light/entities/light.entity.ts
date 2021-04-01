@@ -8,6 +8,9 @@ export class Light {
     id: number;
 
     @Column()
+    uniqueId: string;
+
+    @Column()
     name: string;
 
     @Column({ default: ''})

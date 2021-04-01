@@ -1,16 +1,14 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Body, Patch, Param } from '@nestjs/common';
 import { GroupService } from './group.service';
-import { CreateGroupDto } from './dto/create-group.dto';
-import { UpdateGroupDto } from './dto/update-group.dto';
+import { UpdateLightDto } from '../light/dto/update-light.dto';
+import { HueService } from '../hue/hue.service';
 
 @Controller('groups')
 export class GroupController {
-  constructor(private readonly groupService: GroupService) {}
-
-  @Post()
-  create(@Body() createGroupDto: CreateGroupDto) {
-    return this.groupService.create(createGroupDto);
-  }
+  constructor(
+    private readonly groupService: GroupService,
+    private readonly hueService: HueService,
+  ) {}
 
   @Get()
   findAll() {
@@ -23,12 +21,12 @@ export class GroupController {
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateGroupDto: UpdateGroupDto) {
-    return this.groupService.update(+id, updateGroupDto);
-  }
-
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.groupService.remove(+id);
+  async update(
+    @Param('id') id: string,
+    @Body() updateLightDto: UpdateLightDto,
+  ) {
+    const group = await this.groupService.updateLights(+id, updateLightDto);
+    this.hueService.update();
+    return group;
   }
 }

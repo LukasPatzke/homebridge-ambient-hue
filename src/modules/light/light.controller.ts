@@ -1,11 +1,23 @@
-import { Controller, Get, Post, Body, Param, Delete, Patch } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Param,
+  Delete,
+  Patch,
+} from '@nestjs/common';
 import { LightService } from './light.service';
 import { CreateLightDto } from './dto/create-light.dto';
 import { UpdateLightDto } from './dto/update-light.dto';
+import { HueService } from '../hue/hue.service';
 
 @Controller('lights')
 export class LightController {
-  constructor(private readonly lightService: LightService) {}
+  constructor(
+    private readonly lightService: LightService,
+    private readonly hueService: HueService,
+  ) {}
 
   @Post()
   create(@Body() createLightDto: CreateLightDto) {
@@ -23,8 +35,13 @@ export class LightController {
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateLightDto: UpdateLightDto) {
-    return this.lightService.update(+id, updateLightDto);
+  async update(
+    @Param('id') id: string,
+    @Body() updateLightDto: UpdateLightDto,
+  ) {
+    const light = await this.lightService.update(+id, updateLightDto);
+    this.hueService.update();
+    return light;
   }
 
   @Delete(':id')

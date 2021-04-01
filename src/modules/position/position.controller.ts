@@ -2,6 +2,7 @@ import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/commo
 import { PositionService } from './position.service';
 import { CreatePositionDto } from './dto/create-position.dto';
 import { UpdatePositionDto } from './dto/update-position.dto';
+import { MovePositionDto } from './dto/move-position.dto';
 
 @Controller('positions')
 export class PositionController {
@@ -15,6 +16,11 @@ export class PositionController {
   @Get()
   findAll() {
     return this.positionService.findAll();
+  }
+
+  @Patch()
+  move(@Body() movePositionDto: MovePositionDto) {
+    return this.positionService.move(movePositionDto);
   }
 
   @Get(':id')

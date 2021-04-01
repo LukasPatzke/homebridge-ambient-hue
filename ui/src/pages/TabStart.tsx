@@ -2,9 +2,7 @@ import React, { useRef, useState, useEffect, RefObject } from 'react';
 import { IonContent, IonHeader, IonPage, IonTitle, IonToolbar, IonGrid, IonCard, IonCardContent, IonIcon, IonLabel, IonRow, IonCol, IonButtons, IonButton, IonModal, IonReorderGroup, IonItem, IonReorder, IonList, IonRefresher, IonRefresherContent, IonItemSliding, IonItemOptions, IonItemOption, useIonViewWillEnter } from '@ionic/react';
 import { ItemReorderEventDetail, RefresherEventDetail } from '@ionic/core';
 import { IPosition, ILightInfo, IGroupInfo } from 'src/types/hue';
-import { get, put } from '../components/useApi';
-import appIcon from '../icons/icon.svg'
-import appIconColor from '../icons/icon-color.svg'
+import { get, patch } from '../components/useApi';
 import { grid, addCircle, removeCircle, colorWand } from 'ionicons/icons';
 import { useTranslation } from 'react-i18next';
 import { ListHeader } from 'src/components/ListHeader';
@@ -14,7 +12,6 @@ import { lightInfoReducer } from 'src/utils';
 const TabStart: React.FC = () => {
   const pageRef = useRef();
   const [positions, setPositions] = useState<IPosition[]>([])
-  const [active, setActive] = useState<boolean>(false);
   const [reorder, setReorder] = useState<boolean>(false)
 
   const { t } = useTranslation('common')
@@ -22,8 +19,7 @@ const TabStart: React.FC = () => {
   useEffect(() => {
     const onVisibilityChange = () => {
       if (!document.hidden) {
-        get({url: '/positions/'}).then(setPositions)
-        get({url: '/status/'}).then(data=>setActive(data.status))
+        get({url: '/positions'}).then(setPositions)
       }
     }
     window.addEventListener('visibilitychange', onVisibilityChange, false)
@@ -37,18 +33,17 @@ const TabStart: React.FC = () => {
   })
 
   const update = ()=>([
-    get({url: '/positions/'}).then(setPositions),
-    get({url: '/status/'}).then(data=>setActive(data.status))
+    get({url: '/positions'}).then(setPositions),
   ])
 
   const handleLightClick = (light: ILightInfo) => {
-    put({
+    patch({
       url: `/lights/${light.id}`,
       data: {on: !light.on}
     }).then(update)
   }
   const handleGroupClick = (group: IGroupInfo) => {
-    put({
+    patch({
       url: `/groups/${group.id}`,
       data: {on: !group.lights[0].on}
     }).then(update)
@@ -59,16 +54,16 @@ const TabStart: React.FC = () => {
   }
 
   const handleVisible = (id: number, visible:boolean) => (
-    put({
+    patch({
       url: `/positions/${id}`,
       data: {visible: visible}
     }).then(setPositions)
   )
 
   const handleReorder = (event: CustomEvent<ItemReorderEventDetail>) => {
-    put({
-      url: '/positions/',
-      data: {move_from: event.detail.from, move_to: event.detail.to}
+    patch({
+      url: '/positions',
+      data: event.detail
     }).then(data=>{
       event.detail.complete(positions)
       setPositions(data)
@@ -84,8 +79,7 @@ const TabStart: React.FC = () => {
             label={pos.light.name}
             state={pos.light.on}
             onClick={()=>pos.light?handleLightClick(pos.light):undefined}
-            disabled={!active}
-            smartOff={pos.light.smart_off_active}
+            smartOff={pos.light.smartOffActive}
           />
         )
       } else if (pos.group) {
@@ -97,8 +91,7 @@ const TabStart: React.FC = () => {
             label={pos.group.name}
             state={pos.group.lights.reduce(lightInfoReducer).on}
             onClick={()=>pos.group?handleGroupClick(pos.group):undefined}
-            disabled={!active}
-            smartOff={pos.group.lights.reduce(lightInfoReducer).smart_off_active}
+            smartOff={pos.group.lights.reduce(lightInfoReducer).smartOffActive}
           />
         )
       } else { 
@@ -127,17 +120,6 @@ const TabStart: React.FC = () => {
             <IonTitle size="large">ambientHUE</IonTitle>
           </IonToolbar>
         </IonHeader>
-        <IonRow class="ion-justify-content-start" style={{marginTop: '10px'}}>
-          <Tile 
-            icon={active?appIconColor:appIcon} 
-            label='ambientHUE' 
-            state={active} 
-            size='large'
-            onClick={()=>put({url: '/status/', data: {status: !active}}).then(data=>{
-              setActive(data.status)
-            })}
-          />
-        </IonRow>
         <ListHeader><IonLabel>{t('settings.favorites')}</IonLabel></ListHeader>
         <IonRow class="ion-justify-content-start">
           {tiles}

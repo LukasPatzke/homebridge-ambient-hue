@@ -2,14 +2,11 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { IonPage, IonHeader, IonToolbar, IonTitle, IonContent, IonButtons, IonLabel, IonButton, IonIcon, IonGrid, IonList, IonAlert, IonItem, IonNote, IonRefresher, IonRefresherContent } from '@ionic/react';
 import { RouteComponentProps, useHistory } from 'react-router';
-import { chevronBack, sunny, chevronUp  } from 'ionicons/icons';
+import { chevronBack, chevronUp  } from 'ionicons/icons';
 import { Chart, IChange, IOnChange } from 'src/components/Chart';
 import { ChartModal } from '../components/ChartModal';
-import { get, post, put, del } from '../components/useApi';
-import { Range } from '../components/Range';
+import { get, post, del, patch } from '../components/useApi';
 import { HapticsImpactStyle, useHaptics } from '../components/useHaptics';
-import { debounce } from 'lodash';
-import { ListFooter } from 'src/components/ListFooter';
 import { CurveTypeBadge } from './PageCurves';
 import { RefresherEventDetail } from '@ionic/core';
 import { ICurve } from 'src/types/hue';
@@ -49,24 +46,28 @@ export const CurveDetail : React.FC<ICurveDetailProps> = ({id, embedded=false, e
     get({url: `/curves/${id}`}).then(setCurve).then(()=>e.detail.complete())
   }
 
+  const updateCurve = () => {
+    get({url: `/curves/${id}`}).then(setCurve)
+  }
+
   const handlePointChange = (change: IChange) => {
-    put({
-      url: `/curves/${curve?.id}/${change.index}`,
+    patch({
+      url: `/points/${change.id}`,
       data: {x: change.x, y: change.y}
-    }).then(setCurve)
+    }).then(updateCurve)
   }
 
-  const handlePointInsert = (itemIndex: number, position: 'before'|'after') => {
+  const handlePointInsert = (index: number, position: 'before'|'after') => {
     post({
-      url: `/curves/${curve?.id}/${itemIndex}`,
-      data: {position: position}
+      url: `/curves/${id}`,
+      data: {index: index, position: position}
     }).then(setCurve)
   }
 
-  const handlePointDelete = (itemIndex: number) => {
+  const handlePointDelete = (pointId: number) => {
     del({
-      url: `/curves/${curve?.id}/${itemIndex}`
-    }).then(setCurve)
+      url: `/points/${pointId}`
+    }).then(updateCurve)
   }
 
   const onChange: IOnChange = {
@@ -80,13 +81,6 @@ export const CurveDetail : React.FC<ICurveDetailProps> = ({id, embedded=false, e
     Haptics.impact({style: HapticsImpactStyle.Medium})
     setModalOpen(true)
   }
-
-  const handleOffsetChange = debounce((change: number) => {
-    put({
-      url: `/curves/${curve?.id}`,
-      data: {offset: change}
-    }).then(setCurve)
-  }, 500);
 
   if (!curve) {
     return null;
@@ -115,15 +109,6 @@ export const CurveDetail : React.FC<ICurveDetailProps> = ({id, embedded=false, e
             <Chart curve={curve} onChange={onChange} />
           </ChartModal>
         </IonList>
-        <IonList inset className='lp-remove-margin-bottom'>
-          <Range min={-250} max={250} step={5} snaps ticks={false} label={t('curves:offset')} reset onChange={handleOffsetChange} defaultValue={curve.offset}>
-            <IonIcon size='small' slot='start' icon={sunny} onClick={()=>handleOffsetChange(curve.offset-5)}/>
-            <IonIcon slot='end' icon={sunny} onClick={()=>handleOffsetChange(curve.offset+5)}/>
-          </Range>
-        </IonList>
-        <ListFooter>
-          <IonLabel>{t('curves:descriptions.offset')}</IonLabel>
-        </ListFooter>
         {!curve.default?
         <IonButton onClick={()=>setShowDeleteAlert(true)} className='inset' expand='block' color='danger'>
           {t('common:actions.delete')}
@@ -169,7 +154,7 @@ export const CurveDetail : React.FC<ICurveDetailProps> = ({id, embedded=false, e
             {
               text: t('common:actions.done'),
               handler: (data) => {
-                put({
+                patch({
                   url: `/curves/${curve.id}`,
                   data: {name: data.name}
                 }).then(setCurve)

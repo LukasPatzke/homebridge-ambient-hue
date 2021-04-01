@@ -56,15 +56,15 @@ export const range = (start: number, stop?: number, step?: number) => {
 
 export const lightInfoReducer = (prev: ILightInfo, current: ILightInfo) => {
   prev.on = prev.on && current.on
-  prev.smart_off_active = prev.smart_off_active || current.smart_off_active
+  prev.smartOffActive = prev.smartOffActive || current.smartOffActive
   return prev
 }
 
 export const lightReducer = (prev: ILight, current: ILight) => {
   prev.on = prev.on && current.on
-  prev.on_controlled = prev.on_controlled && current.on_controlled
-  prev.bri_controlled = prev.bri_controlled && current.bri_controlled
-  prev.ct_controlled = prev.ct_controlled && current.ct_controlled
-  prev.smart_off_active = prev.smart_off_active || current.smart_off_active
+  prev.onControlled = prev.onControlled && current.onControlled
+  prev.briControlled = prev.briControlled && current.briControlled
+  prev.ctControlled = prev.ctControlled && current.ctControlled
+  prev.smartOffActive = prev.smartOffActive || current.smartOffActive
   return prev
 }

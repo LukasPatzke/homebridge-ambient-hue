@@ -11,7 +11,7 @@ import { ICurve, IPoint } from 'src/types/hue';
 
 
 export interface IChange {
-  index: number;
+  id: number;
   x: number;
   y: number;
 }
@@ -31,7 +31,7 @@ interface IGradienStop {
 export interface IOnChange {
   change: (change: IChange) => void; 
   insert: (index: number, position: 'before'| 'after') => void;
-  delete: (index: number) => void;
+  delete: (id: number) => void;
 }
 
 interface IChart {
@@ -100,6 +100,8 @@ export const Chart: React.FC<IChart> = ({curve, expanded, xScale={min:0, max:144
   const [isActionSheetOpen, setActionSheetOpen] = useState(false);
   const [activeElementIndex, setActiveElementIndex] = useState(0);
 
+  const [pointIds, setPointIds] = useState(curve.points.map(point=>point.id));
+
   const swipeHandlers = useSwipe(swipeConfig || {})
 
   const chartRef = useCallback((chart: Scatter) => {
@@ -110,6 +112,7 @@ export const Chart: React.FC<IChart> = ({curve, expanded, xScale={min:0, max:144
         pointBackgroundColor: createGradient(chart, curve, 0.9)
       });
       chart.chartInstance.canvas?.addEventListener('contextmenu', handleContextmenu, false)
+      setPointIds(curve.points.map(point=>point.id));
     }
   }, [curve]);
 
@@ -196,7 +199,7 @@ export const Chart: React.FC<IChart> = ({curve, expanded, xScale={min:0, max:144
         onCancel={()=>setPickerOpen(false)}
         onSave={(value:IPickerChange)=>{
           const change: IChange = {
-            index: activeElementIndex,
+            id: pointIds[activeElementIndex],
             x: value.time.value,
             y: value.value.value,
           }
@@ -214,19 +217,11 @@ export const Chart: React.FC<IChart> = ({curve, expanded, xScale={min:0, max:144
           setPickerOpen(true)
         }}
         onDelete={itemIndex=>{
-            onChange.delete(itemIndex)
+            onChange.delete(pointIds[itemIndex])
             setActionSheetOpen(false);
         }}
         onInsert={(itemIndex, position)=>{
           onChange.insert(itemIndex, position)
-          // getApi().then(api=>{
-          //   axios.post(
-          //     `${api}/curve/${data?.id}/${itemIndex}`,
-          //     {position: position}
-          //   ).then(res=>{
-          //     setData(res.data)
-          //   })
-          // })
           setActionSheetOpen(false);        
         }}
       />
@@ -279,7 +274,7 @@ export const Chart: React.FC<IChart> = ({curve, expanded, xScale={min:0, max:144
             curve.points[curve.points.length-1].x = 1440;
 
             onChange.change({
-              index: index,
+              id: pointIds[index],
               x: curve.points[index].x,
               y: curve.points[index].y
             })

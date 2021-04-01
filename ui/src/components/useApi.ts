@@ -18,7 +18,7 @@ interface IDeleteOptions extends IGetOptions {}
 interface IPutOptions extends IPostOptions {}
 
 
-const api = (method: 'GET'|'POST'|'PUT'|'DELETE', options: IApiOptions) => {
+const api = (method: 'GET'|'POST'|'PUT'|'PATCH'|'DELETE', options: IApiOptions) => {
   
   let baseUrl: Promise<string>;
   if (isPlatform('desktop') || isPlatform('mobileweb') ) {
@@ -59,6 +59,10 @@ export const get = (options: IGetOptions) => {
 export const post = (options: IPostOptions) => {
     return api("POST", options)
   }
+
+export const patch = (options: IPostOptions) => {
+  return api("PATCH", options)
+}
 
 export const put = (options: IPutOptions) => {
     return api("PUT", options)

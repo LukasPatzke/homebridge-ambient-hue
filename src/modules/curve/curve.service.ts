@@ -1,4 +1,9 @@
-import { BadRequestException, Injectable, Logger, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  Logger,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { CreateCurveDto, curveKind } from './dto/create-curve.dto';
@@ -21,7 +26,7 @@ export class CurveService {
 
   async onModuleInit() {
     this.logger.log('Initialize curves.');
-    this.findDefault('bri').catch(async reason=>{
+    this.findDefault('bri').catch(async (reason) => {
       if (reason.name === 'EntityNotFound') {
         this.logger.log('Initializing default brightness curve.');
         const curve = this.curveRepository.create({
@@ -40,7 +45,7 @@ export class CurveService {
         this.curveRepository.save(curve);
       }
     });
-    this.findDefault('ct').catch(async reason=>{
+    this.findDefault('ct').catch(async (reason) => {
       if (reason.name === 'EntityNotFound') {
         this.logger.log('Initializing default color temperature curve.');
         const curve = this.curveRepository.create({
@@ -77,25 +82,46 @@ export class CurveService {
   }
 
   findAll() {
-    return this.curveRepository.find({ relations: ['points']});
+    return this.curveRepository
+      .createQueryBuilder('curve')
+      .leftJoinAndSelect('curve.points', 'point')
+      .orderBy({'curve.id': 'ASC', 'point.x': 'ASC'})
+      .getMany();
   }
 
   findOne(id: number) {
-    return this.curveRepository.findOne(id, { relations: ['points']}).then(curve=>{
-      if (curve === undefined) {
-        throw new NotFoundException(`Curve with id ${id} not found.`);
-      } else {
-        return curve;
-      }
-    });
+    return this.curveRepository
+      .createQueryBuilder('curve')
+      .where('curve.id = :id', {id:id})
+      .leftJoinAndSelect('curve.points', 'point')
+      .orderBy('point.x')
+      .getOne()
+      .then((curve) => {
+        if (curve === undefined) {
+          throw new NotFoundException(`Curve with id ${id} not found.`);
+        } else {
+          return curve;
+        }
+      });
   }
 
   findByKind(kind: curveKind) {
-    return this.curveRepository.find({ where: {kind: kind}, relations: ['points'] });
+    return this.curveRepository
+      .createQueryBuilder('curve')
+      .where('curve.kind = :kind', {kind: kind})
+      .leftJoinAndSelect('curve.points', 'point')
+      .orderBy({'curve.id': 'ASC', 'point.x': 'ASC'})
+      .getMany();
   }
 
   findDefault(kind: curveKind) {
-    return this.curveRepository.findOneOrFail({where: { kind: kind, default: true }, relations: ['points'] });
+    return this.curveRepository
+      .createQueryBuilder('curve')
+      .where('curve.default = true')
+      .andWhere('curve.kind = :kind', {kind: kind})
+      .leftJoinAndSelect('curve.points', 'point')
+      .orderBy({'point.x': 'ASC'})
+      .getOneOrFail();
   }
 
   async update(id: number, updateCurveDto: UpdateCurveDto) {
@@ -141,7 +167,8 @@ export class CurveService {
     });
     curve.points.push(newPoint);
 
-    return this.curveRepository.save(curve);
+    await this.curveRepository.save(curve);
+    return this.findOne(id);
   }
 
   /**
@@ -168,6 +195,6 @@ export class CurveService {
       x = Math.floor(delta / 60_000);
     }
 
-    return spline(x);
+    return Math.round(spline(x));
   }
 }

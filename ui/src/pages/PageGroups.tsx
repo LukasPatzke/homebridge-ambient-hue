@@ -15,7 +15,7 @@ const PageGroups: React.FC = () => {
   })
 
   const update = () => (
-    get({url: '/groups/'}).then(setGroups)
+    get({url: '/groups'}).then(setGroups)
   )
 
   const doRefresh = (e: CustomEvent<RefresherEventDetail>) => {

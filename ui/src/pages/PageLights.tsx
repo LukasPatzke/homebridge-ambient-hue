@@ -16,7 +16,7 @@ const PageLights: React.FC = () => {
   })
 
   const update = () => (
-    get({url: '/lights/'}).then(setLights)
+    get({url: '/lights'}).then(setLights)
   )
 
   const doRefresh = (e: CustomEvent<RefresherEventDetail>) => {

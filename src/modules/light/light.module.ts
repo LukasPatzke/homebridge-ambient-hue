@@ -7,11 +7,25 @@ import { CurveModule } from '../curve/curve.module';
 import { HueModule } from '../hue/hue.module';
 import { PositionModule } from '../position/position.module';
 import { PointModule } from '../point/point.module';
+import { LightGateway } from './light.gateway';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Light]), CurveModule, forwardRef(()=>HueModule), PositionModule, PointModule],
+  imports: [
+    TypeOrmModule.forFeature([Light]),
+    CurveModule,
+    forwardRef(() => HueModule),
+    PositionModule,
+    PointModule,
+  ],
   controllers: [LightController],
-  providers: [LightService],
-  exports: [TypeOrmModule, LightService, HueModule, CurveModule, PositionModule, PointModule],
+  providers: [LightService, LightGateway],
+  exports: [
+    TypeOrmModule,
+    LightService,
+    HueModule,
+    CurveModule,
+    PositionModule,
+    PointModule,
+  ],
 })
 export class LightModule {}

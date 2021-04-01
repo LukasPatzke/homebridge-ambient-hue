@@ -7,7 +7,7 @@ import { chevronBack } from 'ionicons/icons';
 import { ListHeader } from '../components/ListHeader';
 import { LightSettings } from '../components/LightSettings';
 import { LightInfos } from '../components/LightInfos';
-import { get, put } from '../components/useApi';
+import { get, patch } from '../components/useApi';
 import { LightCurveSettings } from 'src/components/LightCurveSettings';
 import { RefresherEventDetail } from '@ionic/core';
 
@@ -30,7 +30,7 @@ const PageLightDetail : React.FC<ILightDetailProps> = ({match}) => {
   }
 
   const onChange = (change: ILightUpdate) => {
-    put({
+    patch({
       url: `/lights/${match.params.id}`,
       data: change
     }).then(setLight)

@@ -1,11 +1,19 @@
-import { forwardRef, HttpService, Inject, Injectable, InternalServerErrorException, Logger } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
+import {
+  forwardRef,
+  HttpService,
+  Inject,
+  Injectable,
+  InternalServerErrorException,
+  Logger,
+} from '@nestjs/common';
+import { v5 as uuidv5 } from 'uuid';
 import { hueLight, hueSetState } from './dto/hueLight.dto';
 import { hueGroup } from './dto/hueGroup.dto';
 import { map } from 'rxjs/operators';
 import { LightService } from '../light/light.service';
 import { GroupService } from '../group/group.service';
 import { Light } from '../light/entities/light.entity';
+import { ConfigService } from '../config/config.service';
 
 @Injectable()
 export class HueService {
@@ -15,19 +23,19 @@ export class HueService {
   constructor(
     private httpService: HttpService,
     private configService: ConfigService,
-    @Inject(forwardRef(()=>LightService))
+    @Inject(forwardRef(() => LightService))
     private lightService: LightService,
     private groupService: GroupService,
   ) {
-    const host = this.configService.get<string>('HAH_HUE_HOST');
-    const user = this.configService.get<string>('HAH_HUE_USER');
+    const host = this.configService.hueHost;
+    const user = this.configService.hueUser;
 
     this.baseurl = `http://${host}/api/${user}`;
   }
 
   async onModuleInit() {
     this.logger.log('Syncronize with Hue bridge.');
-    return this.sync();
+    await this.sync();
   }
 
   findAllLights(): Promise<Record<string, hueLight>> {
@@ -35,7 +43,7 @@ export class HueService {
       .get(`${this.baseurl}/lights`)
       .pipe(map((response) => response.data))
       .toPromise()
-      .catch(err=>{
+      .catch((err) => {
         this.logger.log(err);
         throw new InternalServerErrorException(err);
       });
@@ -45,7 +53,8 @@ export class HueService {
     return this.httpService
       .get(`${this.baseurl}/lights/${id}`)
       .pipe(map((response) => response.data))
-      .toPromise().catch(err=>{
+      .toPromise()
+      .catch((err) => {
         throw new InternalServerErrorException(err);
       });
   }
@@ -54,7 +63,8 @@ export class HueService {
     return this.httpService
       .get(`${this.baseurl}/groups`)
       .pipe(map((response) => response.data))
-      .toPromise().catch(err=>{
+      .toPromise()
+      .catch((err) => {
         throw new InternalServerErrorException(err);
       });
   }
@@ -63,7 +73,8 @@ export class HueService {
     return this.httpService
       .get(`${this.baseurl}/groups/${id}`)
       .pipe(map((response) => response.data))
-      .toPromise().catch(err=>{
+      .toPromise()
+      .catch((err) => {
         throw new InternalServerErrorException(err);
       });
   }
@@ -76,22 +87,26 @@ export class HueService {
   }
 
   /**
-     * Calculate and execute the current state
-     * @param forLights execute only for these lights
-     */
+   * Calculate and execute the current state
+   * @param forLights execute only for these lights
+   */
   async update(forLights?: Light[]) {
+    this.logger.log('Running update');
     const currentLights = await this.findAllLights();
-    const lights = forLights || await this.lightService.findAll();
+    const lights = forLights || (await this.lightService.findAll());
 
-    lights.forEach(async light=>{
+    lights.forEach(async (light) => {
       const currentLightState = currentLights[light.id.toString()].state;
       light = await this.lightService.smartOff(light, currentLightState);
 
       if (!light.smartoffActive) {
-        const nextState = await this.lightService.nextState(light, currentLightState);
+        const nextState = await this.lightService.nextState(
+          light,
+          currentLightState,
+        );
         if (Object.keys(nextState).length > 0) {
-          await this.setLightState(light.id, nextState);
-          await this.lightService.resetSmartOff(light);
+          const res = await this.setLightState(light.id, nextState);
+          this.lightService.resetSmartOff(light);
         }
       }
     });
@@ -111,11 +126,12 @@ export class HueService {
     for (const lightId in hueLights) {
       const hueLight = hueLights[lightId];
       const id = parseInt(lightId);
-      const light = lights.find(light=>light.id === id);
+      const light = lights.find((light) => light.id === id);
 
       if (light === undefined) {
         await this.lightService.create({
           id: id,
+          uniqueId: this.generateUuid(lightId, 'light'),
           name: hueLight.name,
           type: hueLight.type,
           modelid: hueLight.modelid,
@@ -133,7 +149,7 @@ export class HueService {
       }
     }
     /** Delete Lights */
-    lights.forEach(light=>{
+    lights.forEach((light) => {
       if (!(light.id.toString() in hueLights)) {
         this.lightService.remove(light.id);
       }
@@ -143,12 +159,15 @@ export class HueService {
     for (const groupId in hueGroups) {
       const hueGroup = hueGroups[groupId];
       const id = parseInt(groupId);
-      const group = groups.find(group=>group.id === id);
-      const lights = await this.lightService.findByIds(hueGroup.lights.map(id=>parseInt(id)));
+      const group = groups.find((group) => group.id === id);
+      const lights = await this.lightService.findByIds(
+        hueGroup.lights.map((id) => parseInt(id)),
+      );
 
       if (group === undefined) {
         await this.groupService.create({
           id: id,
+          uniqueId: this.generateUuid(groupId, 'group'),
           name: hueGroup.name,
           type: hueGroup.type,
           lights: lights,
@@ -162,7 +181,7 @@ export class HueService {
       }
     }
     /** Delete Groups */
-    groups.forEach(group=>{
+    groups.forEach((group) => {
       if (!(group.id.toString() in hueGroups)) {
         this.groupService.remove(group.id);
       }
@@ -172,5 +191,10 @@ export class HueService {
       lights: await this.lightService.count(),
       groups: await this.groupService.count(),
     };
+  }
+
+  generateUuid(id: string, type: 'light' | 'group') {
+    const NAMESPACE = '97722234-dae4-4ed5-b316-c2424ee4f2d1';
+    return uuidv5(`${type}-${id}`, NAMESPACE);
   }
 }

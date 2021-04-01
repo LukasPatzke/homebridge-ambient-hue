@@ -1,10 +1,12 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { forwardRef, Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { PositionService } from '../position/position.service';
 import { Repository } from 'typeorm';
 import { CreateGroupDto } from './dto/create-group.dto';
 import { UpdateGroupDto } from './dto/update-group.dto';
 import { Group } from './entities/group.entity';
+import { LightService } from '../light/light.service';
+import { UpdateLightDto } from '../light/dto/update-light.dto';
 
 @Injectable()
 export class GroupService {
@@ -12,6 +14,8 @@ export class GroupService {
     @InjectRepository(Group)
     private groupsRepository: Repository<Group>,
     private positionService: PositionService,
+    @Inject(forwardRef(()=>LightService))
+    private lightService: LightService,
   ) {}
 
   async create(createGroupDto: CreateGroupDto): Promise<Group> {
@@ -34,6 +38,10 @@ export class GroupService {
     });
   }
 
+  findByUniqueId(uniqueId: string) {
+    return this.groupsRepository.findOne({uniqueId: uniqueId});
+  }
+
   async update(id: number, updateGroupDto: UpdateGroupDto) {
     const group = await this.findOne(id);
     this.groupsRepository.merge(group, updateGroupDto);
@@ -42,6 +50,14 @@ export class GroupService {
       group.lights = updateGroupDto.lights;
     }
     return this.groupsRepository.save(group);
+  }
+
+  async updateLights(id: number, updateLightDto: UpdateLightDto) {
+    const group = await this.findOne(+id);
+    group.lights.forEach((light) => {
+      this.lightService.update(light.id, updateLightDto);
+    });
+    return this.findOne(+id);
   }
 
   count() {

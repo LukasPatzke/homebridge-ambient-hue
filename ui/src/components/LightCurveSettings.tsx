@@ -32,19 +32,19 @@ export const LightCurveSettings: React.FC<ILightCurveSettingsProps> = ({light, o
       {isLightBriControlled(light)?
       <IonItem button onClick={()=>setBriModalOpen(true)}>
         <IonLabel>{t('default_names.bri')}</IonLabel>
-        <IonNote slot='end'>{light.bri_curve?light.bri_curve.name:t('defaults')}</IonNote>
+        <IonNote slot='end'>{light.briCurve?light.briCurve.name:t('defaults')}</IonNote>
       </IonItem>
       :undefined}
       {isLightCtControlled(light)?
       <IonItem button onClick={()=>setCtModalOpen(true)}>
         <IonLabel>{t('default_names.ct')}</IonLabel>
-        <IonNote slot='end'>{light.ct_curve?light.ct_curve.name:t('defaults')}</IonNote>
+        <IonNote slot='end'>{light.ctCurve?light.ctCurve.name:t('defaults')}</IonNote>
       </IonItem>
       :undefined}
       <CurveSettings 
         isOpen={isCtModalOpen}
         kind='ct'
-        defaultValue={light.ct_curve}
+        defaultValue={light.ctCurve}
         onClose={()=>setCtModalOpen(false)}
         onSelect={(change)=>{onChange(change);setCtModalOpen(false)}}
         pageRef={pageRef}
@@ -52,7 +52,7 @@ export const LightCurveSettings: React.FC<ILightCurveSettingsProps> = ({light, o
       <CurveSettings 
         isOpen={isBriModalOpen}
         kind='bri'
-        defaultValue={light.bri_curve}
+        defaultValue={light.briCurve}
         onClose={()=>setBriModalOpen(false)}
         onSelect={(change)=>{onChange(change);setBriModalOpen(false)}}
         pageRef={pageRef}
@@ -97,9 +97,9 @@ const CurveSettings: React.FC<ICurveSettingsProps> = ({isOpen, kind, defaultValu
 
   const handleSelect = () => {
     if (kind==='bri') {
-      onSelect({bri_curve_id: selected?.id})
+      onSelect({briCurveId: selected?.id})
     } else if (kind==='ct') {
-      onSelect({ct_curve_id: selected?.id})
+      onSelect({ctCurveId: selected?.id})
     }
   }
 

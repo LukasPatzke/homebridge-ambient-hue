@@ -7,7 +7,7 @@ import { chevronBack } from 'ionicons/icons';
 import { LightSettings } from '../components/LightSettings';
 import { ListHeader } from '../components/ListHeader';
 import { LightList } from '../components/LightList';
-import { get, put } from '../components/useApi';
+import { get, patch } from '../components/useApi';
 import { RefresherEventDetail } from '@ionic/core';
 import { LightCurveSettings } from 'src/components/LightCurveSettings';
 import { lightReducer } from 'src/utils';
@@ -31,7 +31,7 @@ const PageGroupDetail : React.FC<IPageGroupDetail> = ({match}) => {
   }
 
   const handleChange = (change: ILightUpdate) => {
-    put({
+    patch({
       url: `/groups/${match.params.id}`,
       data: change
     }).then(setGroup)

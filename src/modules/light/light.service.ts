@@ -44,6 +44,16 @@ export class LightService {
     return this.lightsRepository.findByIds(ids);
   }
 
+  findByUniqueId(uniqueId: string) {
+    return this.lightsRepository.findOne({uniqueId: uniqueId}).then(light=>{
+      if (light === undefined) {
+        throw new NotFoundException(`Light with uniqueId ${uniqueId} not found.`);
+      } else {
+        return light;
+      }
+    });
+  }
+
   async update(id: number, updateLightDto: UpdateLightDto) {
     const light = await this.findOne(id);
     if (updateLightDto.briCurveId!== undefined) {
