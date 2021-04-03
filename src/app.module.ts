@@ -13,6 +13,7 @@ import { TasksModule } from './modules/tasks/tasks.module';
 import { HealthModule } from './modules/health/health.module';
 import { ConfigModule } from './modules/config/config.module';
 import { ConfigService } from './modules/config/config.service';
+import { LoggerModule } from './modules/logger/logger.module';
 
 @Module({
   imports: [
@@ -43,6 +44,7 @@ import { ConfigService } from './modules/config/config.service';
     TasksModule,
     HealthModule,
     ConfigModule,
+    LoggerModule,
   ],
   controllers: [AppController],
   providers: [AppService],

@@ -68,6 +68,13 @@ export class LightPlatformAccessory {
     //   .getCharacteristic(this.platform.Characteristic.Brightness)
     //   .onSet(this.setBrightness.bind(this)); // SET - bind to the 'setBrightness` method below
 
+    // Register update handler
+    this.platform.socket.on(`lightUpdate/${this.accessory.context.id}`, (light: Light) => {
+      this.platform.log.debug('update homekit ');
+      this.update(light);
+    });
+
+
     /**
      * Creating multiple services of the same type.
      *
@@ -107,6 +114,17 @@ export class LightPlatformAccessory {
     //   this.platform.log.debug('Triggering motionSensorOneService:', motionDetected);
     //   this.platform.log.debug('Triggering motionSensorTwoService:', !motionDetected);
     // }, 10000);
+  }
+
+  /**
+   * Update chracteristics
+   * @param light Light
+   */
+  update(light: Light) {
+    const service = this.accessory.getService(this.platform.Service.Lightbulb);
+    if (service) {
+      service.updateCharacteristic(this.platform.Characteristic.On, light.on);
+    }
   }
 
   /**

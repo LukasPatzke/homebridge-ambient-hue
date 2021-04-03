@@ -121,7 +121,7 @@ export class AmbientHueHomebridgePlatform implements DynamicPlatformPlugin {
    * It should be used to setup event handlers for characteristics and update respective values.
    */
   configureAccessory(accessory: PlatformAccessory) {
-    this.log.info('Loading accessory from cache:', accessory.displayName);
+    this.log.debug('Loading accessory from cache:', accessory.displayName);
 
     // add the restored accessory to the accessories cache so we can track if it has already been registered
     this.accessories.push(accessory);
@@ -154,7 +154,7 @@ export class AmbientHueHomebridgePlatform implements DynamicPlatformPlugin {
       .get<Group[]>(`${this.serverUri}/api/groups`)
       .then((res) => res.data);
 
-    this.log.info('lights:', lights.length, '| groups:', groups.length);
+    this.log.debug('lights:', lights.length, '| groups:', groups.length);
 
 
     // loop over the discovered devices and register each one if it has not already been registered
@@ -172,10 +172,11 @@ export class AmbientHueHomebridgePlatform implements DynamicPlatformPlugin {
 
       if (existingAccessory) {
         // the accessory already exists
-        this.log.info(
+        this.log.debug(
           'Restoring existing accessory from cache:',
           existingAccessory.displayName,
         );
+        new LightPlatformAccessory(this, existingAccessory as PlatformAccessory<Light>);
 
         // if you need to update the accessory.context then you should run `api.updatePlatformAccessories`. eg.:
         // existingAccessory.context.device = device;

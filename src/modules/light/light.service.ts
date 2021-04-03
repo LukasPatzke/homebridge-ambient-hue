@@ -8,6 +8,7 @@ import { CurveService } from '../curve/curve.service';
 import { hueLightState, hueSetState } from '../hue/dto/hueLight.dto';
 import { HueService } from '../hue/hue.service';
 import { PositionService } from '../position/position.service';
+import { LightGateway } from './light.gateway';
 
 @Injectable()
 export class LightService {
@@ -18,6 +19,7 @@ export class LightService {
     @Inject(forwardRef(()=>HueService))
     private hueService: HueService,
     private positionService: PositionService,
+    private lightGateway: LightGateway,
   ) {}
 
   async create(createLightDto: CreateLightDto): Promise<Light> {
@@ -63,6 +65,8 @@ export class LightService {
       updateLightDto.ctCurve = await this.curveService.findOne(updateLightDto.ctCurveId);
     }
     this.lightsRepository.merge(light, updateLightDto);
+    this.lightGateway.emitUpdate(light);
+
     if (updateLightDto.on !== undefined) {
       return this.resetSmartOff(light);
     } else {

@@ -95,6 +95,8 @@ export class HueService {
     const currentLights = await this.findAllLights();
     const lights = forLights || (await this.lightService.findAll());
 
+    let countUpdated = 0;
+
     lights.forEach(async (light) => {
       const currentLightState = currentLights[light.id.toString()].state;
       light = await this.lightService.smartOff(light, currentLightState);
@@ -107,9 +109,11 @@ export class HueService {
         if (Object.keys(nextState).length > 0) {
           const res = await this.setLightState(light.id, nextState);
           this.lightService.resetSmartOff(light);
+          countUpdated += 1;
         }
       }
     });
+    return {message: `${countUpdated} lights updated`};
   }
 
   /**

@@ -82,7 +82,7 @@ const CurveSettings: React.FC<ICurveSettingsProps> = ({isOpen, kind, defaultValu
 
 
   useEffect(()=>{
-    get({url: `/curves/?kind=${kind}`}).then(setCurves)
+    get({url: `/curves?kind=${kind}`}).then(setCurves)
   }, [kind])
 
   useEffect(()=>{
@@ -92,7 +92,7 @@ const CurveSettings: React.FC<ICurveSettingsProps> = ({isOpen, kind, defaultValu
   }, [defaultValue, curves, isOpen])
 
   const update = () => (
-    get({url: `/curves/?kind=${kind}`}).then(setCurves)
+    get({url: `/curves?kind=${kind}`}).then(setCurves)
   )
 
   const handleSelect = () => {

@@ -22,6 +22,7 @@ import { LightGateway } from './light.gateway';
   exports: [
     TypeOrmModule,
     LightService,
+    LightGateway,
     HueModule,
     CurveModule,
     PositionModule,
