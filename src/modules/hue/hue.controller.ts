@@ -5,11 +5,6 @@ import { HueService } from './hue.service';
 export class HueController {
   constructor(private readonly hueService: HueService) {}
 
-  @Get('sync')
-  sync() {
-    return this.hueService.sync();
-  }
-
   @Get('update')
   update() {
     return this.hueService.update();

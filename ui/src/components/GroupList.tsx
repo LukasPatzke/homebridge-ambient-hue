@@ -23,6 +23,12 @@ export const GroupList: React.FC<IGroupListProps> = ({groups}) => {
       <ItemIcon slot='start' item={group}/>
     </IonItem>
   ))
+  const other = groups.filter(group=>(group.type!=='Zone')&&(group.type!=='Room')).map((group, index) => (
+    <IonItem button routerLink={`/groups/${group.id}`} routerDirection='forward' key={index}>
+      <IonLabel>{group.name}</IonLabel>
+      <ItemIcon slot='start' item={group}/>
+    </IonItem>
+  ))
   return (
     <div>
       <ListHeader inset>
@@ -36,6 +42,12 @@ export const GroupList: React.FC<IGroupListProps> = ({groups}) => {
       </ListHeader>
       <IonList inset>
         {rooms.length>0?rooms:<SkeletonItems/>}
+      </IonList>
+      <ListHeader inset>
+        <IonLabel>{t('other')}</IonLabel>
+      </ListHeader>
+      <IonList inset>
+        {other.length>0?other:<SkeletonItems/>}
       </IonList>
     </div>
   )

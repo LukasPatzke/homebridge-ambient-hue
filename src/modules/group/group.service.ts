@@ -14,9 +14,9 @@ export class GroupService {
     @InjectRepository(Group)
     private groupsRepository: Repository<Group>,
     private positionService: PositionService,
-    @Inject(forwardRef(()=>LightService))
+    @Inject(forwardRef(() => LightService))
     private lightService: LightService,
-  ) {}
+  ) { }
 
   async create(createGroupDto: CreateGroupDto): Promise<Group> {
     const group = this.groupsRepository.create(createGroupDto);
@@ -25,39 +25,43 @@ export class GroupService {
   }
 
   findAll(): Promise<Group[]> {
-    return this.groupsRepository.find();
+    return this.groupsRepository.find().then(groups => (
+      groups.map(group => {
+        group.updateLightState();
+        return group;
+      })
+    ));
   }
 
   findOne(id: number): Promise<Group> {
-    return this.groupsRepository.findOne(id).then(group=>{
+    return this.groupsRepository.findOne(id).then(group => {
       if (group === undefined) {
         throw new NotFoundException(`Group with id ${id} not found.`);
       } else {
+        group.updateLightState();
         return group;
       }
     });
   }
 
   findByUniqueId(uniqueId: string) {
-    return this.groupsRepository.findOne({uniqueId: uniqueId});
+    return this.groupsRepository.findOne({ uniqueId: uniqueId }).then(group=>{
+      group?.updateLightState();
+      return group;
+    });
   }
 
   async update(id: number, updateGroupDto: UpdateGroupDto) {
-    const group = await this.findOne(id);
-    this.groupsRepository.merge(group, updateGroupDto);
-
-    if (updateGroupDto.lights !== undefined) {
-      group.lights = updateGroupDto.lights;
-    }
-    return this.groupsRepository.save(group);
+    updateGroupDto.id = id;
+    return this.groupsRepository.save(updateGroupDto);
   }
 
   async updateLights(id: number, updateLightDto: UpdateLightDto) {
     const group = await this.findOne(+id);
-    group.lights.forEach((light) => {
-      this.lightService.update(light.id, updateLightDto);
-    });
-    return this.findOne(+id);
+    const lightUpdates = group.lights.map((light) => (
+      this.lightService.update(light.id, updateLightDto)
+    ));
+    return Promise.all(lightUpdates).then(()=>this.findOne(+id));
   }
 
   count() {

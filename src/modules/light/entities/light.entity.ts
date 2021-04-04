@@ -57,11 +57,15 @@ export class Light {
 
     @ManyToOne(() => Curve, {
       eager: true,
+      nullable: true,
+      onDelete: 'SET NULL',
     })
     briCurve: Curve;
 
     @ManyToOne(() => Curve, {
       eager: true,
+      nullable: true,
+      onDelete: 'SET NULL',
     })
     ctCurve: Curve;
 

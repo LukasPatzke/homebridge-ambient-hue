@@ -5,8 +5,8 @@ import * as path from 'path';
 import * as os from 'os';
 
 export interface Config {
-  uiHost?: string;
-  uiPort?: number;
+  host?: string;
+  port?: number;
   bridgeIp?: string;
   user?: string;
   database?: string;
@@ -20,12 +20,13 @@ export class ConfigService {
     process.env.HAH_CONFIG_PATH ||
     path.resolve(os.homedir(), '.homebridge/config.json');
 
-  public uiHost: string;
-  public uiPort: number;
-  public hueHost?: string;
-  public hueUser?: string;
-  public database: string;
-  public prefix: string;
+  public readonly uiHost: string;
+  public readonly uiPort: number;
+  public readonly hueHost?: string;
+  public readonly hueUser?: string;
+  public readonly database: string;
+  public readonly prefix: string;
+  public readonly homebridge: string;
 
   constructor() {
     const homebridgeConfig = fs.readJSONSync(this.configPath);
@@ -33,13 +34,15 @@ export class ConfigService {
       ? homebridgeConfig.platforms.find((x) => x.platform === PLATFORM_NAME)
       : {};
 
-    this.uiHost = config.uiHost || ' 0.0.0.0';
-    this.uiPort = config.uiPort || 3000;
+    this.uiHost = config.host || ' 0.0.0.0';
+    this.uiPort = config.port || 3000;
     this.hueHost = config.bridgeIp;
     this.hueUser = config.user;
     this.database =
       config.database ||
       path.resolve(os.homedir(), '.homebridge/ambient-hue.sqlite');
     this.prefix = config.prefix || 'Auto ';
+
+    this.homebridge = homebridgeConfig.bridge.username || '0E:67:56:95:CA:D8';
   }
 }

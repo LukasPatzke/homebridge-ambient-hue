@@ -2,20 +2,19 @@ import { Service, PlatformAccessory, CharacteristicValue } from 'homebridge';
 
 import { AmbientHueHomebridgePlatform } from './platform';
 import axios from 'axios';
-import { Light } from '../modules/light/entities/light.entity';
-import { Group } from '../modules/group/entities/group.entity';
+
 
 /**
  * Platform Accessory
  * An instance of this class is created for each accessory your platform registers
  * Each accessory may expose multiple services of different service types.
  */
-export class platformAccessory<T extends Light | Group> {
+export class updateAccessory {
   private service: Service;
 
   constructor(
     private readonly platform: AmbientHueHomebridgePlatform,
-    private readonly accessory: PlatformAccessory<T>,
+    private readonly accessory: PlatformAccessory,
   ) {
     // set accessory information
     this.accessory
@@ -36,14 +35,14 @@ export class platformAccessory<T extends Light | Group> {
     // get the LightBulb service if it exists, otherwise create a new LightBulb service
     // you can create multiple services for each accessory
     this.service =
-      this.accessory.getService(this.platform.Service.Lightbulb) ||
-      this.accessory.addService(this.platform.Service.Lightbulb);
+      this.accessory.getService(this.platform.Service.Switch) ||
+      this.accessory.addService(this.platform.Service.Switch);
 
     // set the service name, this is what is displayed as the default name on the Home app
     // in this example we are using the name we stored in the `accessory.context` in the `discoverDevices` method.
     this.service.setCharacteristic(
       this.platform.Characteristic.Name,
-      accessory.displayName,
+      'AmbientHue Update',
     );
 
 
@@ -58,24 +57,8 @@ export class platformAccessory<T extends Light | Group> {
     //   .getCharacteristic(this.platform.Characteristic.Brightness)
     //   .onSet(this.setBrightness.bind(this)); // SET - bind to the 'setBrightness` method below
 
-    // Register update handler
-    this.platform.socket.on(`update/${this.accessory.UUID}`, (device: T) => {
-      this.platform.log.debug('update homekit ');
-      this.update(device);
-    });
-
   }
 
-  /**
-   * Update chracteristics
-   * @param device Light or Group
-   */
-  update(device: T) {
-    const service = this.accessory.getService(this.platform.Service.Lightbulb);
-    if (service) {
-      service.updateCharacteristic(this.platform.Characteristic.On, device.on);
-    }
-  }
 
   /**
    * Handle "SET" requests from HomeKit
@@ -87,11 +70,16 @@ export class platformAccessory<T extends Light | Group> {
     this.platform.log.debug('Set Characteristic On ->', value);
 
     axios
-      .patch(
-        `${this.platform.serverUri}/api/devices/${this.accessory.UUID}`,
-        { on: value },
+      .get(
+        `${this.platform.serverUri}/api/hue/update`,
       )
-      .catch(this.platform.log.error);
+      .catch(this.platform.log.error)
+      .then(() => {
+        const switchService = this.accessory.getService(this.platform.Service.Switch);
+        if (switchService) {
+          switchService.updateCharacteristic(this.platform.Characteristic.On, false);
+        }
+      });
 
   }
 
@@ -108,28 +96,8 @@ export class platformAccessory<T extends Light | Group> {
    * @example
    * this.service.updateCharacteristic(this.platform.Characteristic.On, true)
    */
-  async getOn(): Promise<CharacteristicValue> {
-    // implement your own code to check if the device is on
-
-    return axios
-      .get<T>(
-        `${this.platform.serverUri}/api/devices/${this.accessory.UUID}`,
-      )
-      .catch(err => {
-        this.platform.log.error(err);
-        throw new this.platform.api.hap.HapStatusError(this.platform.api.hap.HAPStatus.SERVICE_COMMUNICATION_FAILURE);
-      })
-      .then((res) => res.data.on);
-
+  getOn():CharacteristicValue {
+    return false;
   }
 
-  /**
-   * Handle "SET" requests from HomeKit
-   * These are sent when the user changes the state of an accessory, for example, changing the Brightness
-   */
-  async setBrightness(value: CharacteristicValue) {
-    // implement your own code to set the brightness
-
-    this.platform.log.debug('Set Characteristic Brightness -> ', value);
-  }
 }

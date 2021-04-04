@@ -19,7 +19,6 @@ export const LightSettings: React.FC<ILightSettingsProps> = ({light, onChange}) 
     onChange({briMax: value} as ILightUpdate)), 250);
   const onThresholdChange = debounce((value:number)=>(
     onChange({onThreshold: value} as ILightUpdate)), 250);
-  
   return (
     <IonList inset>
       {light.smartOffActive?

@@ -132,6 +132,10 @@ export class CurveService {
 
   async remove(id: number) {
     return this.curveRepository.delete(id);
+
+    const curve = await this.findOne(id);
+    curve.points = [];
+    return this.curveRepository.remove(curve);
   }
 
   async insertPoint(id: number, insertPointDto: InsertPointDto) {

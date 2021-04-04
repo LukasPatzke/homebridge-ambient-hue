@@ -33,6 +33,7 @@ export const ctCurve: ICurve = {
 
 export const lightInfo: ILightInfo = {
   id: 0,
+  uniqueId: '5750ac15-d217-507d-92b9-b0567fb03ba9',
   name: 'Dummy',
   type: 'On/off light',
   modelid: 'Dummy Model',

@@ -185,8 +185,6 @@ export const CreateCurve: React.FC<ICreateCurveProps> = ({isOpen, onClose, pageR
             <IonSegment color='primary' value={kind} onIonChange={(e)=>setKind(e.detail.value as Curvekind)}>
               <IonSegmentButton value='bri'>{t('curves:default_names.bri')}</IonSegmentButton>
               <IonSegmentButton value='ct'>{t('curves:default_names.ct')}</IonSegmentButton>
-              <IonSegmentButton value='hue'>{t('curves:default_names.hue')}</IonSegmentButton>
-              <IonSegmentButton value='sat'>{t('curves:default_names.sat')}</IonSegmentButton>
             </IonSegment>
           </IonItem>
           :undefined}
@@ -208,7 +206,7 @@ export const CreateCurve: React.FC<ICreateCurveProps> = ({isOpen, onClose, pageR
         <div style={{height: '50px'}}/>
         <IonButton className='inset primary translucent' expand='block' disabled={name?false:true} onClick={()=>{
           post({
-            url: '/curves/',
+            url: '/curves',
             data: {kind: kind, name: name, count: count}
           }).then((data:ICurve)=>{
             if (redirect) {

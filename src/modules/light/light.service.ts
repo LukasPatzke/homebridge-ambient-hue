@@ -47,13 +47,7 @@ export class LightService {
   }
 
   findByUniqueId(uniqueId: string) {
-    return this.lightsRepository.findOne({uniqueId: uniqueId}).then(light=>{
-      if (light === undefined) {
-        throw new NotFoundException(`Light with uniqueId ${uniqueId} not found.`);
-      } else {
-        return light;
-      }
-    });
+    return this.lightsRepository.findOne({uniqueId: uniqueId});
   }
 
   async update(id: number, updateLightDto: UpdateLightDto) {
@@ -68,10 +62,10 @@ export class LightService {
     this.lightGateway.emitUpdate(light);
 
     if (updateLightDto.on !== undefined) {
-      return this.resetSmartOff(light);
-    } else {
-      return this.lightsRepository.save(light);
+      this.resetSmartOff(light);
     }
+    return this.lightsRepository.save(light);
+
   }
 
   count() {
@@ -104,9 +98,9 @@ export class LightService {
   /**
    * Calculate the smart of state of the light.
    * @param light
-   * @param prevLightState
+   * @param currentState
    */
-  smartOff(light: Light, prevLightState: hueLightState) {
+  smartOff(light: Light, currentState: hueLightState) {
     let on = false;
     let bri = false;
     let ct = false;
@@ -114,27 +108,29 @@ export class LightService {
     if (light.onControlled) {
       on = (
         (light.smartoffOn !== null) &&
-        (light.smartoffOn !== prevLightState.on)
+        (light.smartoffOn !== currentState.on)
       );
     }
 
     if (light.briControlled) {
       bri = (
         (light.smartoffBri !== null) &&
-        (light.smartoffBri !== prevLightState.bri)
+        (light.smartoffBri !== currentState.bri)
       );
     }
 
     if (light.ctControlled) {
       ct = (
         (light.smartoffCt !== null) &&
-        (light.smartoffCt !== prevLightState.ct)
+        (light.smartoffCt !== currentState.ct)
       );
     }
 
     const smartOff = on || bri || ct;
     light.smartoffActive = smartOff;
-    return this.lightsRepository.save(light);
+    this.lightsRepository.save(light);
+
+    return {on: on, bri: bri, ct: ct};
   }
 
   async resetSmartOff(light: Light) {
@@ -151,19 +147,25 @@ export class LightService {
   async nextState(light: Light, currentState: hueLightState): Promise<hueSetState> {
     let state: hueSetState = {};
 
+    if (!light.on) {
+      if (currentState.on) {
+        state.on = false;
+      }
+      return state;
+    }
+
     const brightness = await this.brightness(light);
     const colorTemp = await this.colorTemp(light);
+    const smartOff = this.smartOff(light, currentState);
 
-    if (light.ctControlled) {
+    if (light.ctControlled && !smartOff.ct && (currentState.ct !== colorTemp)) {
       state.ct = colorTemp;
     }
-    if (light.briControlled) {
+    if (light.briControlled && !smartOff.bri && (currentState.bri !== brightness)) {
       state.bri = brightness;
     }
-    if (light.onControlled) {
-      if (light.on === false) {
-        state.on = false;
-      } else if (brightness > light.onThreshold) {
+    if (light.onControlled && !smartOff.on) {
+      if (brightness > light.onThreshold) {
         state.on = true;
       } else {
         state.on = false;

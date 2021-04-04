@@ -1,13 +1,12 @@
-import { Controller, Get, Body, Patch, Param } from '@nestjs/common';
+import { Controller, Get, Body, Patch, Param, UseInterceptors } from '@nestjs/common';
 import { GroupService } from './group.service';
 import { UpdateLightDto } from '../light/dto/update-light.dto';
-import { HueService } from '../hue/hue.service';
+import { UpdateInterceptor } from '../hue/update.interceptor';
 
 @Controller('groups')
 export class GroupController {
   constructor(
     private readonly groupService: GroupService,
-    private readonly hueService: HueService,
   ) {}
 
   @Get()
@@ -21,12 +20,11 @@ export class GroupController {
   }
 
   @Patch(':id')
+  @UseInterceptors(UpdateInterceptor)
   async update(
     @Param('id') id: string,
     @Body() updateLightDto: UpdateLightDto,
   ) {
-    const group = await this.groupService.updateLights(+id, updateLightDto);
-    this.hueService.update();
-    return group;
+    return this.groupService.updateLights(+id, updateLightDto);
   }
 }

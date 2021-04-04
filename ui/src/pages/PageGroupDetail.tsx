@@ -7,6 +7,7 @@ import { chevronBack } from 'ionicons/icons';
 import { LightSettings } from '../components/LightSettings';
 import { ListHeader } from '../components/ListHeader';
 import { LightList } from '../components/LightList';
+import { GroupInfos } from '../components/GroupInfos';
 import { get, patch } from '../components/useApi';
 import { RefresherEventDetail } from '@ionic/core';
 import { LightCurveSettings } from 'src/components/LightCurveSettings';
@@ -76,6 +77,10 @@ const PageGroupDetail : React.FC<IPageGroupDetail> = ({match}) => {
               <IonLabel>{t('curves:title')}</IonLabel>
             </ListHeader>
             <LightCurveSettings light={light} onChange={handleChange} pageRef={pageRef.current}/>
+            <ListHeader inset>
+              <IonLabel>{t('lights:info.title')}</IonLabel>
+            </ListHeader>
+            <GroupInfos group={group} />
           </IonGrid>
         </IonContent>
       </IonPage>

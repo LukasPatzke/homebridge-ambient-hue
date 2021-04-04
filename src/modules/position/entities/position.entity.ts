@@ -13,11 +13,17 @@ export class Position {
     @Column({ default: false })
     visible: boolean;
 
-    @OneToOne(() => Light, light => light.position)
+    @OneToOne(() => Light, light => light.position, {
+      onDelete: 'CASCADE',
+      orphanedRowAction: 'delete',
+    })
     @JoinColumn()
     light: Light;
 
-    @OneToOne(() => Group, group => group.position)
+    @OneToOne(() => Group, group => group.position, {
+      onDelete: 'CASCADE',
+      orphanedRowAction: 'delete',
+    })
     @JoinColumn()
     group: Group;
 }

@@ -8,14 +8,15 @@ import {
   Characteristic,
 } from 'homebridge';
 import { PLATFORM_NAME, PLUGIN_NAME } from './settings';
-import { LightPlatformAccessory } from './platformAccessory';
+import { platformAccessory } from './platformAccessory';
 import io from 'socket.io-client';
 import * as path from 'path';
 import * as child_process from 'child_process';
 import axios from 'axios';
 import { ConfigService } from '../modules/config/config.service';
-import { Light } from 'src/modules/light/entities/light.entity';
-import { Group } from 'src/modules/group/entities/group.entity';
+import { Light } from '../modules/light/entities/light.entity';
+import { Group } from '../modules/group/entities/group.entity';
+import { updateAccessory } from './updateAccessory';
 
 /**
  * HomebridgePlatform
@@ -33,6 +34,7 @@ export class AmbientHueHomebridgePlatform implements DynamicPlatformPlugin {
   public readonly configService: ConfigService;
 
   public readonly serverUri: string;
+  public readonly homebridgeUUID: string;
 
   public socket: SocketIOClient.Socket;
 
@@ -45,11 +47,13 @@ export class AmbientHueHomebridgePlatform implements DynamicPlatformPlugin {
     this.fork();
     this.configService = new ConfigService();
     this.serverUri = `http://localhost:${this.configService.uiPort}`;
+    this.homebridgeUUID = this.api.hap.uuid.generate(this.configService.homebridge);
 
     this.socket = io(`ws://localhost:${this.configService.uiPort}`, {
       transports: ['websocket'],
     });
 
+    // When the socket connects, the server finished starting
     const socketConnected = new Promise<void>((resolve, reject) => {
       this.socket.on('connect', () => {
         this.log.debug('Connected to socket', this.socket.id);
@@ -60,6 +64,10 @@ export class AmbientHueHomebridgePlatform implements DynamicPlatformPlugin {
       });
     });
 
+    // When this event is fired it means Homebridge has restored all cached accessories from disk.
+    // Dynamic Platform plugins should only register new accessories after this event was fired,
+    // in order to ensure they weren't added to homebridge already. This event can also be used
+    // to start discovery of new accessories.
     const homebridgeLaunched = new Promise<void>((resolve) => {
       this.api.on('didFinishLaunching', () => {
         resolve();
@@ -75,15 +83,6 @@ export class AmbientHueHomebridgePlatform implements DynamicPlatformPlugin {
         this.discoverDevices();
       });
 
-    // When this event is fired it means Homebridge has restored all cached accessories from disk.
-    // Dynamic Platform plugins should only register new accessories after this event was fired,
-    // in order to ensure they weren't added to homebridge already. This event can also be used
-    // to start discovery of new accessories.
-    // this.api.on('didFinishLaunching', () => {
-    //   log.debug('Executed didFinishLaunching callback');
-    //   // run the method to discover / register your devices as accessories
-    //   this.discoverDevices();
-    // });
   }
 
   /**
@@ -110,13 +109,6 @@ export class AmbientHueHomebridgePlatform implements DynamicPlatformPlugin {
   }
 
   /**
-   * Run plugin in the main homebridge process.
-   */
-  async noFork() {
-    await import('../main');
-  }
-
-  /**
    * This function is invoked when homebridge restores cached accessories from disk at startup.
    * It should be used to setup event handlers for characteristics and update respective values.
    */
@@ -133,18 +125,6 @@ export class AmbientHueHomebridgePlatform implements DynamicPlatformPlugin {
    * must not be registered again to prevent "duplicate UUID" errors.
    */
   async discoverDevices() {
-    // EXAMPLE ONLY
-    // A real plugin you would discover accessories from the local network, cloud services
-    // or a user-defined array in the platform config.
-
-    // const lights = http.get('http://localhost:3000/api/lights', (res) => {
-    //   this.log.info('lights', res);
-    // });
-    // const socket = io('ws://localhost:3000');
-
-    // this.socket.emit('lights', (res) => {
-    //   this.log.info('lights', res.length);
-    // });
 
     const lights = await axios
       .get<Light[]>(`${this.serverUri}/api/lights`)
@@ -159,58 +139,74 @@ export class AmbientHueHomebridgePlatform implements DynamicPlatformPlugin {
 
     // loop over the discovered devices and register each one if it has not already been registered
     for (const light of lights) {
-      // generate a unique id for the accessory this should be generated from
-      // something globally unique, but constant, for example, the device serial
-      // number or MAC address
-      // const uuid = this.api.hap.uuid.generate(device.exampleUniqueId);
+      this.registerDevice(light);
+    }
 
-      // see if an accessory with the same uuid has already been registered and restored from
-      // the cached devices we stored in the `configureAccessory` method above
-      const existingAccessory = this.accessories.find(
-        (accessory) => accessory.UUID === light.uniqueId,
+    for (const group of groups) {
+      this.registerDevice(group);
+    }
+
+    const existingUpdateAccessory = this.accessories.find(
+      (accessory) => accessory.UUID === this.homebridgeUUID,
+    );
+
+    if (existingUpdateAccessory) {
+      new updateAccessory(this, existingUpdateAccessory);
+    } else {
+      const accessory = new this.api.platformAccessory(
+        'AmbientHue',
+        this.homebridgeUUID,
+      );
+      new updateAccessory(this, accessory);
+      this.api.registerPlatformAccessories(PLUGIN_NAME, PLATFORM_NAME, [accessory]);
+    }
+  }
+
+
+  /**
+   * Create/Load the accessory and register in homebridge.
+   * @param device Device to register
+   */
+  registerDevice<T extends Light | Group>(device: T) {
+    // see if an accessory with the same uuid has already been registered and restored from
+    // the cached devices we stored in the `configureAccessory` method above
+    const existingAccessory = this.accessories.find(
+      (accessory) => accessory.UUID === device.uniqueId,
+    );
+
+    if (existingAccessory) {
+      // the accessory already exists
+      this.log.debug(
+        'Restoring existing accessory from cache:',
+        existingAccessory.displayName,
       );
 
-      if (existingAccessory) {
-        // the accessory already exists
-        this.log.debug(
-          'Restoring existing accessory from cache:',
-          existingAccessory.displayName,
-        );
-        new LightPlatformAccessory(this, existingAccessory as PlatformAccessory<Light>);
+      // Update the accessory context
+      existingAccessory.context = device;
+      this.api.updatePlatformAccessories([existingAccessory]);
 
-        // if you need to update the accessory.context then you should run `api.updatePlatformAccessories`. eg.:
-        // existingAccessory.context.device = device;
-        // this.api.updatePlatformAccessories([existingAccessory]);
+      // create the accessory handler for the restored accessory
+      new platformAccessory(this, existingAccessory as PlatformAccessory<T>);
 
-        // create the accessory handler for the restored accessory
-        // this is imported from `platformAccessory.ts`
-        //new ExamplePlatformAccessory(this, existingAccessory);
+    } else {
+      // the accessory does not yet exist, so we need to create it
+      this.log.info('Adding new accessory for Device:', device.name);
 
-        // it is possible to remove platform accessories at any time using `api.unregisterPlatformAccessories`, eg.:
-        // remove platform accessories when no longer present
-        // this.api.unregisterPlatformAccessories(PLUGIN_NAME, PLATFORM_NAME, [existingAccessory]);
-        // this.log.info('Removing existing accessory from cache:', existingAccessory.displayName);
-      } else {
-        // the accessory does not yet exist, so we need to create it
-        this.log.info('Adding new accessory for light:', light.name);
+      // create a new accessory
+      const accessory = new this.api.platformAccessory<T>(
+        this.configService.prefix + device.name,
+        device.uniqueId,
+      );
 
-        // create a new accessory
-        const accessory = new this.api.platformAccessory<Light>(
-          this.configService.prefix + light.name,
-          light.uniqueId,
-        );
+      // store a copy of the device object in the `accessory.context`
+      // the `context` property can be used to store any data about the accessory you may need
+      accessory.context = device;
 
-        // store a copy of the device object in the `accessory.context`
-        // the `context` property can be used to store any data about the accessory you may need
-        accessory.context = light;
+      // create the accessory handler for the newly create accessory
+      new platformAccessory(this, accessory);
 
-        // create the accessory handler for the newly create accessory
-        // this is imported from `platformAccessory.ts`
-        new LightPlatformAccessory(this, accessory);
-
-        // link the accessory to your platform
-        this.api.registerPlatformAccessories(PLUGIN_NAME, PLATFORM_NAME, [accessory]);
-      }
+      // link the accessory to your platform
+      this.api.registerPlatformAccessories(PLUGIN_NAME, PLATFORM_NAME, [accessory]);
     }
   }
 }

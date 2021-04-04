@@ -29,6 +29,7 @@ export interface ICurve {
 
 interface ILightBase {
   id: number;
+  uniqueId: string;
   name: string;
   type: 'On/off light'|'On/Off plug-in unit'|'Dimmable light'|'Color temperature light'|'Color light'|'Extended color light';
   modelid: string;
@@ -61,6 +62,7 @@ export interface ILightUpdate {
 
 interface IGroupBase {
   id: number;
+  uniqueId: string;
   name: string;
   type: 'LightGroup' | 'Luminaire' | 'LightSource' | 'Room' | 'Entertainment' | 'Zone';
 }

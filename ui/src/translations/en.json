@@ -59,13 +59,16 @@
             "title": "Info",
             "type": "Type",
             "manufacturer": "Manufacturer",
-            "model": "Model"
+            "model": "Model",
+            "id": "Hue Id",
+            "uniqueId": "HomeKit Id"
         }
     },
     "groups": {
         "title": "Groups",
         "rooms": "Rooms",
-        "zones": "Zones"
+        "zones": "Zones",
+        "other": "Other"
     },
     "curves": {
         "title": "Curves",

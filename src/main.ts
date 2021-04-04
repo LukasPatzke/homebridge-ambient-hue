@@ -8,18 +8,16 @@ import * as path from 'path';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { FastifyRequest, FastifyReply } from 'fastify';
 import { AppModule } from './app.module';
-import { CustomLogger } from './modules/logger/logger.service';
+// import { CustomLogger } from './modules/logger/logger.service';
 
 
 process.env.HAH_BASE_PATH = path.resolve(__dirname, '../');
 
 export async function bootstrap() {
   const fAdapter = new FastifyAdapter();
-  const app = await NestFactory.create<NestFastifyApplication>(AppModule, fAdapter, {
-    logger: false,
-  });
+  const app = await NestFactory.create<NestFastifyApplication>(AppModule, fAdapter );
 
-  app.useLogger(app.get(CustomLogger));
+  // app.useLogger(app.get(CustomLogger));
 
   // serve index.html without a cache
   app.getHttpAdapter().get('/', async (req: FastifyRequest, res: FastifyReply) => {

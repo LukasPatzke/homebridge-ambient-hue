@@ -23,6 +23,7 @@ export class PositionService {
       .createQueryBuilder('position')
       .leftJoinAndSelect('position.light', 'light')
       .leftJoinAndSelect('position.group', 'group')
+      .leftJoinAndSelect('group.lights', 'group_light')
       .orderBy('position.position', 'ASC')
       .getMany();
   }

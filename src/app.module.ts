@@ -14,6 +14,7 @@ import { HealthModule } from './modules/health/health.module';
 import { ConfigModule } from './modules/config/config.module';
 import { ConfigService } from './modules/config/config.service';
 import { LoggerModule } from './modules/logger/logger.module';
+import { DeviceModule } from './modules/device/device.module';
 
 @Module({
   imports: [
@@ -45,6 +46,7 @@ import { LoggerModule } from './modules/logger/logger.module';
     HealthModule,
     ConfigModule,
     LoggerModule,
+    DeviceModule,
   ],
   controllers: [AppController],
   providers: [AppService],

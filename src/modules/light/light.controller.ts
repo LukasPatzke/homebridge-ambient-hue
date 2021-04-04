@@ -1,28 +1,20 @@
 import {
   Controller,
   Get,
-  Post,
   Body,
   Param,
-  Delete,
   Patch,
+  UseInterceptors,
 } from '@nestjs/common';
 import { LightService } from './light.service';
-import { CreateLightDto } from './dto/create-light.dto';
 import { UpdateLightDto } from './dto/update-light.dto';
-import { HueService } from '../hue/hue.service';
+import { UpdateInterceptor } from '../hue/update.interceptor';
 
 @Controller('lights')
 export class LightController {
   constructor(
     private readonly lightService: LightService,
-    private readonly hueService: HueService,
-  ) {}
-
-  @Post()
-  create(@Body() createLightDto: CreateLightDto) {
-    return this.lightService.create(createLightDto);
-  }
+  ) { }
 
   @Get()
   findAll() {
@@ -35,17 +27,11 @@ export class LightController {
   }
 
   @Patch(':id')
+  @UseInterceptors(UpdateInterceptor)
   async update(
     @Param('id') id: string,
     @Body() updateLightDto: UpdateLightDto,
   ) {
-    const light = await this.lightService.update(+id, updateLightDto);
-    this.hueService.update();
-    return light;
-  }
-
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.lightService.remove(+id);
+    return this.lightService.update(+id, updateLightDto);
   }
 }

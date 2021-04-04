@@ -18,6 +18,6 @@ import { GroupGateway } from './group.gateway';
   ],
   controllers: [GroupController],
   providers: [GroupService, LightService, GroupGateway],
-  exports: [TypeOrmModule, PositionModule, GroupService],
+  exports: [TypeOrmModule, PositionModule, GroupService, GroupGateway],
 })
 export class GroupModule {}

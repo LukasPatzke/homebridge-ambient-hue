@@ -13,7 +13,7 @@ export class LightGateway {
 
   async emitUpdate(light: Light) {
     this.logger.debug(`Emitting light update for light ${light.id}`);
-    this.server.emit(`lightUpdate/${light.id}`, light);
+    this.server.emit(`update/${light.uniqueId}`, light);
   }
 
 }

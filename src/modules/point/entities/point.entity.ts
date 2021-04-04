@@ -19,6 +19,9 @@ export class Point {
     @Column( {default: false })
     last: boolean;
 
-    @ManyToOne(() => Curve, curve => curve.points)
+    @ManyToOne(() => Curve, curve => curve.points, {
+      orphanedRowAction: 'delete',
+      onDelete: 'CASCADE',
+    })
     curve: Curve;
 }
