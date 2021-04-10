@@ -29,3 +29,10 @@ jobs:
         run: npm run build
         env:
           CI: true
+
+      - name: Publish to npm
+        uses: JS-DevTools/npm-publish@v1
+        with:
+          token: ${{ secrest.NPM_TOKEN }}
+          package: ./plugin/package.json
+          tag: beta
