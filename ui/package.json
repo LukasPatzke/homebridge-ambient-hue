@@ -43,7 +43,7 @@
   },
   "scripts": {
     "start": "PORT=3001 react-scripts start",
-    "build": "react-scripts build && rm -rf ../public && mv build ../public ",
+    "build": "react-scripts build && rm -rf ../plugin/public && mv build ../plugin/public ",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
   },
