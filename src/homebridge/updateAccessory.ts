@@ -3,7 +3,6 @@ import { Service, PlatformAccessory, CharacteristicValue } from 'homebridge';
 import { AmbientHueHomebridgePlatform } from './platform';
 import axios from 'axios';
 
-
 /**
  * Platform Accessory
  * An instance of this class is created for each accessory your platform registers
@@ -45,7 +44,6 @@ export class updateAccessory {
       'AmbientHue Update',
     );
 
-
     // register handlers for the On/Off Characteristic
     this.service
       .getCharacteristic(this.platform.Characteristic.On)
@@ -56,9 +54,7 @@ export class updateAccessory {
     // this.service
     //   .getCharacteristic(this.platform.Characteristic.Brightness)
     //   .onSet(this.setBrightness.bind(this)); // SET - bind to the 'setBrightness` method below
-
   }
-
 
   /**
    * Handle "SET" requests from HomeKit
@@ -70,17 +66,19 @@ export class updateAccessory {
     this.platform.log.debug('Set Characteristic On ->', value);
 
     axios
-      .get(
-        `${this.platform.serverUri}/api/hue/update`,
-      )
+      .get(`${this.platform.serverUri}/api/hue/update`)
       .catch(this.platform.log.error)
       .then(() => {
-        const switchService = this.accessory.getService(this.platform.Service.Switch);
+        const switchService = this.accessory.getService(
+          this.platform.Service.Switch,
+        );
         if (switchService) {
-          switchService.updateCharacteristic(this.platform.Characteristic.On, false);
+          switchService.updateCharacteristic(
+            this.platform.Characteristic.On,
+            false,
+          );
         }
       });
-
   }
 
   /**
@@ -96,8 +94,7 @@ export class updateAccessory {
    * @example
    * this.service.updateCharacteristic(this.platform.Characteristic.On, true)
    */
-  getOn():CharacteristicValue {
+  getOn(): CharacteristicValue {
     return false;
   }
-
 }

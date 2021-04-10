@@ -1,7 +1,6 @@
-import { Injectable, NotFoundException, Param } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { Group } from '../group/entities/group.entity';
 import { GroupService } from '../group/group.service';
-import { HueService } from '../hue/hue.service';
 import { UpdateLightDto } from '../light/dto/update-light.dto';
 import { Light } from '../light/entities/light.entity';
 import { LightService } from '../light/light.service';
@@ -11,7 +10,6 @@ export class DeviceService {
   constructor(
     private readonly lightService: LightService,
     private readonly groupService: GroupService,
-    private readonly hueService: HueService,
   ) {}
 
   async findOne(uniqueId: string) {
@@ -22,7 +20,9 @@ export class DeviceService {
       device = await this.groupService.findByUniqueId(uniqueId);
     }
     if (device === undefined) {
-      throw new NotFoundException(`Device with unique id ${uniqueId} not found`);
+      throw new NotFoundException(
+        `Device with unique id ${uniqueId} not found`,
+      );
     } else {
       return device;
     }
@@ -37,7 +37,9 @@ export class DeviceService {
       if (device !== undefined) {
         return this.groupService.updateLights(device.id, updateLightDto);
       } else {
-        throw new NotFoundException(`Device with unique id ${uniqueId} not found`);
+        throw new NotFoundException(
+          `Device with unique id ${uniqueId} not found`,
+        );
       }
     } else {
       return this.lightService.update(device.id, updateLightDto);

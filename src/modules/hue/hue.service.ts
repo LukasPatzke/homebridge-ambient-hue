@@ -110,7 +110,7 @@ export class HueService {
         countUpdated += 1;
       }
     });
-    return {message: `${countUpdated} lights updated`};
+    return { message: `${countUpdated} lights updated` };
   }
 
   /**

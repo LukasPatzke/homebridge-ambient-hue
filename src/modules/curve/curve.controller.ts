@@ -41,14 +41,20 @@ export class CurveController {
   }
 
   @Post(':id')
-  async insertPoint(@Param('id') id: string, @Body() insertPointDto: InsertPointDto) {
+  async insertPoint(
+    @Param('id') id: string,
+    @Body() insertPointDto: InsertPointDto,
+  ) {
     const curve = await this.curveService.insertPoint(+id, insertPointDto);
     this.hueService.update();
     return curve;
   }
 
   @Patch(':id')
-  async update(@Param('id') id: string, @Body() updateCurveDto: UpdateCurveDto) {
+  async update(
+    @Param('id') id: string,
+    @Body() updateCurveDto: UpdateCurveDto,
+  ) {
     return this.curveService.update(+id, updateCurveDto);
   }
 

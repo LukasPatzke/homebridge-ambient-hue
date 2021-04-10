@@ -13,13 +13,9 @@ import { HueService } from './hue.service';
  */
 @Injectable()
 export class UpdateInterceptor implements NestInterceptor {
-  constructor(private readonly hueService: HueService) { }
+  constructor(private readonly hueService: HueService) {}
 
   intercept(context: ExecutionContext, next: CallHandler): Observable<any> {
-    return next
-      .handle()
-      .pipe(
-        tap(() => this.hueService.update()),
-      );
+    return next.handle().pipe(tap(() => this.hueService.update()));
   }
 }

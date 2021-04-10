@@ -7,7 +7,7 @@ export const enum LogLevel {
   WARN = 'warn',
   ERROR = 'error',
   DEBUG = 'debug',
-  VERBOSE = 'verbose'
+  VERBOSE = 'verbose',
 }
 
 export class CustomLogger implements LoggerService {

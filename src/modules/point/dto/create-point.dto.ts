@@ -1,6 +1,6 @@
 export class CreatePointDto {
-    x: number;
-    y: number;
-    first?: boolean = false;
-    last?: boolean = false;
+  x: number;
+  y: number;
+  first?: boolean = false;
+  last?: boolean = false;
 }

@@ -1,4 +1,4 @@
 export class InsertPointDto {
-    index: number;
-    position: 'before' | 'after';
+  index: number;
+  position: 'before' | 'after';
 }

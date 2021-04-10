@@ -85,14 +85,14 @@ export class CurveService {
     return this.curveRepository
       .createQueryBuilder('curve')
       .leftJoinAndSelect('curve.points', 'point')
-      .orderBy({'curve.id': 'ASC', 'point.x': 'ASC'})
+      .orderBy({ 'curve.id': 'ASC', 'point.x': 'ASC' })
       .getMany();
   }
 
   findOne(id: number) {
     return this.curveRepository
       .createQueryBuilder('curve')
-      .where('curve.id = :id', {id:id})
+      .where('curve.id = :id', { id: id })
       .leftJoinAndSelect('curve.points', 'point')
       .orderBy('point.x')
       .getOne()
@@ -108,9 +108,9 @@ export class CurveService {
   findByKind(kind: curveKind) {
     return this.curveRepository
       .createQueryBuilder('curve')
-      .where('curve.kind = :kind', {kind: kind})
+      .where('curve.kind = :kind', { kind: kind })
       .leftJoinAndSelect('curve.points', 'point')
-      .orderBy({'curve.id': 'ASC', 'point.x': 'ASC'})
+      .orderBy({ 'curve.id': 'ASC', 'point.x': 'ASC' })
       .getMany();
   }
 
@@ -118,9 +118,9 @@ export class CurveService {
     return this.curveRepository
       .createQueryBuilder('curve')
       .where('curve.default = true')
-      .andWhere('curve.kind = :kind', {kind: kind})
+      .andWhere('curve.kind = :kind', { kind: kind })
       .leftJoinAndSelect('curve.points', 'point')
-      .orderBy({'point.x': 'ASC'})
+      .orderBy({ 'point.x': 'ASC' })
       .getOneOrFail();
   }
 

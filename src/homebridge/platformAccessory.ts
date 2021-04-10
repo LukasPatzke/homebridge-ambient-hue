@@ -10,12 +10,12 @@ import { Group } from '../modules/group/entities/group.entity';
  * An instance of this class is created for each accessory your platform registers
  * Each accessory may expose multiple services of different service types.
  */
-export class platformAccessory<T extends Light | Group> {
+export class Device<T extends Light | Group> {
   private service: Service;
 
   constructor(
     private readonly platform: AmbientHueHomebridgePlatform,
-    private readonly accessory: PlatformAccessory<T>,
+    public readonly accessory: PlatformAccessory<T>,
   ) {
     // set accessory information
     this.accessory
@@ -46,7 +46,6 @@ export class platformAccessory<T extends Light | Group> {
       accessory.displayName,
     );
 
-
     // register handlers for the On/Off Characteristic
     this.service
       .getCharacteristic(this.platform.Characteristic.On)
@@ -60,10 +59,9 @@ export class platformAccessory<T extends Light | Group> {
 
     // Register update handler
     this.platform.socket.on(`update/${this.accessory.UUID}`, (device: T) => {
-      this.platform.log.debug('update homekit ');
+      this.platform.log.debug('update homekit');
       this.update(device);
     });
-
   }
 
   /**
@@ -87,12 +85,10 @@ export class platformAccessory<T extends Light | Group> {
     this.platform.log.debug('Set Characteristic On ->', value);
 
     axios
-      .patch(
-        `${this.platform.serverUri}/api/devices/${this.accessory.UUID}`,
-        { on: value },
-      )
+      .patch(`${this.platform.serverUri}/api/devices/${this.accessory.UUID}`, {
+        on: value,
+      })
       .catch(this.platform.log.error);
-
   }
 
   /**
@@ -112,15 +108,14 @@ export class platformAccessory<T extends Light | Group> {
     // implement your own code to check if the device is on
 
     return axios
-      .get<T>(
-        `${this.platform.serverUri}/api/devices/${this.accessory.UUID}`,
-      )
-      .catch(err => {
+      .get<T>(`${this.platform.serverUri}/api/devices/${this.accessory.UUID}`)
+      .catch((err) => {
         this.platform.log.error(err);
-        throw new this.platform.api.hap.HapStatusError(this.platform.api.hap.HAPStatus.SERVICE_COMMUNICATION_FAILURE);
+        throw new this.platform.api.hap.HapStatusError(
+          this.platform.api.hap.HAPStatus.SERVICE_COMMUNICATION_FAILURE,
+        );
       })
       .then((res) => res.data.on);
-
   }
 
   /**

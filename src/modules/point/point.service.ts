@@ -1,4 +1,8 @@
-import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { CreatePointDto } from './dto/create-point.dto';
@@ -18,7 +22,9 @@ export class PointService {
   }
 
   createMany(createPointDto: CreatePointDto[]) {
-    const points = createPointDto.map(dto=>this.pointRepository.create(dto));
+    const points = createPointDto.map((dto) =>
+      this.pointRepository.create(dto),
+    );
     return this.pointRepository.save(points);
   }
 
@@ -27,7 +33,7 @@ export class PointService {
   }
 
   findOne(id: number) {
-    return this.pointRepository.findOne(id).then(point=>{
+    return this.pointRepository.findOne(id).then((point) => {
       if (point === undefined) {
         throw new NotFoundException(`Point with id ${id} not found.`);
       } else {

@@ -9,6 +9,16 @@ import { ListHeader } from 'src/components/ListHeader';
 import { ItemIcon } from 'src/components/LightList';
 import { lightInfoReducer } from 'src/utils';
 
+
+const positionVisible = (position: IPosition) => (
+  position.light?.published || position.group?.published || false
+)
+
+const positionUniqueId = (position: IPosition) => (
+  position.light?.uniqueId || position.group?.uniqueId || ''
+)
+
+
 const TabStart: React.FC = () => {
   const pageRef = useRef();
   const [positions, setPositions] = useState<IPosition[]>([])
@@ -32,9 +42,9 @@ const TabStart: React.FC = () => {
     update()
   })
 
-  const update = ()=>([
-    get({url: '/positions'}).then(setPositions),
-  ])
+  const update = ()=>(
+    get({url: '/positions'}).then(setPositions)
+  )
 
   const handleLightClick = (light: ILightInfo) => {
     patch({
@@ -50,14 +60,14 @@ const TabStart: React.FC = () => {
   }
 
   const doRefresh = (e: CustomEvent<RefresherEventDetail>) => {
-    Promise.all(update()).then(()=>e.detail.complete())
+    update().then(()=>e.detail.complete())
   }
 
-  const handleVisible = (id: number, visible:boolean) => (
+  const handleVisible = (position: IPosition, visible:boolean) => (
     patch({
-      url: `/positions/${id}`,
-      data: {visible: visible}
-    }).then(setPositions)
+      url: `/devices/${positionUniqueId(position)}`,
+      data: {published: visible}
+    }).then(update)
   )
 
   const handleReorder = (event: CustomEvent<ItemReorderEventDetail>) => {
@@ -70,7 +80,7 @@ const TabStart: React.FC = () => {
     })
   }
   
-  const tiles = positions.filter(pos=>pos.visible).map((pos, index)=>{
+  const tiles = positions.filter(positionVisible).map((pos, index)=>{
       if (pos.light) {
         return (
           <Tile
@@ -209,7 +219,7 @@ interface IReorderModal {
   onClose: ()=>void;
   pageRef?: HTMLElement;
   positions: IPosition[];
-  onVisible: (id:number, visible:boolean)=>Promise<void>;
+  onVisible: (position: IPosition, visible:boolean)=>Promise<void>;
   onReorder: (event: CustomEvent<ItemReorderEventDetail>)=>void
 }
 
@@ -225,17 +235,17 @@ const ReorderModal: React.FC<IReorderModal> = ({isOpen, onClose, pageRef, positi
       <IonItemOptions 
         side='end'
         onIonSwipe={()=>{
-          onVisible(pos.id, false)
+          onVisible(pos, false)
           refs[index].current?.close()
         }}
       >
         <IonItemOption 
           onClick={()=>{
-            onVisible(pos.id, false)
+            onVisible(pos, false)
             refs[index].current?.close()
           }}
           expandable
-          disabled={!pos.visible}
+          disabled={!positionVisible(pos)}
           color='danger'
         >
           {t('common:actions.hide')}
@@ -244,17 +254,17 @@ const ReorderModal: React.FC<IReorderModal> = ({isOpen, onClose, pageRef, positi
       <IonItemOptions 
         side='start' 
         onIonSwipe={()=>{
-          onVisible(pos.id, true)
+          onVisible(pos, true)
           refs[index].current?.close()
         }}
       >
         <IonItemOption 
           onClick={()=>{
-            onVisible(pos.id, true)
+            onVisible(pos, true)
             refs[index].current?.close()
           }}
-          expandable={!pos.visible}
-          disabled={pos.visible}
+          expandable={!positionVisible(pos)}
+          disabled={positionVisible(pos)}
           color='primary'
         >
           {t('common:actions.add')}
@@ -264,17 +274,17 @@ const ReorderModal: React.FC<IReorderModal> = ({isOpen, onClose, pageRef, positi
         <IonButton 
           slot='start' fill='clear' 
           onClick={()=>{
-            if ((pos.visible) && (refs[index].current)) {
+            if ((positionVisible(pos)) && (refs[index].current)) {
               refs[index].current?.open('end')
             } else {
-              onVisible(pos.id, !pos.visible)
+              onVisible(pos, !positionVisible(pos))
             }
           }}
         >
           <IonIcon 
             slot='icon-only' 
-            icon={pos.visible?removeCircle:addCircle}
-            color={pos.visible?'danger':'success'}
+            icon={positionVisible(pos)?removeCircle:addCircle}
+            color={positionVisible(pos)?'danger':'success'}
           />
         </IonButton>
         <IonLabel>{pos.light?.name||pos.group?.name}</IonLabel>

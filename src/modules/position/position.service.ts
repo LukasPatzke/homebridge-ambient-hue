@@ -3,7 +3,6 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { CreatePositionDto } from './dto/create-position.dto';
 import { MovePositionDto } from './dto/move-position.dto';
-import { UpdatePositionDto } from './dto/update-position.dto';
 import { Position } from './entities/position.entity';
 
 @Injectable()
@@ -11,7 +10,7 @@ export class PositionService {
   constructor(
     @InjectRepository(Position)
     private positionRepository: Repository<Position>,
-  ) {}
+  ) { }
 
   create(createPositionDto: CreatePositionDto) {
     const position = this.positionRepository.create(createPositionDto);
@@ -29,20 +28,13 @@ export class PositionService {
   }
 
   findOne(id: number) {
-    return this.positionRepository.findOne(id).then(pos=>{
+    return this.positionRepository.findOne(id).then((pos) => {
       if (pos === undefined) {
         throw new NotFoundException(`Position with id ${id} not found.`);
       } else {
         return pos;
       }
     });
-  }
-
-  async update(id: number, updatePositionDto: UpdatePositionDto) {
-    const position = await this.findOne(id);
-    this.positionRepository.merge(position, updatePositionDto);
-    await this.positionRepository.save(position);
-    return this.findAll();
   }
 
   async remove(id: number) {

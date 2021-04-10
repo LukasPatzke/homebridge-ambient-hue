@@ -37,6 +37,7 @@ interface ILightBase {
   productname: string;
   on: boolean
   smartOffActive: boolean
+  published?: boolean
 }
 export interface ILight extends ILightBase {
   onControlled: boolean
@@ -58,6 +59,7 @@ export interface ILightUpdate {
   briMax?: number
   briCurveId?: number
   ctCurveId?: number
+  published?: boolean
 }
 
 interface IGroupBase {
@@ -65,6 +67,7 @@ interface IGroupBase {
   uniqueId: string;
   name: string;
   type: 'LightGroup' | 'Luminaire' | 'LightSource' | 'Room' | 'Entertainment' | 'Zone';
+  published?: boolean
 }
 
 export interface IGroupInfo extends IGroupBase {
@@ -78,13 +81,10 @@ export interface IGroup extends IGroupBase {
 export interface IPosition {
   id: number
   position: number
-  visible: boolean
   light?: ILightInfo
   group?: IGroupInfo
 }
-export interface IPositionUpdate {
-  visible: boolean
-}
+
 export interface IPositionMove {
   from: number,
   to: number

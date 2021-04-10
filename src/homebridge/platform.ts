@@ -8,7 +8,7 @@ import {
   Characteristic,
 } from 'homebridge';
 import { PLATFORM_NAME, PLUGIN_NAME } from './settings';
-import { platformAccessory } from './platformAccessory';
+import { Device } from './platformAccessory';
 import io from 'socket.io-client';
 import * as path from 'path';
 import * as child_process from 'child_process';
@@ -30,6 +30,7 @@ export class AmbientHueHomebridgePlatform implements DynamicPlatformPlugin {
 
   // this is used to track restored cached accessories
   public readonly accessories: PlatformAccessory[] = [];
+  public readonly deviceAccessories: Device<Light | Group>[] = [];
 
   public readonly configService: ConfigService;
 
@@ -47,7 +48,9 @@ export class AmbientHueHomebridgePlatform implements DynamicPlatformPlugin {
     this.fork();
     this.configService = new ConfigService();
     this.serverUri = `http://localhost:${this.configService.uiPort}`;
-    this.homebridgeUUID = this.api.hap.uuid.generate(this.configService.homebridge);
+    this.homebridgeUUID = this.api.hap.uuid.generate(
+      this.configService.homebridge,
+    );
 
     this.socket = io(`ws://localhost:${this.configService.uiPort}`, {
       transports: ['websocket'],
@@ -82,7 +85,6 @@ export class AmbientHueHomebridgePlatform implements DynamicPlatformPlugin {
         this.log.debug('Finished initializing platform:', this.config.name);
         this.discoverDevices();
       });
-
   }
 
   /**
@@ -125,7 +127,6 @@ export class AmbientHueHomebridgePlatform implements DynamicPlatformPlugin {
    * must not be registered again to prevent "duplicate UUID" errors.
    */
   async discoverDevices() {
-
     const lights = await axios
       .get<Light[]>(`${this.serverUri}/api/lights`)
       .then((res) => res.data);
@@ -135,7 +136,6 @@ export class AmbientHueHomebridgePlatform implements DynamicPlatformPlugin {
       .then((res) => res.data);
 
     this.log.debug('lights:', lights.length, '| groups:', groups.length);
-
 
     // loop over the discovered devices and register each one if it has not already been registered
     for (const light of lights) {
@@ -158,10 +158,11 @@ export class AmbientHueHomebridgePlatform implements DynamicPlatformPlugin {
         this.homebridgeUUID,
       );
       new updateAccessory(this, accessory);
-      this.api.registerPlatformAccessories(PLUGIN_NAME, PLATFORM_NAME, [accessory]);
+      this.api.registerPlatformAccessories(PLUGIN_NAME, PLATFORM_NAME, [
+        accessory,
+      ]);
     }
   }
-
 
   /**
    * Create/Load the accessory and register in homebridge.
@@ -186,7 +187,7 @@ export class AmbientHueHomebridgePlatform implements DynamicPlatformPlugin {
       this.api.updatePlatformAccessories([existingAccessory]);
 
       // create the accessory handler for the restored accessory
-      new platformAccessory(this, existingAccessory as PlatformAccessory<T>);
+      this.deviceAccessories.push(new Device(this, existingAccessory as PlatformAccessory<T>));
 
     } else {
       // the accessory does not yet exist, so we need to create it
@@ -203,10 +204,12 @@ export class AmbientHueHomebridgePlatform implements DynamicPlatformPlugin {
       accessory.context = device;
 
       // create the accessory handler for the newly create accessory
-      new platformAccessory(this, accessory);
+      this.deviceAccessories.push(new Device(this, accessory));
 
       // link the accessory to your platform
-      this.api.registerPlatformAccessories(PLUGIN_NAME, PLATFORM_NAME, [accessory]);
+      this.api.registerPlatformAccessories(PLUGIN_NAME, PLATFORM_NAME, [
+        accessory,
+      ]);
     }
   }
 }

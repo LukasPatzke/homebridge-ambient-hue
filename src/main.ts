@@ -10,23 +10,31 @@ import { FastifyRequest, FastifyReply } from 'fastify';
 import { AppModule } from './app.module';
 // import { CustomLogger } from './modules/logger/logger.service';
 
-
 process.env.HAH_BASE_PATH = path.resolve(__dirname, '../');
 
 export async function bootstrap() {
   const fAdapter = new FastifyAdapter();
-  const app = await NestFactory.create<NestFastifyApplication>(AppModule, fAdapter );
+  const app = await NestFactory.create<NestFastifyApplication>(
+    AppModule,
+    fAdapter,
+  );
 
   // app.useLogger(app.get(CustomLogger));
 
   // serve index.html without a cache
-  app.getHttpAdapter().get('/', async (req: FastifyRequest, res: FastifyReply) => {
-    res.type('text/html');
-    res.header('Cache-Control', 'no-cache, no-store, must-revalidate');
-    res.header('Pragma', 'no-cache');
-    res.header('Expires', '0');
-    res.send(await fs.readFile(path.resolve((process.env.HAH_BASE_PATH||''), 'public/index.html')));
-  });
+  app
+    .getHttpAdapter()
+    .get('/', async (req: FastifyRequest, res: FastifyReply) => {
+      res.type('text/html');
+      res.header('Cache-Control', 'no-cache, no-store, must-revalidate');
+      res.header('Pragma', 'no-cache');
+      res.header('Expires', '0');
+      res.send(
+        await fs.readFile(
+          path.resolve(process.env.HAH_BASE_PATH || '', 'public/index.html'),
+        ),
+      );
+    });
 
   // serve static assest with a long cache timeout
   app.useStaticAssets({

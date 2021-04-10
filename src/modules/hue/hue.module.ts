@@ -8,7 +8,12 @@ import { ConfigModule } from '../config/config.module';
 import { UpdateInterceptor } from './update.interceptor';
 
 @Module({
-  imports: [HttpModule, ConfigModule, forwardRef(()=>LightModule), forwardRef(()=>GroupModule)],
+  imports: [
+    HttpModule,
+    ConfigModule,
+    forwardRef(() => LightModule),
+    forwardRef(() => GroupModule),
+  ],
   controllers: [HueController],
   providers: [HueService, LightService, UpdateInterceptor],
   exports: [HttpModule, HueService, GroupModule, LightService],

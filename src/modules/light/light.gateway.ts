@@ -3,7 +3,6 @@ import { Logger } from '@nestjs/common';
 import { Server } from 'socket.io';
 import { Light } from './entities/light.entity';
 
-
 @WebSocketGateway({ transports: ['websocket'] })
 export class LightGateway {
   private readonly logger = new Logger(LightGateway.name);
@@ -15,5 +14,4 @@ export class LightGateway {
     this.logger.debug(`Emitting light update for light ${light.id}`);
     this.server.emit(`update/${light.uniqueId}`, light);
   }
-
 }

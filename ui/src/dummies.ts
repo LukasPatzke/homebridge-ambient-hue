@@ -57,6 +57,5 @@ export const light: ILight = {
 export const position: IPosition = {
   id: 0,
   position: 0,
-  visible: true,
   light: light
 }

@@ -12,9 +12,7 @@ import { UpdateInterceptor } from '../hue/update.interceptor';
 
 @Controller('lights')
 export class LightController {
-  constructor(
-    private readonly lightService: LightService,
-  ) { }
+  constructor(private readonly lightService: LightService) {}
 
   @Get()
   findAll() {

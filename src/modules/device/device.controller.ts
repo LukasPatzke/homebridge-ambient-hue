@@ -1,13 +1,18 @@
-import { Body, Controller, Get, Param, Patch, UseInterceptors } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  Patch,
+  UseInterceptors,
+} from '@nestjs/common';
 import { UpdateInterceptor } from '../hue/update.interceptor';
 import { UpdateLightDto } from '../light/dto/update-light.dto';
 import { DeviceService } from './device.service';
 
 @Controller('devices')
 export class DeviceController {
-  constructor(
-    private readonly deviceService: DeviceService,
-  ) { }
+  constructor(private readonly deviceService: DeviceService) {}
 
   @Get(':uniqueId')
   async findOne(@Param('uniqueId') uniqueId: string) {
@@ -22,5 +27,4 @@ export class DeviceController {
   ) {
     return this.deviceService.update(uniqueId, updateLightDto);
   }
-
 }

@@ -3,7 +3,6 @@ import { Logger } from '@nestjs/common';
 import { Server } from 'socket.io';
 import { Group } from './entities/group.entity';
 
-
 @WebSocketGateway()
 export class GroupGateway {
   private readonly logger = new Logger(GroupGateway.name);

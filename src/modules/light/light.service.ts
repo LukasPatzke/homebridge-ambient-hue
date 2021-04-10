@@ -1,4 +1,9 @@
-import { forwardRef, Inject, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  forwardRef,
+  Inject,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { CreateLightDto } from './dto/create-light.dto';
 import { UpdateLightDto } from './dto/update-light.dto';
@@ -16,7 +21,7 @@ export class LightService {
     @InjectRepository(Light)
     private lightsRepository: Repository<Light>,
     private curveService: CurveService,
-    @Inject(forwardRef(()=>HueService))
+    @Inject(forwardRef(() => HueService))
     private hueService: HueService,
     private positionService: PositionService,
     private lightGateway: LightGateway,
@@ -33,7 +38,7 @@ export class LightService {
   }
 
   findOne(id: number): Promise<Light> {
-    return this.lightsRepository.findOne(id).then(light=>{
+    return this.lightsRepository.findOne(id).then((light) => {
       if (light === undefined) {
         throw new NotFoundException(`Light with id ${id} not found.`);
       } else {
@@ -47,16 +52,20 @@ export class LightService {
   }
 
   findByUniqueId(uniqueId: string) {
-    return this.lightsRepository.findOne({uniqueId: uniqueId});
+    return this.lightsRepository.findOne({ uniqueId: uniqueId });
   }
 
   async update(id: number, updateLightDto: UpdateLightDto) {
     const light = await this.findOne(id);
-    if (updateLightDto.briCurveId!== undefined) {
-      updateLightDto.briCurve = await this.curveService.findOne(updateLightDto.briCurveId);
+    if (updateLightDto.briCurveId !== undefined) {
+      updateLightDto.briCurve = await this.curveService.findOne(
+        updateLightDto.briCurveId,
+      );
     }
-    if (updateLightDto.ctCurveId!== undefined) {
-      updateLightDto.ctCurve = await this.curveService.findOne(updateLightDto.ctCurveId);
+    if (updateLightDto.ctCurveId !== undefined) {
+      updateLightDto.ctCurve = await this.curveService.findOne(
+        updateLightDto.ctCurveId,
+      );
     }
     this.lightsRepository.merge(light, updateLightDto);
     this.lightGateway.emitUpdate(light);
@@ -65,7 +74,6 @@ export class LightService {
       this.resetSmartOff(light);
     }
     return this.lightsRepository.save(light);
-
   }
 
   count() {
@@ -81,9 +89,10 @@ export class LightService {
    * @param light
    */
   async brightness(light: Light) {
-    const curve = light.briCurve || await this.curveService.findDefault('bri');
+    const curve =
+      light.briCurve || (await this.curveService.findDefault('bri'));
     const value = await this.curveService.calcValue(curve.id);
-    return Math.floor((light.briMax/254) * value);
+    return Math.floor((light.briMax / 254) * value);
   }
 
   /**
@@ -91,7 +100,7 @@ export class LightService {
    * @param light
    */
   async colorTemp(light: Light) {
-    const curve = light.ctCurve || await this.curveService.findDefault('ct');
+    const curve = light.ctCurve || (await this.curveService.findDefault('ct'));
     return this.curveService.calcValue(curve.id);
   }
 
@@ -106,31 +115,23 @@ export class LightService {
     let ct = false;
 
     if (light.onControlled) {
-      on = (
-        (light.smartoffOn !== null) &&
-        (light.smartoffOn !== currentState.on)
-      );
+      on = light.smartoffOn !== null && light.smartoffOn !== currentState.on;
     }
 
     if (light.briControlled) {
-      bri = (
-        (light.smartoffBri !== null) &&
-        (light.smartoffBri !== currentState.bri)
-      );
+      bri =
+        light.smartoffBri !== null && light.smartoffBri !== currentState.bri;
     }
 
     if (light.ctControlled) {
-      ct = (
-        (light.smartoffCt !== null) &&
-        (light.smartoffCt !== currentState.ct)
-      );
+      ct = light.smartoffCt !== null && light.smartoffCt !== currentState.ct;
     }
 
     const smartOff = on || bri || ct;
     light.smartoffActive = smartOff;
     this.lightsRepository.save(light);
 
-    return {on: on, bri: bri, ct: ct};
+    return { on: on, bri: bri, ct: ct };
   }
 
   async resetSmartOff(light: Light) {
@@ -144,24 +145,31 @@ export class LightService {
     return this.lightsRepository.save(light);
   }
 
-  async nextState(light: Light, currentState: hueLightState): Promise<hueSetState> {
+  async nextState(
+    light: Light,
+    currentState: hueLightState,
+  ): Promise<hueSetState> {
     let state: hueSetState = {};
-
-    if (!light.on) {
-      if (currentState.on) {
-        state.on = false;
-      }
-      return state;
-    }
 
     const brightness = await this.brightness(light);
     const colorTemp = await this.colorTemp(light);
     const smartOff = this.smartOff(light, currentState);
 
-    if (light.ctControlled && !smartOff.ct && (currentState.ct !== colorTemp)) {
+    if (!light.on) {
+      if (currentState.on && light.onControlled && !smartOff.on) {
+        state.on = false;
+      }
+      return state;
+    }
+
+    if (light.ctControlled && !smartOff.ct && currentState.ct !== colorTemp) {
       state.ct = colorTemp;
     }
-    if (light.briControlled && !smartOff.bri && (currentState.bri !== brightness)) {
+    if (
+      light.briControlled &&
+      !smartOff.bri &&
+      currentState.bri !== brightness
+    ) {
       state.bri = brightness;
     }
     if (light.onControlled && !smartOff.on) {
@@ -172,11 +180,11 @@ export class LightService {
       }
     }
     if (state.on === false) {
-      state = {on: false};
+      state = { on: false };
     }
 
     // Do not send a request if the light stays off
-    if ((currentState.on === false) && (state.on !== true)) {
+    if (currentState.on === false && state.on !== true) {
       state = {};
     }
 
