@@ -8,12 +8,14 @@ import { HueModule } from '../hue/hue.module';
 import { PositionModule } from '../position/position.module';
 import { PointModule } from '../point/point.module';
 import { LightGateway } from './light.gateway';
+import { GroupModule } from '../group/group.module';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([Light]),
     CurveModule,
     forwardRef(() => HueModule),
+    forwardRef(() => GroupModule),
     PositionModule,
     PointModule,
   ],

@@ -22,8 +22,8 @@ export class ConfigService {
 
   public readonly uiHost: string;
   public readonly uiPort: number;
-  public readonly hueHost?: string;
-  public readonly hueUser?: string;
+  public readonly hueHost: string;
+  public readonly hueUser: string;
   public readonly database: string;
   public readonly prefix: string;
   public readonly homebridge: string;
@@ -34,8 +34,18 @@ export class ConfigService {
       ? homebridgeConfig.platforms.find((x) => x.platform === PLATFORM_NAME)
       : {};
 
-    this.uiHost = config.host || ' 0.0.0.0';
+    if (config.bridgeIp === undefined) {
+      this.logger.error(`No HUE IP in Config file ${this.configPath}`);
+      throw new Error(`No HUE IP in Config file ${this.configPath}`);
+    }
+    if (config.user === undefined) {
+      this.logger.error(`No HUE User in Config file ${this.configPath}`);
+      throw new Error(`No HUE User in Config file ${this.configPath}`);
+    }
+
+    this.uiHost = config.host || '0.0.0.0';
     this.uiPort = config.port || 3000;
+
     this.hueHost = config.bridgeIp;
     this.hueUser = config.user;
     this.database =

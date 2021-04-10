@@ -5,7 +5,8 @@
   "main": "index.js",
   "scripts": {
     "build": "npm run build --prefix ui && npm run build --prefix plugin",
-    "lint": "npm run lint --prefix plugin"
+    "lint": "npm run lint --prefix plugin",
+    "watch": "concurrently \"npm watch --prefix plugin\" \"npm run start --prefix ui\" "
   },
   "repository": {
     "type": "git",
@@ -16,5 +17,8 @@
   "bugs": {
     "url": "https://github.com/LukasPatzke/homebridge-ambient-hue/issues"
   },
-  "homepage": "https://github.com/LukasPatzke/homebridge-ambient-hue#readme"
+  "homepage": "https://github.com/LukasPatzke/homebridge-ambient-hue#readme",
+  "devDependencies": {
+    "concurrently": "^6.0.1"
+  }
 }

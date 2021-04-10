@@ -1,5 +1,4 @@
 {
-  "private": true,
   "displayName": "Homebridge Ambient Hue",
   "name": "homebridge-ambient-hue",
   "version": "0.0.1",
@@ -19,13 +18,11 @@
   "main": "dist/index.js",
   "scripts": {
     "lint": "eslint src/**.ts --max-warnings=0",
-    "watch": "npm run build && npm link && nodemon",
     "build": "rimraf ./dist && tsc -p tsconfig.build.json",
     "prepublishOnly": "npm run lint && npm run build",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
     "watch:server": "nest start --watch",
-    "watch:ui": "npm run start --prefix ui",
-    "watch:hb": "nodemon",
+    "watch": "nodemon",
     "start:server": "nest start",
     "typeorm": "node --require ts-node/register ./node_modules/typeorm/cli.js"
   },

@@ -80,6 +80,7 @@ export class HueService {
   }
 
   setLightState(id: number, state: hueSetState) {
+    this.logger.debug(`Update HUE for light ${id} with state ${JSON.stringify(state)}`);
     return this.httpService
       .put(`${this.baseurl}/lights/${id}/state`, state)
       .pipe(map((response) => response.data))
@@ -91,13 +92,11 @@ export class HueService {
    * @param forLights execute only for these lights
    */
   async update(forLights?: Light[]) {
-    this.logger.log('Running update');
+    this.logger.debug('Running update');
     const currentLights = await this.findAllLights();
     const lights = forLights || (await this.lightService.findAll());
 
-    let countUpdated = 0;
-
-    lights.forEach(async (light) => {
+    const updates = lights.map(async (light): Promise<number> => {
       const currentLightState = currentLights[light.id.toString()].state;
 
       const nextState = await this.lightService.nextState(
@@ -107,10 +106,14 @@ export class HueService {
       if (Object.keys(nextState).length > 0) {
         await this.setLightState(light.id, nextState);
         this.lightService.resetSmartOff(light);
-        countUpdated += 1;
+        return 1;
       }
+      return 0;
     });
-    return { message: `${countUpdated} lights updated` };
+
+    const countUpdated = (await Promise.all(updates)).reduce((pv, cv) => pv+cv, 0);
+    this.logger.debug(`${countUpdated} lights updated`);
+    return countUpdated;
   }
 
   /**

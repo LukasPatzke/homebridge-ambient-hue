@@ -5,11 +5,38 @@
   "schema": {
     "type": "object",
     "properties": {
-      "name": {
-        "title": "Name",
+      "bridgeIp": {
+        "title": "HUE Bridge IP",
         "type": "string",
         "required": true,
-        "default": "Example Dynamic Platform"
+        "default": "IP adress of your HUE Bridge"
+      },
+      "user": {
+        "title": "HUE Bridge Username",
+        "type": "string",
+        "required": true,
+        "default": "User for your HUE Bridge"
+      },
+      "host": {
+        "title": "Host of the UI",
+        "type": "string",
+        "format": "hostname",
+        "placeholder": "0.0.0.0"
+      },
+      "port": {
+        "title": "Port of the UI",
+        "type": "number",
+        "placeholder": "3000"
+      },
+      "database": {
+        "title": "Database path",
+        "type": "string",
+        "placeholder": "~/.homebridge/ambient-hue.sqlite"
+      },
+      "prefix": {
+        "title": "Device Prefix",
+        "type": "string",
+        "placeholder": "Auto "
       }
     }
   }

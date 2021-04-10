@@ -21,7 +21,7 @@ export class GroupService {
     private positionService: PositionService,
     @Inject(forwardRef(() => LightService))
     private lightService: LightService,
-  ) {}
+  ) { }
 
   async create(createGroupDto: CreateGroupDto): Promise<Group> {
     const group = this.groupsRepository.create(createGroupDto);
@@ -56,6 +56,20 @@ export class GroupService {
         group?.updateLightState();
         return group;
       });
+  }
+
+  findByLight(lightId: number) {
+    return this.groupsRepository
+      .createQueryBuilder('group')
+      .innerJoin('group.lights', 'light_filter', 'light_filter.id = :id', { id: lightId })
+      .leftJoinAndSelect('group.lights', 'light')
+      .getMany()
+      .then((groups) =>
+        groups.map((group) => {
+          group.updateLightState();
+          return group;
+        }),
+      );
   }
 
   async update(id: number, updateGroupDto: UpdateGroupDto) {

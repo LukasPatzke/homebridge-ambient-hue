@@ -7,7 +7,6 @@ import { PositionModule } from '../position/position.module';
 import { LightModule } from '../light/light.module';
 import { LightService } from '../light/light.service';
 import { HueModule } from '../hue/hue.module';
-import { GroupGateway } from './group.gateway';
 
 @Module({
   imports: [
@@ -17,7 +16,7 @@ import { GroupGateway } from './group.gateway';
     forwardRef(() => HueModule),
   ],
   controllers: [GroupController],
-  providers: [GroupService, LightService, GroupGateway],
-  exports: [TypeOrmModule, PositionModule, GroupService, GroupGateway],
+  providers: [GroupService, LightService],
+  exports: [TypeOrmModule, PositionModule, GroupService],
 })
 export class GroupModule {}

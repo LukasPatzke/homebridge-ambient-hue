@@ -59,7 +59,7 @@ export class Device<T extends Light | Group> {
 
     // Register update handler
     this.platform.socket.on(`update/${this.accessory.UUID}`, (device: T) => {
-      this.platform.log.debug('update homekit');
+      this.platform.log.debug('update homekit for id', this.accessory.UUID);
       this.update(device);
     });
   }

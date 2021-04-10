@@ -56,7 +56,7 @@ export class LightService {
   }
 
   async update(id: number, updateLightDto: UpdateLightDto) {
-    const light = await this.findOne(id);
+    let light = await this.findOne(id);
     if (updateLightDto.briCurveId !== undefined) {
       updateLightDto.briCurve = await this.curveService.findOne(
         updateLightDto.briCurveId,
@@ -68,12 +68,14 @@ export class LightService {
       );
     }
     this.lightsRepository.merge(light, updateLightDto);
-    this.lightGateway.emitUpdate(light);
 
     if (updateLightDto.on !== undefined) {
       this.resetSmartOff(light);
     }
-    return this.lightsRepository.save(light);
+    light = await this.lightsRepository.save(light);
+    this.lightGateway.emitUpdate(light);
+
+    return light;
   }
 
   count() {
@@ -190,7 +192,7 @@ export class LightService {
 
     // Signify recommends to not resent the 'on' value
     if (state.on === currentState.on) {
-      state.on = undefined;
+      delete state.on;
     }
 
     return state;
