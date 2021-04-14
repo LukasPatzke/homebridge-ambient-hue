@@ -3,6 +3,7 @@ import { PLATFORM_NAME } from '../../homebridge/settings';
 import * as fs from 'fs-extra';
 import * as path from 'path';
 import * as os from 'os';
+import { TypeOrmModuleOptions } from '@nestjs/typeorm';
 
 export interface Config {
   host?: string;
@@ -54,5 +55,20 @@ export class ConfigService {
     this.prefix = config.prefix || 'Auto ';
 
     this.homebridge = homebridgeConfig.bridge.username || '0E:67:56:95:CA:D8';
+  }
+
+  public getTypeOrmConfig(): TypeOrmModuleOptions {
+    return {
+      type: 'sqlite',
+      database: this.database,
+      entities: ['**/*.entity.js'],
+      keepConnectionAlive: true,
+      migrationsTableName: 'migration',
+      migrations: ['src/migration/*.js'],
+      cli: {
+        'migrationsDir': 'src/migration',
+      },
+      migrationsRun: true,
+    };
   }
 }

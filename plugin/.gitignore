@@ -122,3 +122,6 @@ dist
 
 # Sqlite Databases
 *.sqlite
+
+# TypeOrm Config for CLI
+ormconfig.json

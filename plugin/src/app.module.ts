@@ -20,19 +20,7 @@ import { DeviceModule } from './modules/device/device.module';
   imports: [
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],
-      useFactory: (configService: ConfigService) => ({
-        type: 'sqlite',
-        database: configService.database,
-        entities: [],
-        logging: false,
-        synchronize: true,
-        keepConnectionAlive: true,
-        autoLoadEntities: true,
-        migrations: ['migration/*.ts'],
-        cli: {
-          migrationsDir: 'migration',
-        },
-      }),
+      useFactory: (configService: ConfigService) => configService.getTypeOrmConfig(),
       inject: [ConfigService],
     }),
     ScheduleModule.forRoot(),

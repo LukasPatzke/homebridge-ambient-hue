@@ -45,12 +45,14 @@ export class AmbientHueHomebridgePlatform implements DynamicPlatformPlugin {
     public readonly api: API,
   ) {
     process.env.HAH_CONFIG_PATH = api.user.configPath();
-    this.fork();
     this.configService = new ConfigService();
     this.serverUri = `http://localhost:${this.configService.uiPort}`;
     this.homebridgeUUID = this.api.hap.uuid.generate(
       this.configService.homebridge,
     );
+    process.env.TYPEORM_DATABASE = this.configService.database;
+
+    this.fork();
 
     this.socket = io(`ws://localhost:${this.configService.uiPort}`, {
       transports: ['websocket'],

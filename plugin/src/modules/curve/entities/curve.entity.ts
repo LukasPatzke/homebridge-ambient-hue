@@ -1,5 +1,5 @@
-import { Point } from '../../point/entities/point.entity';
 import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
+import { Point } from '../../point/entities/point.entity';
 
 @Entity()
 export class Curve {

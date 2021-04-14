@@ -19,6 +19,11 @@
   },
   "homepage": "https://github.com/LukasPatzke/homebridge-ambient-hue#readme",
   "devDependencies": {
-    "concurrently": "^6.0.1"
+    "concurrently": "^6.0.1",
+    "nodemon": "^2.0.7",
+    "ts-node": "^9.1.1"
+  },
+  "dependencies": {
+    "dotenv": "^8.2.0"
   }
 }
