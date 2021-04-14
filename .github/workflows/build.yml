@@ -33,6 +33,6 @@ jobs:
       - name: Publish to npm
         uses: JS-DevTools/npm-publish@v1
         with:
-          token: ${{ secrest.NPM_TOKEN }}
+          token: ${{ secrets.NPM_TOKEN }}
           package: ./plugin/package.json
           tag: beta
