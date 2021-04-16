@@ -61,7 +61,7 @@ export class ConfigService {
     return {
       type: 'sqlite',
       database: this.database,
-      entities: ['**/*.entity.js'],
+      entities: ['dist/**/*.entity.js'],
       keepConnectionAlive: true,
       migrationsTableName: 'migration',
       migrations: ['src/migration/*.js'],
