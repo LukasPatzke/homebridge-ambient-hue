@@ -141,7 +141,7 @@ export const Chart: React.FC<IChart> = ({curve, expanded, xScale={min:0, max:144
   }
 
   const magnetValue = (value: IPoint) => {
-    var x = Math.ceil(value.x/60)*60;
+    var x = Math.round(value.x/60)*60;
     var y = Math.round(value.y);
     if (y < 0) {
       y = 0;
