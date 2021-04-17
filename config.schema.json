@@ -36,7 +36,12 @@
       "prefix": {
         "title": "Device Prefix",
         "type": "string",
-        "placeholder": "Auto "
+        "placeholder": ""
+      },
+      "suffix": {
+        "title": "Device Suffix",
+        "type": "string",
+        "placeholder": " Auto"
       }
     }
   }

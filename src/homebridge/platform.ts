@@ -30,7 +30,6 @@ export class AmbientHueHomebridgePlatform implements DynamicPlatformPlugin {
 
   // this is used to track restored cached accessories
   public readonly accessories: PlatformAccessory[] = [];
-  public readonly deviceAccessories: Device<Light | Group>[] = [];
 
   public readonly configService: ConfigService;
 
@@ -45,12 +44,12 @@ export class AmbientHueHomebridgePlatform implements DynamicPlatformPlugin {
     public readonly api: API,
   ) {
     process.env.HAH_CONFIG_PATH = api.user.configPath();
+    process.env.HAH_STORAGE_PATH = api.user.storagePath();
     this.configService = new ConfigService();
     this.serverUri = `http://localhost:${this.configService.uiPort}`;
     this.homebridgeUUID = this.api.hap.uuid.generate(
       this.configService.homebridge,
     );
-    process.env.TYPEORM_DATABASE = this.configService.database;
 
     this.fork();
 
@@ -186,10 +185,11 @@ export class AmbientHueHomebridgePlatform implements DynamicPlatformPlugin {
 
       // Update the accessory context
       existingAccessory.context = device;
+      existingAccessory.displayName = this.displayName(device.name);
       this.api.updatePlatformAccessories([existingAccessory]);
 
       // create the accessory handler for the restored accessory
-      this.deviceAccessories.push(new Device(this, existingAccessory as PlatformAccessory<T>));
+      new Device(this, existingAccessory as PlatformAccessory<T>);
 
     } else {
       // the accessory does not yet exist, so we need to create it
@@ -197,7 +197,7 @@ export class AmbientHueHomebridgePlatform implements DynamicPlatformPlugin {
 
       // create a new accessory
       const accessory = new this.api.platformAccessory<T>(
-        this.configService.prefix + device.name,
+        this.displayName(device.name),
         device.uniqueId,
       );
 
@@ -206,12 +206,16 @@ export class AmbientHueHomebridgePlatform implements DynamicPlatformPlugin {
       accessory.context = device;
 
       // create the accessory handler for the newly create accessory
-      this.deviceAccessories.push(new Device(this, accessory));
+      new Device(this, accessory);
 
       // link the accessory to your platform
       this.api.registerPlatformAccessories(PLUGIN_NAME, PLATFORM_NAME, [
         accessory,
       ]);
     }
+  }
+
+  displayName(name: string): string {
+    return `${this.configService.prefix}${name}${this.configService.suffix}`;
   }
 }

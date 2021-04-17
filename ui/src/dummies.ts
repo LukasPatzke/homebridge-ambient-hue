@@ -40,7 +40,7 @@ export const lightInfo: ILightInfo = {
   manufacturername: 'Dummy Manufaturer',
   productname: 'Dummt Product',
   on: false,
-  smartOffActive: false
+  smartoffActive: false
 }
 
 export const light: ILight = {

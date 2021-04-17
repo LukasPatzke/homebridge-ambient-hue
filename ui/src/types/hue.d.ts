@@ -36,7 +36,7 @@ interface ILightBase {
   manufacturername: string;
   productname: string;
   on: boolean
-  smartOffActive: boolean
+  smartoffActive: boolean
   published?: boolean
 }
 export interface ILight extends ILightBase {

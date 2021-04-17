@@ -12,6 +12,7 @@ export interface Config {
   user?: string;
   database?: string;
   prefix?: string;
+  suffix?: string;
 }
 @Injectable()
 export class ConfigService {
@@ -21,12 +22,17 @@ export class ConfigService {
     process.env.HAH_CONFIG_PATH ||
     path.resolve(os.homedir(), '.homebridge/config.json');
 
+  public storagePath =
+    process.env.HAH_STORAGE_PATH ||
+    path.resolve(os.homedir(), '.homebridge');
+
   public readonly uiHost: string;
   public readonly uiPort: number;
   public readonly hueHost: string;
   public readonly hueUser: string;
   public readonly database: string;
   public readonly prefix: string;
+  public readonly suffix: string;
   public readonly homebridge: string;
 
   constructor() {
@@ -51,8 +57,9 @@ export class ConfigService {
     this.hueUser = config.user;
     this.database =
       config.database ||
-      path.resolve(os.homedir(), '.homebridge/ambient-hue.sqlite');
-    this.prefix = config.prefix || 'Auto ';
+      path.resolve(this.storagePath, 'ambient-hue.sqlite');
+    this.prefix = config.prefix || '';
+    this.suffix = config.suffix || ' Auto';
 
     this.homebridge = homebridgeConfig.bridge.username || '0E:67:56:95:CA:D8';
   }
@@ -61,10 +68,10 @@ export class ConfigService {
     return {
       type: 'sqlite',
       database: this.database,
-      entities: ['dist/**/*.entity.js'],
+      entities: [path.join(__dirname, '../**/*.entity.js')],
       keepConnectionAlive: true,
       migrationsTableName: 'migration',
-      migrations: ['src/migration/*.js'],
+      migrations: [path.join(__dirname, '../../migration/*.js')],
       cli: {
         'migrationsDir': 'src/migration',
       },

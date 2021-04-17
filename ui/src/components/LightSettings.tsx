@@ -21,7 +21,7 @@ export const LightSettings: React.FC<ILightSettingsProps> = ({light, onChange}) 
     onChange({onThreshold: value} as ILightUpdate)), 250);
   return (
     <IonList inset>
-      {light.smartOffActive?
+      {light.smartoffActive?
         <IonItem color='primary'>
           <IonLabel>{t('common:settings.smart_off')}</IonLabel>
           <IonIcon icon={colorWand}/>

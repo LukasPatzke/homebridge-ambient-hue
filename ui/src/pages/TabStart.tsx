@@ -89,7 +89,7 @@ const TabStart: React.FC = () => {
             label={pos.light.name}
             state={pos.light.on}
             onClick={()=>pos.light?handleLightClick(pos.light):undefined}
-            smartOff={pos.light.smartOffActive}
+            smartOff={pos.light.smartoffActive}
           />
         )
       } else if (pos.group) {
@@ -101,7 +101,7 @@ const TabStart: React.FC = () => {
             label={pos.group.name}
             state={pos.group.lights.reduce(lightInfoReducer).on}
             onClick={()=>pos.group?handleGroupClick(pos.group):undefined}
-            smartOff={pos.group.lights.reduce(lightInfoReducer).smartOffActive}
+            smartOff={pos.group.lights.reduce(lightInfoReducer).smartoffActive}
           />
         )
       } else { 

@@ -26,11 +26,11 @@ export class Device<T extends Light | Group> {
       )
       .setCharacteristic(
         this.platform.Characteristic.Model,
-        'AmbientHue-Lightbulb',
+        this.model(accessory.context),
       )
       .setCharacteristic(
         this.platform.Characteristic.SerialNumber,
-        'Default-Serial',
+        accessory.context.uniqueId,
       );
 
     // get the LightBulb service if it exists, otherwise create a new LightBulb service
@@ -126,5 +126,18 @@ export class Device<T extends Light | Group> {
     // implement your own code to set the brightness
 
     this.platform.log.debug('Set Characteristic Brightness -> ', value);
+  }
+
+
+  isRoom(device: T): boolean {
+    return ['LightGroup', 'Luminaire', 'LightSource', 'Room', 'Entertainment', 'Zone'].includes(device.type);
+  }
+
+  model(device: T): string {
+    if (this.isRoom(device)) {
+      return 'AmbientHue-Room';
+    } else {
+      return 'AmbientHue-Light';
+    }
   }
 }

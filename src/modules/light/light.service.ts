@@ -139,9 +139,9 @@ export class LightService {
   async resetSmartOff(light: Light) {
     const hue = await this.hueService.findOneLight(light.id);
 
-    light.smartoffOn = hue.state.on || null;
-    light.smartoffBri = hue.state.bri || null;
-    light.smartoffCt = hue.state.ct || null;
+    light.smartoffOn = hue.state.on;
+    light.smartoffBri = hue.state.bri;
+    light.smartoffCt = hue.state.ct;
     light.smartoffActive = false;
 
     return this.lightsRepository.save(light);
