@@ -15,6 +15,17 @@ import { GroupService } from '../group/group.service';
 import { Light } from '../light/entities/light.entity';
 import { ConfigService } from '../config/config.service';
 
+interface HueUserResponse {
+  success?: {
+    username: string;
+  };
+  error?: {
+    type: number;
+    address: string;
+    description: string;
+  };
+}
+
 @Injectable()
 export class HueService {
   private readonly logger = new Logger(HueService.name);
@@ -34,6 +45,21 @@ export class HueService {
   }
 
   async onModuleInit() {
+    const host = this.configService.hueHost;
+    let user = this.configService.hueUser;
+
+    if (user === undefined) {
+      const newUser = await this.createUser();
+      if (newUser === undefined) {
+        this.logger.error('Registration in HUE bridge failed.');
+        throw new InternalServerErrorException('Registration in HUE bridge failed.');
+      } else {
+        user = newUser;
+      }
+    }
+
+    this.baseurl = `http://${host}/api/${user}`;
+
     this.logger.log('Syncronize with Hue bridge.');
     await this.sync();
   }
@@ -200,5 +226,34 @@ export class HueService {
   generateUuid(id: string, type: 'light' | 'group') {
     const NAMESPACE = '97722234-dae4-4ed5-b316-c2424ee4f2d1';
     return uuidv5(`${type}-${id}`, NAMESPACE);
+  }
+
+  /**
+   * Create a new user in the HUE bridge.
+   * @returns new user
+   */
+  async createUser() {
+    let counter = 0;
+    while (counter < 20) {
+      this.logger.log('No HUE bridge user in config found. Please press the button on the bridge to register a new user.');
+
+      const response = await this.httpService.post<HueUserResponse[]>(
+        `http://${this.configService.hueHost}/api`,
+        {devicetype: 'homebridge-ambient-hue'},
+      ).pipe(map((response) => response.data[0]))
+        .toPromise();
+
+      if (response.success) {
+        const hueUser = response.success.username;
+        this.logger.log(`User registered. Please add "user": "${hueUser}" to the config.json.`);
+        return hueUser;
+      }
+
+      await new Promise((resolve) => {
+        setTimeout(resolve, 5000);
+      });
+      counter += 1;
+    }
+    return undefined;
   }
 }

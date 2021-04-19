@@ -4,6 +4,7 @@ import * as fs from 'fs-extra';
 import * as path from 'path';
 import * as os from 'os';
 import { TypeOrmModuleOptions } from '@nestjs/typeorm';
+import axios from 'axios';
 
 export interface Config {
   host?: string;
@@ -14,6 +15,18 @@ export interface Config {
   prefix?: string;
   suffix?: string;
 }
+
+interface HueUserResponse {
+  success?: {
+    username: string;
+  };
+  error?: {
+    type: number;
+    address: string;
+    description: string;
+  };
+}
+
 @Injectable()
 export class ConfigService {
   private readonly logger = new Logger(ConfigService.name);
@@ -29,7 +42,7 @@ export class ConfigService {
   public readonly uiHost: string;
   public readonly uiPort: number;
   public readonly hueHost: string;
-  public readonly hueUser: string;
+  public readonly hueUser?: string;
   public readonly database: string;
   public readonly prefix: string;
   public readonly suffix: string;
@@ -46,8 +59,7 @@ export class ConfigService {
       throw new Error(`No HUE IP in Config file ${this.configPath}`);
     }
     if (config.user === undefined) {
-      this.logger.error(`No HUE User in Config file ${this.configPath}`);
-      throw new Error(`No HUE User in Config file ${this.configPath}`);
+      this.logger.warn(`No HUE User in Config file ${this.configPath}`);
     }
 
     this.uiHost = config.host || '0.0.0.0';
