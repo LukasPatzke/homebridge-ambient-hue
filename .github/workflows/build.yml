@@ -20,7 +20,7 @@ jobs:
           node-version: ${{ matrix.node-version }}
 
       - name: Install dependencies
-        run: npm install --prefix plugin && npm install --prefix ui
+        run: npm install && npm install --prefix ui
 
       - name: Lint the project
         run: npm run lint
