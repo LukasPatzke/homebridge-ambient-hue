@@ -191,12 +191,12 @@ export class CurveService {
     if (x === undefined) {
       const now = new Date();
       const startOfDay = new Date();
-      startOfDay.setHours(4);
+      startOfDay.setHours(0);
       startOfDay.setMinutes(0);
       startOfDay.setSeconds(0);
       startOfDay.setMilliseconds(0);
       const delta = now.valueOf() - startOfDay.valueOf();
-      x = Math.floor(delta / 60_000);
+      x = (Math.floor(delta / 60_000) + 1200) % 1440;
     }
 
     return Math.round(spline(x));
