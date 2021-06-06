@@ -69,7 +69,7 @@ export class LightService {
     }
     this.lightsRepository.merge(light, updateLightDto);
 
-    if (updateLightDto.on !== undefined) {
+    if (updateLightDto.on !== light.on) {
       this.resetSmartOff(light);
     }
     light = await this.lightsRepository.save(light);
