@@ -18,7 +18,7 @@ export class LightGateway {
     this.server.emit(`update/${light.uniqueId}`, light);
 
     const groups = await this.groupService.findByLight(light.id);
-    groups.forEach(group => {
+    groups.forEach((group) => {
       this.server.emit(`update/${group.uniqueId}`, group);
     });
   }

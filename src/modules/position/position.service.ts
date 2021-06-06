@@ -10,7 +10,7 @@ export class PositionService {
   constructor(
     @InjectRepository(Position)
     private positionRepository: Repository<Position>,
-  ) { }
+  ) {}
 
   create(createPositionDto: CreatePositionDto) {
     const position = this.positionRepository.create(createPositionDto);

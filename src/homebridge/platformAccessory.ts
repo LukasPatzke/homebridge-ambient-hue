@@ -128,9 +128,15 @@ export class Device<T extends Light | Group> {
     this.platform.log.debug('Set Characteristic Brightness -> ', value);
   }
 
-
   isRoom(device: T): boolean {
-    return ['LightGroup', 'Luminaire', 'LightSource', 'Room', 'Entertainment', 'Zone'].includes(device.type);
+    return [
+      'LightGroup',
+      'Luminaire',
+      'LightSource',
+      'Room',
+      'Entertainment',
+      'Zone',
+    ].includes(device.type);
   }
 
   model(device: T): string {

@@ -18,7 +18,7 @@ export async function bootstrap() {
   const app = await NestFactory.create<NestFastifyApplication>(
     AppModule,
     fAdapter,
-    { logger: new CustomLogger()},
+    { logger: new CustomLogger() },
   );
   const config = app.get(ConfigService);
 

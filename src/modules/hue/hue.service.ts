@@ -52,7 +52,9 @@ export class HueService {
       const newUser = await this.createUser();
       if (newUser === undefined) {
         this.logger.error('Registration in HUE bridge failed.');
-        throw new InternalServerErrorException('Registration in HUE bridge failed.');
+        throw new InternalServerErrorException(
+          'Registration in HUE bridge failed.',
+        );
       } else {
         user = newUser;
       }
@@ -106,7 +108,9 @@ export class HueService {
   }
 
   setLightState(id: number, state: hueSetState) {
-    this.logger.debug(`Update HUE for light ${id} with state ${JSON.stringify(state)}`);
+    this.logger.debug(
+      `Update HUE for light ${id} with state ${JSON.stringify(state)}`,
+    );
     return this.httpService
       .put(`${this.baseurl}/lights/${id}/state`, state)
       .pipe(map((response) => response.data))
@@ -122,22 +126,27 @@ export class HueService {
     const currentLights = await this.findAllLights();
     const lights = forLights || (await this.lightService.findAll());
 
-    const updates = lights.map(async (light): Promise<number> => {
-      const currentLightState = currentLights[light.id.toString()].state;
+    const updates = lights.map(
+      async (light): Promise<number> => {
+        const currentLightState = currentLights[light.id.toString()].state;
 
-      const nextState = await this.lightService.nextState(
-        light,
-        currentLightState,
-      );
-      if (Object.keys(nextState).length > 0) {
-        await this.setLightState(light.id, nextState);
-        this.lightService.resetSmartOff(light);
-        return 1;
-      }
-      return 0;
-    });
+        const nextState = await this.lightService.nextState(
+          light,
+          currentLightState,
+        );
+        if (Object.keys(nextState).length > 0) {
+          await this.setLightState(light.id, nextState);
+          this.lightService.resetSmartOff(light);
+          return 1;
+        }
+        return 0;
+      },
+    );
 
-    const countUpdated = (await Promise.all(updates)).reduce((pv, cv) => pv+cv, 0);
+    const countUpdated = (await Promise.all(updates)).reduce(
+      (pv, cv) => pv + cv,
+      0,
+    );
     this.logger.debug(`${countUpdated} lights updated`);
     return countUpdated;
   }
@@ -235,17 +244,22 @@ export class HueService {
   async createUser() {
     let counter = 0;
     while (counter < 20) {
-      this.logger.log('No HUE bridge user in config found. Please press the button on the bridge to register a new user.');
+      this.logger.log(
+        'No HUE bridge user in config found. Please press the button on the bridge to register a new user.',
+      );
 
-      const response = await this.httpService.post<HueUserResponse[]>(
-        `http://${this.configService.hueHost}/api`,
-        {devicetype: 'homebridge-ambient-hue'},
-      ).pipe(map((response) => response.data[0]))
+      const response = await this.httpService
+        .post<HueUserResponse[]>(`http://${this.configService.hueHost}/api`, {
+          devicetype: 'homebridge-ambient-hue',
+        })
+        .pipe(map((response) => response.data[0]))
         .toPromise();
 
       if (response.success) {
         const hueUser = response.success.username;
-        this.logger.log(`User registered. Please add "user": "${hueUser}" to the config.json.`);
+        this.logger.log(
+          `User registered. Please add "user": "${hueUser}" to the config.json.`,
+        );
         return hueUser;
       }
 

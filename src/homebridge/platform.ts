@@ -190,7 +190,6 @@ export class AmbientHueHomebridgePlatform implements DynamicPlatformPlugin {
 
       // create the accessory handler for the restored accessory
       new Device(this, existingAccessory as PlatformAccessory<T>);
-
     } else {
       // the accessory does not yet exist, so we need to create it
       this.log.info('Adding new accessory for Device:', device.name);

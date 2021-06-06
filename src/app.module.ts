@@ -20,7 +20,8 @@ import { DeviceModule } from './modules/device/device.module';
   imports: [
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],
-      useFactory: (configService: ConfigService) => configService.getTypeOrmConfig(),
+      useFactory: (configService: ConfigService) =>
+        configService.getTypeOrmConfig(),
       inject: [ConfigService],
     }),
     ScheduleModule.forRoot(),

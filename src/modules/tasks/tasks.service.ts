@@ -10,7 +10,7 @@ export class TasksService {
   constructor(
     private hueService: HueService,
     private lightService: LightService,
-  ) { }
+  ) {}
 
   @Cron('45 * * * * *')
   async update() {
@@ -22,7 +22,7 @@ export class TasksService {
   async cleanup() {
     const lights = await this.lightService.findAll();
 
-    lights.forEach(light => {
+    lights.forEach((light) => {
       this.lightService.update(light.id, { on: false });
     });
   }

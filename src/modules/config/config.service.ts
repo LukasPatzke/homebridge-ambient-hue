@@ -36,8 +36,7 @@ export class ConfigService {
     path.resolve(os.homedir(), '.homebridge/config.json');
 
   public storagePath =
-    process.env.HAH_STORAGE_PATH ||
-    path.resolve(os.homedir(), '.homebridge');
+    process.env.HAH_STORAGE_PATH || path.resolve(os.homedir(), '.homebridge');
 
   public readonly uiHost: string;
   public readonly uiPort: number;
@@ -68,8 +67,7 @@ export class ConfigService {
     this.hueHost = config.bridgeIp;
     this.hueUser = config.user;
     this.database =
-      config.database ||
-      path.resolve(this.storagePath, 'ambient-hue.sqlite');
+      config.database || path.resolve(this.storagePath, 'ambient-hue.sqlite');
     this.prefix = config.prefix || '';
     this.suffix = config.suffix || ' Auto';
 
@@ -85,7 +83,7 @@ export class ConfigService {
       migrationsTableName: 'migration',
       migrations: [path.join(__dirname, '../../migration/*.js')],
       cli: {
-        'migrationsDir': 'src/migration',
+        migrationsDir: 'src/migration',
       },
       migrationsRun: true,
     };
