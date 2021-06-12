@@ -3,6 +3,7 @@ import {
   Inject,
   Injectable,
   NotFoundException,
+  Logger,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { CreateLightDto } from './dto/create-light.dto';
@@ -17,6 +18,8 @@ import { LightGateway } from './light.gateway';
 
 @Injectable()
 export class LightService {
+  private readonly logger = new Logger(LightService.name);
+
   constructor(
     @InjectRepository(Light)
     private lightsRepository: Repository<Light>,
@@ -25,7 +28,7 @@ export class LightService {
     private hueService: HueService,
     private positionService: PositionService,
     private lightGateway: LightGateway,
-  ) {}
+  ) { }
 
   async create(createLightDto: CreateLightDto): Promise<Light> {
     const light = this.lightsRepository.create(createLightDto);
@@ -56,6 +59,8 @@ export class LightService {
   }
 
   async update(id: number, updateLightDto: UpdateLightDto) {
+    this.logger.debug(`Update light ${id}: ${JSON.stringify(updateLightDto)}`);
+
     let light = await this.findOne(id);
     if (updateLightDto.briCurveId !== undefined) {
       updateLightDto.briCurve = await this.curveService.findOne(
@@ -129,14 +134,20 @@ export class LightService {
       ct = light.smartoffCt !== null && light.smartoffCt !== currentState.ct;
     }
 
-    const smartOff = on || bri || ct;
-    light.smartoffActive = smartOff;
+    const isSmartoffActive = on || bri || ct;
+    const smartOff = { on: on, bri: bri, ct: ct };
+    light.smartoffActive = isSmartoffActive;
     this.lightsRepository.save(light);
 
-    return { on: on, bri: bri, ct: ct };
+    if (isSmartoffActive) {
+      this.logger.log(`Smart off active for light ${light.id}: ${JSON.stringify(smartOff)}`);
+    }
+
+    return smartOff;
   }
 
   async resetSmartOff(light: Light) {
+    this.logger.debug(`Reset smart off for light ${light.id}`);
     const hue = await this.hueService.findOneLight(light.id);
 
     light.smartoffOn = hue.state.on;
