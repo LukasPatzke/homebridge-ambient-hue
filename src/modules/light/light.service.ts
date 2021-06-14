@@ -72,11 +72,13 @@ export class LightService {
         updateLightDto.ctCurveId,
       );
     }
-    this.lightsRepository.merge(light, updateLightDto);
 
     if (updateLightDto.on !== light.on) {
       this.resetSmartOff(light);
     }
+
+    this.lightsRepository.merge(light, updateLightDto);
+
     light = await this.lightsRepository.save(light);
     this.lightGateway.emitUpdate(light);
 
@@ -155,6 +157,22 @@ export class LightService {
     light.smartoffCt = hue.state.ct;
     light.smartoffActive = false;
 
+    return this.lightsRepository.save(light);
+  }
+
+  async updateSmartOff(light: Light, update: { on?: boolean; bri?: boolean; ct?: boolean }) {
+    this.logger.debug(`Update smart off for light ${light.id}: ${JSON.stringify(update)}`);
+    const hue = await this.hueService.findOneLight(light.id);
+
+    if (update.on === true) {
+      light.smartoffOn = hue.state.on;
+    }
+    if (update.bri === true) {
+      light.smartoffBri = hue.state.bri;
+    }
+    if (update.ct === true) {
+      light.smartoffCt = hue.state.ct;
+    }
     return this.lightsRepository.save(light);
   }
 

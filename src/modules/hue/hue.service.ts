@@ -136,7 +136,11 @@ export class HueService {
         );
         if (Object.keys(nextState).length > 0) {
           await this.setLightState(light.id, nextState);
-          this.lightService.resetSmartOff(light);
+          this.lightService.updateSmartOff(light, {
+            on: nextState.on !== undefined,
+            bri: nextState.bri !== undefined,
+            ct: nextState.ct !== undefined,
+          });
           return 1;
         }
         return 0;
