@@ -11,7 +11,7 @@ import { UpdateLightDto } from './dto/update-light.dto';
 import { Light } from './entities/light.entity';
 import { Repository } from 'typeorm';
 import { CurveService } from '../curve/curve.service';
-import { hueLightState, hueSetState } from '../hue/dto/hueLight.dto';
+import { hueLightState, hueSetState, hueStateResponse } from '../hue/dto/hueLight.dto';
 import { HueService } from '../hue/hue.service';
 import { PositionService } from '../position/position.service';
 import { LightGateway } from './light.gateway';
@@ -73,7 +73,7 @@ export class LightService {
       );
     }
 
-    if (updateLightDto.on !== light.on) {
+    if ((updateLightDto.on !== light.on) && (light.on !== undefined)) {
       this.resetSmartOff(light);
     }
 
@@ -160,19 +160,35 @@ export class LightService {
     return this.lightsRepository.save(light);
   }
 
-  async updateSmartOff(light: Light, update: { on?: boolean; bri?: boolean; ct?: boolean }) {
-    this.logger.debug(`Update smart off for light ${light.id}: ${JSON.stringify(update)}`);
-    const hue = await this.hueService.findOneLight(light.id);
+  async updateSmartOff(light: Light, hueResponse: hueStateResponse) {
+    this.logger.debug(`Update smart off for light ${light.id}: ${JSON.stringify(hueResponse)}`);
 
-    if (update.on === true) {
-      light.smartoffOn = hue.state.on;
-    }
-    if (update.bri === true) {
-      light.smartoffBri = hue.state.bri;
-    }
-    if (update.ct === true) {
-      light.smartoffCt = hue.state.ct;
-    }
+    hueResponse.forEach(item => {
+      if (item.success !== undefined) {
+        const address = Object.keys(item.success)[0];
+        const match = address.match(/\/lights\/\d+\/state\/(\w+)/);
+        if (match === null) {
+          this.logger.error(`Hue response item cannot be parsed: ${JSON.stringify(item)}`);
+        } else {
+          const param = match[1];
+          switch (param) {
+            case 'on':
+              light.smartoffOn = item.success[address] as boolean;
+              break;
+            case 'bri':
+              light.smartoffBri = item.success[address] as number;
+              break;
+            case 'ct':
+              light.smartoffCt = item.success[address] as number;
+              break;
+            default:
+              this.logger.warn(`Hue response gave unknown parameter ${param} in ${JSON.stringify(item)}`);
+              break;
+          }
+        }
+      }
+    });
+
     return this.lightsRepository.save(light);
   }
 

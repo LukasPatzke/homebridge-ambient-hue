@@ -7,7 +7,7 @@ import {
   Logger,
 } from '@nestjs/common';
 import { v5 as uuidv5 } from 'uuid';
-import { hueLight, hueSetState } from './dto/hueLight.dto';
+import { hueLight, hueSetState, hueStateResponse } from './dto/hueLight.dto';
 import { hueGroup } from './dto/hueGroup.dto';
 import { map } from 'rxjs/operators';
 import { LightService } from '../light/light.service';
@@ -109,11 +109,20 @@ export class HueService {
 
   setLightState(id: number, state: hueSetState) {
     this.logger.debug(
-      `Update HUE for light ${id} with state ${JSON.stringify(state)}`,
+      `Update HUE ${this.configService.hueHost} for light ${id} with state ${JSON.stringify(state)}`,
     );
     return this.httpService
-      .put(`${this.baseurl}/lights/${id}/state`, state)
-      .pipe(map((response) => response.data))
+      .put<hueStateResponse>(`${this.baseurl}/lights/${id}/state`, state)
+      .pipe(map((response) => {
+        const data = response.data;
+        data.forEach((item) => {
+          if (item.error !== undefined) {
+            const error = item.error;
+            this.logger.error(`Error ${error.type} on PUT to ${error.address} on ${this.configService.hueHost}: ${error.description}`);
+          }
+        });
+        return data;
+      }))
       .toPromise();
   }
 
@@ -135,12 +144,8 @@ export class HueService {
           currentLightState,
         );
         if (Object.keys(nextState).length > 0) {
-          await this.setLightState(light.id, nextState);
-          this.lightService.updateSmartOff(light, {
-            on: nextState.on !== undefined,
-            bri: nextState.bri !== undefined,
-            ct: nextState.ct !== undefined,
-          });
+          const response = await this.setLightState(light.id, nextState);
+          this.lightService.updateSmartOff(light, response);
           return 1;
         }
         return 0;

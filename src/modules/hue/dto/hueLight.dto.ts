@@ -29,12 +29,26 @@ export class hueSetState {
   zy_inc?: number[];
 }
 
+export class hueStateResponseItem {
+  success?: Record<string, number | string | boolean>;
+  error?: hueError;
+}
+
+export class hueError {
+  type: number;
+  address: string;
+  description: string;
+}
+
+export type hueStateResponse = hueStateResponseItem[];
+
 export class hueLight {
   state: hueLightState;
   swupdate: {
     state: string;
     lastinstall: string;
   };
+
   type: string;
   name: string;
   modelid: string;
@@ -57,11 +71,13 @@ export class hueLight {
       proxy: boolean;
     };
   };
+
   config: {
     archetype: string;
     function: string;
     direction: string;
   };
+
   uniqueid: string;
   swversion: string;
 }
