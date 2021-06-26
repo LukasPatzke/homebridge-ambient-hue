@@ -129,11 +129,11 @@ export class LightService {
 
     if (light.briControlled) {
       bri =
-        light.smartoffBri !== null && light.smartoffBri !== currentState.bri;
+        light.smartoffBri !== null && (Math.abs(light.smartoffBri - currentState.bri) >= 1);
     }
 
     if (light.ctControlled) {
-      ct = light.smartoffCt !== null && light.smartoffCt !== currentState.ct;
+      ct = light.smartoffCt !== null && (Math.abs(light.smartoffCt - currentState.ct) >= 1);
     }
 
     const isSmartoffActive = on || bri || ct;
