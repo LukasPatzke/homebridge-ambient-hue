@@ -122,18 +122,28 @@ export class LightService {
     let on = false;
     let bri = false;
     let ct = false;
+    const logInfo: string[] = [];
 
     if (light.onControlled) {
       on = light.smartoffOn !== null && light.smartoffOn !== currentState.on;
+      if (on) {
+        logInfo.push(`on: ${light.smartoffOn} !== ${currentState.on}`);
+      }
     }
 
     if (light.briControlled) {
       bri =
         light.smartoffBri !== null && (Math.abs(light.smartoffBri - currentState.bri) >= 1);
+      if (bri) {
+        logInfo.push(`bri: ${light.smartoffBri} !== ${currentState.bri}`);
+      }
     }
 
     if (light.ctControlled) {
       ct = light.smartoffCt !== null && (Math.abs(light.smartoffCt - currentState.ct) >= 1);
+      if (ct) {
+        logInfo.push(`ct: ${light.smartoffCt} !== ${currentState.ct}`);
+      }
     }
 
     const isSmartoffActive = on || bri || ct;
@@ -142,7 +152,7 @@ export class LightService {
     this.lightsRepository.save(light);
 
     if (isSmartoffActive) {
-      this.logger.log(`Smart off active for light ${light.id}: ${JSON.stringify(smartOff)}`);
+      this.logger.log(`Smart off active for light ${light.id}: ${JSON.stringify(smartOff)}; ${logInfo.join(', ')}`);
     }
 
     return smartOff;
