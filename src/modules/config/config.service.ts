@@ -4,7 +4,6 @@ import * as fs from 'fs-extra';
 import * as path from 'path';
 import * as os from 'os';
 import { TypeOrmModuleOptions } from '@nestjs/typeorm';
-import axios from 'axios';
 
 export interface Config {
   host?: string;
@@ -15,17 +14,6 @@ export interface Config {
   prefix?: string;
   suffix?: string;
   debugLog: boolean;
-}
-
-interface HueUserResponse {
-  success?: {
-    username: string;
-  };
-  error?: {
-    type: number;
-    address: string;
-    description: string;
-  };
 }
 
 @Injectable()

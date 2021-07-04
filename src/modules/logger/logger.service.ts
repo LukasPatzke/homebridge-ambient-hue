@@ -12,10 +12,7 @@ export const enum LogLevel {
 }
 
 export class CustomLogger implements LoggerService {
-  constructor(
-    private configService: ConfigService,
-    private context: string,
-  ) { }
+  constructor(private configService: ConfigService, private context: string) { }
 
   log(message: any, context?: string, level?: LogLevel, trace?: string) {
     /* your implementation */

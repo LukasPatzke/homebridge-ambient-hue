@@ -109,20 +109,25 @@ export class HueService {
 
   setLightState(id: number, state: hueSetState) {
     this.logger.debug(
-      `Update HUE ${this.configService.hueHost} for light ${id} with state ${JSON.stringify(state)}`,
+      `Update HUE ${this.configService.hueHost
+      } for light ${id} with state ${JSON.stringify(state)}`,
     );
     return this.httpService
       .put<hueStateResponse>(`${this.baseurl}/lights/${id}/state`, state)
-      .pipe(map((response) => {
-        const data = response.data;
-        data.forEach((item) => {
-          if (item.error !== undefined) {
-            const error = item.error;
-            this.logger.error(`Error ${error.type} on PUT to ${error.address} on ${this.configService.hueHost}: ${error.description}`);
-          }
-        });
-        return data;
-      }))
+      .pipe(
+        map((response) => {
+          const data = response.data;
+          data.forEach((item) => {
+            if (item.error !== undefined) {
+              const error = item.error;
+              this.logger.error(
+                `Error ${error.type} on PUT to ${error.address} on ${this.configService.hueHost}: ${error.description}`,
+              );
+            }
+          });
+          return data;
+        }),
+      )
       .toPromise();
   }
 

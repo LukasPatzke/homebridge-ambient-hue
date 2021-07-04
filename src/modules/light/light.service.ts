@@ -11,7 +11,11 @@ import { UpdateLightDto } from './dto/update-light.dto';
 import { Light } from './entities/light.entity';
 import { Repository } from 'typeorm';
 import { CurveService } from '../curve/curve.service';
-import { hueLightState, hueSetState, hueStateResponse } from '../hue/dto/hueLight.dto';
+import {
+  hueLightState,
+  hueSetState,
+  hueStateResponse,
+} from '../hue/dto/hueLight.dto';
 import { HueService } from '../hue/hue.service';
 import { PositionService } from '../position/position.service';
 import { LightGateway } from './light.gateway';
@@ -73,7 +77,7 @@ export class LightService {
       );
     }
 
-    if ((updateLightDto.on !== light.on) && (light.on !== undefined)) {
+    if (updateLightDto.on !== light.on && light.on !== undefined) {
       this.resetSmartOff(light);
     }
 
@@ -133,14 +137,17 @@ export class LightService {
 
     if (light.briControlled) {
       bri =
-        light.smartoffBri !== null && (Math.abs(light.smartoffBri - currentState.bri) >= 1);
+        light.smartoffBri !== null &&
+        Math.abs(light.smartoffBri - currentState.bri) >= 1;
       if (bri) {
         logInfo.push(`bri: ${light.smartoffBri} !== ${currentState.bri}`);
       }
     }
 
     if (light.ctControlled) {
-      ct = light.smartoffCt !== null && (Math.abs(light.smartoffCt - currentState.ct) >= 1);
+      ct =
+        light.smartoffCt !== null &&
+        Math.abs(light.smartoffCt - currentState.ct) >= 1;
       if (ct) {
         logInfo.push(`ct: ${light.smartoffCt} !== ${currentState.ct}`);
       }
@@ -152,7 +159,11 @@ export class LightService {
     this.lightsRepository.save(light);
 
     if (isSmartoffActive) {
-      this.logger.log(`Smart off active for light ${light.id}: ${JSON.stringify(smartOff)}; ${logInfo.join(', ')}`);
+      this.logger.log(
+        `Smart off active for light ${light.id}: ${JSON.stringify(
+          smartOff,
+        )}; ${logInfo.join(', ')}`,
+      );
     }
 
     return smartOff;
@@ -171,14 +182,18 @@ export class LightService {
   }
 
   async updateSmartOff(light: Light, hueResponse: hueStateResponse) {
-    this.logger.debug(`Update smart off for light ${light.id}: ${JSON.stringify(hueResponse)}`);
+    this.logger.debug(
+      `Update smart off for light ${light.id}: ${JSON.stringify(hueResponse)}`,
+    );
 
-    hueResponse.forEach(item => {
+    hueResponse.forEach((item) => {
       if (item.success !== undefined) {
         const address = Object.keys(item.success)[0];
         const match = address.match(/\/lights\/\d+\/state\/(\w+)/);
         if (match === null) {
-          this.logger.error(`Hue response item cannot be parsed: ${JSON.stringify(item)}`);
+          this.logger.error(
+            `Hue response item cannot be parsed: ${JSON.stringify(item)}`,
+          );
         } else {
           const param = match[1];
           switch (param) {
@@ -192,7 +207,11 @@ export class LightService {
               light.smartoffCt = item.success[address] as number;
               break;
             default:
-              this.logger.warn(`Hue response gave unknown parameter ${param} in ${JSON.stringify(item)}`);
+              this.logger.warn(
+                `Hue response gave unknown parameter ${param} in ${JSON.stringify(
+                  item,
+                )}`,
+              );
               break;
           }
         }
