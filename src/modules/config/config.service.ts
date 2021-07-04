@@ -14,6 +14,7 @@ export interface Config {
   database?: string;
   prefix?: string;
   suffix?: string;
+  debugLog: boolean;
 }
 
 interface HueUserResponse {
@@ -46,6 +47,7 @@ export class ConfigService {
   public readonly prefix: string;
   public readonly suffix: string;
   public readonly homebridge: string;
+  public readonly debugLog: boolean;
 
   constructor() {
     const homebridgeConfig = fs.readJSONSync(this.configPath);
@@ -70,6 +72,7 @@ export class ConfigService {
       config.database || path.resolve(this.storagePath, 'ambient-hue.sqlite');
     this.prefix = config.prefix || '';
     this.suffix = config.suffix || ' Auto';
+    this.debugLog = config.debugLog;
 
     this.homebridge = homebridgeConfig.bridge.username || '0E:67:56:95:CA:D8';
   }

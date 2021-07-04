@@ -42,6 +42,11 @@
         "title": "Device Suffix",
         "type": "string",
         "placeholder": " Auto"
+      },
+      "debugLog": {
+        "title": "Enable debug log",
+        "type": "boolean",
+        "default:": false
       }
     }
   }

@@ -1,6 +1,7 @@
 import { LoggerService } from '@nestjs/common';
 import util from 'util';
 import chalk from 'chalk';
+import { ConfigService } from '../config/config.service';
 
 export const enum LogLevel {
   INFO = 'info',
@@ -11,7 +12,10 @@ export const enum LogLevel {
 }
 
 export class CustomLogger implements LoggerService {
-  // constructor(private context: string) {}
+  constructor(
+    private configService: ConfigService,
+    private context: string,
+  ) { }
 
   log(message: any, context?: string, level?: LogLevel, trace?: string) {
     /* your implementation */
@@ -28,28 +32,38 @@ export class CustomLogger implements LoggerService {
         loggingFunction = console.error;
         break;
       case LogLevel.DEBUG:
-        message = chalk.gray(message);
+        if (this.configService.debugLog) {
+          message = chalk.gray(message);
+        } else {
+          message = undefined;
+        }
         break;
       case LogLevel.VERBOSE:
-        message = chalk.gray(message);
+        if (this.configService.debugLog) {
+          message = chalk.gray(message);
+        } else {
+          message = undefined;
+        }
         break;
       case undefined:
         message = chalk.gray(message);
     }
 
-    message = chalk.cyan(`[AmbientHue:${chalk.green(context)}] `) + message;
+    if (message !== undefined) {
+      message = chalk.cyan(`[AmbientHue:${chalk.green(context)}] `) + message;
 
-    const date = new Date();
-    message = chalk.white(`[${date.toLocaleString()}] `) + message;
+      const date = new Date();
+      message = chalk.white(`[${date.toLocaleString()}] `) + message;
 
-    loggingFunction(message);
-    if (trace) {
-      loggingFunction(chalk.gray(trace));
+      loggingFunction(message);
+      if (trace) {
+        loggingFunction(chalk.gray(trace));
+      }
     }
   }
 
   error(message: string, trace: string, context?: string) {
-    this.log(message, context, LogLevel.ERROR);
+    this.log(message, context, LogLevel.ERROR, trace);
   }
 
   warn(message: string, context?: string) {

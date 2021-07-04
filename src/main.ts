@@ -18,9 +18,10 @@ export async function bootstrap() {
   const app = await NestFactory.create<NestFastifyApplication>(
     AppModule,
     fAdapter,
-    { logger: new CustomLogger() },
+    { logger: false },
   );
   const config = app.get(ConfigService);
+  app.useLogger(new CustomLogger(config, 'AmbientHue'));
 
   // serve index.html without a cache
   app

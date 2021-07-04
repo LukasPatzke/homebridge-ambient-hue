@@ -41,6 +41,7 @@ Key        | Default     | Description
 `port`     | `3000`      | Port for the web interface.
 `prefix`   | `""`        | A prefix that is attached to the name of all Devices.
 `suffix`   | `" Auto"`   | A suffix that is attached to the name of all Devices.
+`debugLog` | `False`     | Output more detailed logs.  
 
 ## First Steps
 
