@@ -1,11 +1,11 @@
 import {
   forwardRef,
-  HttpService,
   Inject,
   Injectable,
   InternalServerErrorException,
   Logger,
 } from '@nestjs/common';
+import { HttpService } from '@nestjs/axios';
 import { v5 as uuidv5 } from 'uuid';
 import { hueLight, hueSetState, hueStateResponse } from './dto/hueLight.dto';
 import { hueGroup } from './dto/hueGroup.dto';
@@ -14,6 +14,7 @@ import { LightService } from '../light/light.service';
 import { GroupService } from '../group/group.service';
 import { Light } from '../light/entities/light.entity';
 import { ConfigService } from '../config/config.service';
+import { lastValueFrom } from 'rxjs';
 
 interface HueUserResponse {
   success?: {
@@ -67,10 +68,10 @@ export class HueService {
   }
 
   findAllLights(): Promise<Record<string, hueLight>> {
-    return this.httpService
+    return lastValueFrom(this.httpService
       .get(`${this.baseurl}/lights`)
-      .pipe(map((response) => response.data))
-      .toPromise()
+      .pipe(map((response) => response.data)),
+    )
       .catch((err) => {
         this.logger.log(err);
         throw new InternalServerErrorException(err);
@@ -78,30 +79,30 @@ export class HueService {
   }
 
   findOneLight(id: number): Promise<hueLight> {
-    return this.httpService
+    return lastValueFrom(this.httpService
       .get(`${this.baseurl}/lights/${id}`)
-      .pipe(map((response) => response.data))
-      .toPromise()
+      .pipe(map((response) => response.data)),
+    )
       .catch((err) => {
         throw new InternalServerErrorException(err);
       });
   }
 
   findAllGroups(): Promise<Record<string, hueGroup>> {
-    return this.httpService
+    return lastValueFrom(this.httpService
       .get(`${this.baseurl}/groups`)
-      .pipe(map((response) => response.data))
-      .toPromise()
+      .pipe(map((response) => response.data)),
+    )
       .catch((err) => {
         throw new InternalServerErrorException(err);
       });
   }
 
   findOneGroup(id: number): Promise<hueGroup> {
-    return this.httpService
+    return lastValueFrom(this.httpService
       .get(`${this.baseurl}/groups/${id}`)
-      .pipe(map((response) => response.data))
-      .toPromise()
+      .pipe(map((response) => response.data)),
+    )
       .catch((err) => {
         throw new InternalServerErrorException(err);
       });
@@ -112,7 +113,7 @@ export class HueService {
       `Update HUE ${this.configService.hueHost
       } for light ${id} with state ${JSON.stringify(state)}`,
     );
-    return this.httpService
+    return lastValueFrom(this.httpService
       .put<hueStateResponse>(`${this.baseurl}/lights/${id}/state`, state)
       .pipe(
         map((response) => {
@@ -127,8 +128,7 @@ export class HueService {
           });
           return data;
         }),
-      )
-      .toPromise();
+      ));
   }
 
   /**
@@ -262,12 +262,12 @@ export class HueService {
         'No HUE bridge user in config found. Please press the button on the bridge to register a new user.',
       );
 
-      const response = await this.httpService
+      const response = await lastValueFrom(this.httpService
         .post<HueUserResponse[]>(`http://${this.configService.hueHost}/api`, {
           devicetype: 'homebridge-ambient-hue',
         })
-        .pipe(map((response) => response.data[0]))
-        .toPromise();
+        .pipe(map((response) => response.data[0])),
+      );
 
       if (response.success) {
         const hueUser = response.success.username;

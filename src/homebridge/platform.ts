@@ -9,7 +9,7 @@ import {
 } from 'homebridge';
 import { PLATFORM_NAME, PLUGIN_NAME } from './settings';
 import { Device } from './platformAccessory';
-import io from 'socket.io-client';
+import {io, Socket} from 'socket.io-client';
 import * as path from 'path';
 import * as child_process from 'child_process';
 import axios from 'axios';
@@ -36,7 +36,7 @@ export class AmbientHueHomebridgePlatform implements DynamicPlatformPlugin {
   public readonly serverUri: string;
   public readonly homebridgeUUID: string;
 
-  public socket: SocketIOClient.Socket;
+  public socket: Socket;
 
   constructor(
     public readonly log: Logger,
@@ -102,7 +102,8 @@ export class AmbientHueHomebridgePlatform implements DynamicPlatformPlugin {
 
     this.log.info('Spawning homebridge-ambient-hue with PID', ui.pid);
 
-    ui.on('close', () => {
+    ui.on('close', (code, signal) => {
+      this.log.error('UI Process closed: ', code, signal);
       process.kill(process.pid, 'SIGTERM');
     });
 

@@ -1,4 +1,5 @@
-import { forwardRef, HttpModule, Module } from '@nestjs/common';
+import { forwardRef, Module } from '@nestjs/common';
+import { HttpModule } from '@nestjs/axios';
 import { LightModule } from '../light/light.module';
 import { LightService } from '../light/light.service';
 import { HueService } from './hue.service';
