@@ -35,19 +35,19 @@ export const GroupList: React.FC<IGroupListProps> = ({groups}) => {
         <IonLabel>{t('zones')}</IonLabel>
       </ListHeader>
       <IonList inset>
-        {zones.length>0?zones:<SkeletonItems count={2}/>}
+        {groups.length>0?zones:<SkeletonItems count={2}/>}
       </IonList>
       <ListHeader inset>
         <IonLabel>{t('rooms')}</IonLabel>
       </ListHeader>
       <IonList inset>
-        {rooms.length>0?rooms:<SkeletonItems/>}
+        {groups.length>0?rooms:<SkeletonItems/>}
       </IonList>
       <ListHeader inset>
         <IonLabel>{t('other')}</IonLabel>
       </ListHeader>
       <IonList inset>
-        {other.length>0?other:<SkeletonItems/>}
+        {groups.length>0?other:<SkeletonItems/>}
       </IonList>
     </div>
   )
