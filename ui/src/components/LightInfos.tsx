@@ -30,7 +30,15 @@ export const InfoItem: React.FC<IInfoItemProps> = ({label, value}) => {
   return (
     <IonItem>
       <IonLabel>{label}</IonLabel>
-      <IonNote slot='end'>{value}</IonNote>
+      <IonNote slot='end' style={{
+        overflow: 'hidden',
+        textOverflow: 'ellipsis',
+        whiteSpace: 'nowrap',
+        wordWrap: 'normal',
+        maxWidth: 190
+      }}>
+        {value}
+      </IonNote>
     </IonItem>
   )
 }
