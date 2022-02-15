@@ -148,6 +148,21 @@ export class AmbientHueHomebridgePlatform implements DynamicPlatformPlugin {
       this.registerDevice(group);
     }
 
+    // Remove stale accessories
+    const staleAccessories = this.accessories.filter((accessory)=>(
+      !lights.map(l=>l.uniqueId).includes(accessory.UUID) &&
+      !groups.map(g=>g.uniqueId).includes(accessory.UUID) &&
+      accessory.UUID !== this.homebridgeUUID
+    ));
+    if (staleAccessories.length > 0) {
+      this.log.warn(
+        'Removing stale accessories: ',
+        JSON.stringify(staleAccessories.map(a=>a.displayName)),
+      );
+      this.api.unregisterPlatformAccessories(PLUGIN_NAME, PLATFORM_NAME, staleAccessories);
+    }
+
+    // Add an Accessory that allows to force an Update of AmbientHUE
     const existingUpdateAccessory = this.accessories.find(
       (accessory) => accessory.UUID === this.homebridgeUUID,
     );
@@ -183,14 +198,20 @@ export class AmbientHueHomebridgePlatform implements DynamicPlatformPlugin {
         'Restoring existing accessory from cache:',
         existingAccessory.displayName,
       );
-
       // Update the accessory context
       existingAccessory.context = device;
       existingAccessory.displayName = this.displayName(device.name);
       this.api.updatePlatformAccessories([existingAccessory]);
 
+      this.log.debug(
+        'Restoring existing accessory from cache:',
+        existingAccessory.displayName,
+      );
+
       // create the accessory handler for the restored accessory
       new Device(this, existingAccessory as PlatformAccessory<T>);
+
+      this.api.updatePlatformAccessories([existingAccessory]);
     } else {
       // the accessory does not yet exist, so we need to create it
       this.log.info('Adding new accessory for Device:', device.name);
