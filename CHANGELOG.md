@@ -7,11 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.0.6] - 2022-02-15
+
+### Changed
+
+- Devices that were renamed in HUE are correctly renamed in HomeKit
+- Devices that were removed in HUE are correctly removed from HomeKit
+
 ## [0.0.5] - 2022-02-12
 
 ### Changed
 
 - Droped support for node versions < v.14
+
 ### Security
 
 - Update dependencies
