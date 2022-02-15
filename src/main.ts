@@ -18,7 +18,7 @@ export async function bootstrap() {
   const app = await NestFactory.create<NestFastifyApplication>(
     AppModule,
     fAdapter,
-    { logger: false },
+    { logger: ['error', 'warn'] },
   );
   const config = app.get(ConfigService);
   app.useLogger(new CustomLogger(config, 'AmbientHue'));

@@ -63,9 +63,6 @@ export class ConfigService {
     this.debugLog = config.debugLog;
 
     this.homebridge = homebridgeConfig.bridge.username || '0E:67:56:95:CA:D8';
-
-    this.logger.debug('Loaded Configuration');
-    this.logger.debug(JSON.stringify(this));
   }
 
   public getTypeOrmConfig(): TypeOrmModuleOptions {
