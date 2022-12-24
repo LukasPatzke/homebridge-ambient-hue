@@ -106,10 +106,6 @@ export class AmbientHueHomebridgePlatform implements DynamicPlatformPlugin {
       this.log.error('UI Process closed: ', code, signal);
       process.kill(process.pid, 'SIGTERM');
     });
-
-    ui.on('error', (err) => {
-      this.log.error(err.message);
-    });
   }
 
   /**

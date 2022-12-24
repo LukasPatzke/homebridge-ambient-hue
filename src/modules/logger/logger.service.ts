@@ -14,7 +14,7 @@ export const enum LogLevel {
 export class CustomLogger implements LoggerService {
   constructor(private configService: ConfigService, private context: string) { }
 
-  log(message: any, context?: string, level?: LogLevel, trace?: string) {
+  log(message: any, context: string = this.context, level?: LogLevel, trace?: string) {
     /* your implementation */
     message = util.format(message);
 
@@ -59,7 +59,7 @@ export class CustomLogger implements LoggerService {
     }
   }
 
-  error(message: string, trace: string, context?: string) {
+  error(message: string, context?: string, trace?: string) {
     this.log(message, context, LogLevel.ERROR, trace);
   }
 

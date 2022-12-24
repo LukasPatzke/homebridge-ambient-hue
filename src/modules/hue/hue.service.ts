@@ -9,12 +9,13 @@ import { HttpService } from '@nestjs/axios';
 import { v5 as uuidv5 } from 'uuid';
 import { hueLight, hueSetState, hueStateResponse } from './dto/hueLight.dto';
 import { hueGroup } from './dto/hueGroup.dto';
-import { map } from 'rxjs/operators';
 import { LightService } from '../light/light.service';
 import { GroupService } from '../group/group.service';
 import { Light } from '../light/entities/light.entity';
 import { ConfigService } from '../config/config.service';
-import { lastValueFrom } from 'rxjs';
+import { lastValueFrom, catchError, map } from 'rxjs';
+import { AxiosError } from 'axios';
+import { hueErrorResponse } from './dto/hueResponse.dto';
 
 interface HueUserResponse {
   success?: {
@@ -25,6 +26,13 @@ interface HueUserResponse {
     address: string;
     description: string;
   };
+}
+
+function isHueErrorResponse(response: any): response is hueErrorResponse {
+  if (!Array.isArray(response)) {
+    return false;
+  }
+  return (response as hueErrorResponse)[0].error !== undefined;
 }
 
 @Injectable()
@@ -67,45 +75,40 @@ export class HueService {
     await this.sync();
   }
 
-  findAllLights(): Promise<Record<string, hueLight>> {
+  private get<T = any>(url: string): Promise<T> {
     return lastValueFrom(this.httpService
-      .get(`${this.baseurl}/lights`)
-      .pipe(map((response) => response.data)),
-    )
-      .catch((err) => {
-        this.logger.log(err);
-        throw new InternalServerErrorException(err);
-      });
+      .get<T | hueErrorResponse>(url)
+      .pipe(
+        catchError((err: AxiosError) => {
+          this.logger.error(err);
+          throw err.message;
+        }),
+        map((response) => {
+          if (isHueErrorResponse(response.data)) {
+            const description = response.data[0].error.description;
+            this.logger.error(description);
+            throw description;
+          }
+          return response.data;
+        }),
+      ),
+    );
+  }
+
+  findAllLights(): Promise<Record<string, hueLight>> {
+    return this.get<Record<string, hueLight>>(`${this.baseurl}/lights`);
   }
 
   findOneLight(id: number): Promise<hueLight> {
-    return lastValueFrom(this.httpService
-      .get(`${this.baseurl}/lights/${id}`)
-      .pipe(map((response) => response.data)),
-    )
-      .catch((err) => {
-        throw new InternalServerErrorException(err);
-      });
+    return this.get<hueLight>(`${this.baseurl}/lights/${id}`);
   }
 
   findAllGroups(): Promise<Record<string, hueGroup>> {
-    return lastValueFrom(this.httpService
-      .get(`${this.baseurl}/groups`)
-      .pipe(map((response) => response.data)),
-    )
-      .catch((err) => {
-        throw new InternalServerErrorException(err);
-      });
+    return this.get<Record<string, hueGroup>>(`${this.baseurl}/groups`);
   }
 
   findOneGroup(id: number): Promise<hueGroup> {
-    return lastValueFrom(this.httpService
-      .get(`${this.baseurl}/groups/${id}`)
-      .pipe(map((response) => response.data)),
-    )
-      .catch((err) => {
-        throw new InternalServerErrorException(err);
-      });
+    return this.get<hueGroup>(`${this.baseurl}/groups/${id}`);
   }
 
   setLightState(id: number, state: hueSetState) {
