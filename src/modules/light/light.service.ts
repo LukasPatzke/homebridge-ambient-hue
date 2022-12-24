@@ -9,7 +9,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { CreateLightDto } from './dto/create-light.dto';
 import { UpdateLightDto } from './dto/update-light.dto';
 import { Light } from './entities/light.entity';
-import { Repository } from 'typeorm';
+import { In, Repository } from 'typeorm';
 import { CurveService } from '../curve/curve.service';
 import {
   hueLightState,
@@ -45,8 +45,8 @@ export class LightService {
   }
 
   findOne(id: number): Promise<Light> {
-    return this.lightsRepository.findOne(id).then((light) => {
-      if (light === undefined) {
+    return this.lightsRepository.findOneBy({id: id}).then((light) => {
+      if (light === null) {
         throw new NotFoundException(`Light with id ${id} not found.`);
       } else {
         return light;
@@ -54,12 +54,18 @@ export class LightService {
     });
   }
 
-  findByIds(ids: number[]) {
-    return this.lightsRepository.findByIds(ids);
+  findByIds(ids: number[]): Promise<Light[]> {
+    return this.lightsRepository.findBy({ id: In(ids) });
   }
 
-  findByUniqueId(uniqueId: string) {
-    return this.lightsRepository.findOne({ uniqueId: uniqueId });
+  findByUniqueId(uniqueId: string): Promise<Light> {
+    return this.lightsRepository.findOneBy({ uniqueId: uniqueId }).then((light) => {
+      if (light === null) {
+        throw new NotFoundException(`Light with uniqueId ${uniqueId} not found.`);
+      } else {
+        return light;
+      }
+    });
   }
 
   async update(id: number, updateLightDto: UpdateLightDto) {

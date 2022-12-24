@@ -5,6 +5,7 @@ import * as path from 'path';
 import * as os from 'os';
 import { TypeOrmModuleOptions } from '@nestjs/typeorm';
 
+
 export interface Config {
   host?: string;
   port?: number;
@@ -73,9 +74,6 @@ export class ConfigService {
       keepConnectionAlive: true,
       migrationsTableName: 'migration',
       migrations: [path.join(__dirname, '../../migration/*.js')],
-      cli: {
-        migrationsDir: 'src/migration',
-      },
       migrationsRun: true,
     };
   }

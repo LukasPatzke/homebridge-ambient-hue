@@ -28,7 +28,7 @@ export class PositionService {
   }
 
   findOne(id: number) {
-    return this.positionRepository.findOne(id).then((pos) => {
+    return this.positionRepository.findOneBy({id: id}).then((pos) => {
       if (pos === undefined) {
         throw new NotFoundException(`Position with id ${id} not found.`);
       } else {

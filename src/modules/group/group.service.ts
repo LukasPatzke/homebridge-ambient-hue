@@ -39,20 +39,22 @@ export class GroupService {
   }
 
   findOne(id: number): Promise<Group> {
-    return this.groupsRepository.findOne(id).then((group) => {
-      if (group === undefined) {
+    return this.groupsRepository.findOneBy({id: id}).then((group) => {
+      if (group === null) {
         throw new NotFoundException(`Group with id ${id} not found.`);
-      } else {
-        group.updateLightState();
-        return group;
       }
+      group.updateLightState();
+      return group;
     });
   }
 
-  findByUniqueId(uniqueId: string) {
+  findByUniqueId(uniqueId: string): Promise<Group> {
     return this.groupsRepository
-      .findOne({ uniqueId: uniqueId })
+      .findOneBy({ uniqueId: uniqueId })
       .then((group) => {
+        if (group === null) {
+          throw new NotFoundException(`Group with uniqueId ${uniqueId} not found.`);
+        }
         group?.updateLightState();
         return group;
       });

@@ -97,7 +97,7 @@ export class CurveService {
       .orderBy('point.x')
       .getOne()
       .then((curve) => {
-        if (curve === undefined) {
+        if (curve === null) {
           throw new NotFoundException(`Curve with id ${id} not found.`);
         } else {
           return curve;

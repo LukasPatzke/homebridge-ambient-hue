@@ -33,8 +33,8 @@ export class PointService {
   }
 
   findOne(id: number) {
-    return this.pointRepository.findOne(id).then((point) => {
-      if (point === undefined) {
+    return this.pointRepository.findOneBy({id: id}).then((point) => {
+      if (point === null) {
         throw new NotFoundException(`Point with id ${id} not found.`);
       } else {
         return point;
