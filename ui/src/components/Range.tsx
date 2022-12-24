@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { IonLabel, IonIcon, IonItem, IonNote, IonRange, IonButton } from '@ionic/react';
 import { RangeChangeEventDetail } from '@ionic/core';
 import { closeCircle } from 'ionicons/icons';
@@ -17,10 +17,6 @@ interface IRangeProps {
 
 export const Range: React.FC<IRangeProps> = ({label, min, max, defaultValue, onChange, children, step, snaps, ticks, reset}) => {
   const [value, setValue] = useState(defaultValue);
-
-  useEffect(()=>{
-    setValue(defaultValue)
-  }, [defaultValue])
 
   const renderPercentage = (value: number | undefined) => {
     if (value) {
