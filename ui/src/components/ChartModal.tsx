@@ -11,6 +11,7 @@ interface IChartModalProps {
   onClose: ()=>void;
   pageRef?: HTMLElement;
   title: string;
+  children?: React.ReactNode;
 }
 export const ChartModal: React.FC<IChartModalProps> = ({isOpen, onClose, pageRef, children, title}) => {
   const [xScale, setXScale] = useState({min:360, max:1080});
@@ -32,7 +33,7 @@ export const ChartModal: React.FC<IChartModalProps> = ({isOpen, onClose, pageRef
   }
 
   return (
-    <IonModal isOpen={isOpen} swipeToClose presentingElement={pageRef} onDidDismiss={onClose}>
+    <IonModal isOpen={isOpen} canDismiss presentingElement={pageRef} onDidDismiss={onClose}>
       <IonHeader>
           <IonToolbar>
             <IonTitle>{title}</IonTitle>

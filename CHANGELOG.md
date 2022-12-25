@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+- Fixed a bug in the UI, where a range slider could get stuck in an infinite loop
+### Security
+- updated dependecies with security vulnerabilies
 ## [0.0.6] - 2022-02-15
 
 ### Changed

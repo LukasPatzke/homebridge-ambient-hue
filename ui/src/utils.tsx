@@ -1,33 +1,4 @@
-import { Plugins } from '@capacitor/core';
-import { isPlatform } from '@ionic/react';
 import { ILight, ILightInfo } from './types/hue';
-
-const { Storage } = Plugins;
-
-export const api = () => {
-  const server = Storage.get({key:'apiServer'});
-  const port = Storage.get({key:'apiPort'});
-  const ssl = Storage.get({key:'apiSsl'});
-
-  return Promise.all([server, port, ssl]).then(([server, port, ssl])=>{
-    return new Promise<string>((resolve, reject)=>{
-      if (isPlatform('desktop') || isPlatform('mobileweb') ) {
-        resolve('/api')
-      } else {
-        if ((!server.value) || (server.value==='')) {
-          reject('server not in storage')
-        } else {
-          var url='';
-          if (ssl.value==='true') {url+='https://'} else {url+='http://'}
-          url += server.value;
-          if (port.value!=='null') {url+=`:${port.value}`}
-          url += '/api'
-          resolve(url)
-        }
-      }
-    })
-  })
-}
 
 
 export const range = (start: number, stop?: number, step?: number) => {

@@ -2,6 +2,7 @@ import React from 'react';
 
 interface IListHeaderProps {
   inset?: boolean;
+  children?: React.ReactNode;
 }
 
 export const ListHeader: React.FC<IListHeaderProps> = ({children, inset=false}) => {

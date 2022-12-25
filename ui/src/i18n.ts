@@ -23,12 +23,13 @@ i18n
     interpolation: {
       escapeValue: false, // not needed for react as it escapes by default
     },
-    whitelist: ['en', 'de'],
-    nonExplicitWhitelist: false,
+    supportedLngs: ['en', 'de'],
+    nonExplicitSupportedLngs: false,
     resources: {
         en: en,
         de: de,
     },
+    returnNull: false,
   });
 
 

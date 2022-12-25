@@ -6,7 +6,6 @@ import { chevronBack, chevronUp  } from 'ionicons/icons';
 import { Chart, IChange, IOnChange } from 'src/components/Chart';
 import { ChartModal } from '../components/ChartModal';
 import { get, post, del, patch } from '../components/useApi';
-import { HapticsImpactStyle, useHaptics } from '../components/useHaptics';
 import { CurveTypeBadge } from './PageCurves';
 import { RefresherEventDetail } from '@ionic/core';
 import { ICurve } from 'src/types/hue';
@@ -35,8 +34,6 @@ export const CurveDetail : React.FC<ICurveDetailProps> = ({id, embedded=false, e
   const [showRenameAlert, setShowRenameAlert] = useState(false);
   const { t } = useTranslation(['common', 'curves']);
   let history = useHistory();
-
-  const [ Haptics ] = useHaptics();
 
   useEffect(()=>{
     get({url: `/curves/${id}`}).then(setCurve)
@@ -78,7 +75,6 @@ export const CurveDetail : React.FC<ICurveDetailProps> = ({id, embedded=false, e
 
 
   const handleModalOpen = () => {
-    Haptics.impact({style: HapticsImpactStyle.Medium})
     setModalOpen(true)
   }
 

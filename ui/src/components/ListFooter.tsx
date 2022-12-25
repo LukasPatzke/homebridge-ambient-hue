@@ -2,6 +2,7 @@ import React from 'react';
 
 interface IListFooterProps {
   inset?: boolean;
+  children?: React.ReactNode;
 }
 
 export const ListFooter: React.FC<IListFooterProps> = ({children, inset=false}) => {

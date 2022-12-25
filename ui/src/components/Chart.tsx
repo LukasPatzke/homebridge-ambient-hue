@@ -1,6 +1,6 @@
 import { isPlatform } from '@ionic/react';
 import moment from 'moment';
-import React, { useState, useCallback, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { Scatter } from 'react-chartjs-2';
 import 'chartjs-plugin-dragdata';
 import { ActionSheet } from './ActionSheet';
@@ -8,6 +8,7 @@ import { IPickerChange, Picker } from './Picker';
 import useLongPress from './useLongPress';
 import { IUseSwipe, useSwipe } from './useSwipe';
 import { ICurve, IPoint } from 'src/types/hue';
+import { Chart as ChartJS, ChartDataset } from 'chart.js';
 
 
 export interface IChange {
@@ -46,12 +47,11 @@ export const formatMinutes = (minutes: number) => (
   moment().startOf('day').hours(4).minutes(minutes).format('HH:mm')
 )
 
-const createGradient = (chart: Scatter|null, curve: ICurve, alpha: number) => {
+const createGradient = (chart: ChartJS<"scatter">|null, curve: ICurve, alpha: number) => {
 
   if (chart) {
-    const ctx = chart.chartInstance.canvas!.getContext("2d")
-    const height = chart.chartInstance.height || 0
-    var gradient = ctx!.createLinearGradient(0,20,0, height - 20);
+    const height = chart.height || 0
+    var gradient = chart.ctx.createLinearGradient(0,20,0, height - 20);
 
     var gradientStops:IGradienStop[] = []
 
@@ -93,7 +93,7 @@ const createGradient = (chart: Scatter|null, curve: ICurve, alpha: number) => {
 }
 
 export const Chart: React.FC<IChart> = ({curve, expanded, xScale={min:0, max:1440}, swipeConfig, onChange}) =>  {
-  const chartReference = useRef<Scatter|null>(null)
+  const chartRef = useRef<ChartJS<"scatter", IPoint[]>>(null)
 
   const [gradients, setGradients] = useState<IGradients>();
   const [isPickerOpen, setPickerOpen] = useState(false);
@@ -104,17 +104,21 @@ export const Chart: React.FC<IChart> = ({curve, expanded, xScale={min:0, max:144
 
   const swipeHandlers = useSwipe(swipeConfig || {})
 
-  const chartRef = useCallback((chart: Scatter) => {
-    chartReference.current = chart
-    if (chart !== null) {
-      setGradients({
-        backgroundColor: createGradient(chart, curve, 0.7),
-        pointBackgroundColor: createGradient(chart, curve, 0.9)
-      });
-      chart.chartInstance.canvas?.addEventListener('contextmenu', handleContextmenu, false)
-      setPointIds(curve.points.map(point=>point.id));
-    }
-  }, [curve]);
+  useEffect(() => {
+    const chart = chartRef.current;
+
+    if (!chart) { return;}
+
+    setGradients({
+      backgroundColor: createGradient(chart, curve, 0.7),
+      pointBackgroundColor: createGradient(chart, curve, 0.9)
+    });
+
+    chart.canvas?.addEventListener('contextmenu', handleContextmenu, false)
+    setPointIds(curve.points.map(point=>point.id));
+
+  }, [curve])
+
 
   var yScale = {min:0, max:100};
   if (curve.kind==='bri') {
@@ -135,8 +139,8 @@ export const Chart: React.FC<IChart> = ({curve, expanded, xScale={min:0, max:144
 
   const renderGradients = () => {
     setGradients({
-      backgroundColor: createGradient(chartReference.current, curve, 0.7),
-      pointBackgroundColor: createGradient(chartReference.current, curve, 0.9)
+      backgroundColor: createGradient(chartRef.current, curve, 0.7),
+      pointBackgroundColor: createGradient(chartRef.current, curve, 0.9)
     });
   }
 
@@ -165,7 +169,7 @@ export const Chart: React.FC<IChart> = ({curve, expanded, xScale={min:0, max:144
   }
   
 
-  const datatsets: Chart.ChartDataSets[] = [{
+  const datasets: ChartDataset<"scatter", IPoint[]>[] = [{
     label: 'Scatter Dataset',
     pointRadius: 15,
     pointHoverRadius: 20,
@@ -228,14 +232,34 @@ export const Chart: React.FC<IChart> = ({curve, expanded, xScale={min:0, max:144
       <Scatter
         ref={chartRef}
         data={{
-          datasets: datatsets
+          datasets: datasets
         }}
         options={{
-          dragData: true,
-          dragX: true,
+          plugins: {
+            dragData: {
+              dragData: true,
+              dragX: true,
+              onDragEnd: (e: any, datasetIndex: any, index: any, value: any) => {
+                // magnet function is not called if onDragEnd is undefined
+                curve.points[0].x = 0
+                curve.points[curve.points.length-1].x = 1440;
+    
+                onChange.change({
+                  id: pointIds[index],
+                  x: curve.points[index].x,
+                  y: curve.points[index].y
+                })
+              },
+              magnet: { to: magnetValue }
+            },
+            legend: {
+              display: false
+            },
+            tooltip: {
+              enabled: false
+            }
+          } as any,
           events: ["mousemove", "mouseout", "mousedown", "click", "touchstart", "touchmove", "touchend"],
-          legend: { display: false },
-          tooltips: { enabled: false },
           scales: {
             xAxes: [{
               type: 'linear',
@@ -244,20 +268,20 @@ export const Chart: React.FC<IChart> = ({curve, expanded, xScale={min:0, max:144
                 max: xScale.max,
                 min: xScale.min,
                 stepSize: expanded?180:360,
-                callback: (value, index, values) => (formatMinutes(value as number))
+                callback: (value: number) => (formatMinutes(value))
               },
               gridLines: {
                 color: '#666',
                 zeroLineColor: '#666'
               }
-            }],
+            }] as any,
             yAxes: [{
               display: false,
               ticks: yScale,
               gridLines: {
                 display: false
               }
-            }]
+            }] as any
           },
           layout: {
             padding: {
@@ -268,20 +292,8 @@ export const Chart: React.FC<IChart> = ({curve, expanded, xScale={min:0, max:144
             }
           },  
           maintainAspectRatio: !expanded,
-          onDragEnd: (e: any, datasetIndex: any, index: any, value: any) => {
-            // magnet function is not called if onDragEnd is undefined
-            curve.points[0].x = 0
-            curve.points[curve.points.length-1].x = 1440;
-
-            onChange.change({
-              id: pointIds[index],
-              x: curve.points[index].x,
-              y: curve.points[index].y
-            })
-          },
-          dragOptions: { magnet: { to: magnetValue } },
           onResize: () => {renderGradients();},
-          onHover: (event, activeElements:any[]) => {
+          onHover: (event:any, activeElements:any[]) => {
             if (activeElements.length>0) {
               setActiveElementIndex(activeElements[0]._index);
               longPress(event);

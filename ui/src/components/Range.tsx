@@ -13,6 +13,7 @@ interface IRangeProps {
   snaps?: boolean;
   ticks?: boolean;
   reset?: boolean;
+  children?: React.ReactNode;
 }
 
 export const Range: React.FC<IRangeProps> = ({label, min, max, defaultValue, onChange, children, step, snaps, ticks, reset}) => {
