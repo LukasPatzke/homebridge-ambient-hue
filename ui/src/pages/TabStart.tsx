@@ -295,7 +295,7 @@ const ReorderModal: React.FC<IReorderModal> = ({isOpen, onClose, pageRef, positi
   ))
 
   return (
-    <IonModal presentingElement={pageRef} swipeToClose onDidDismiss={onClose} isOpen={isOpen}>
+    <IonModal presentingElement={pageRef} canDismiss onDidDismiss={onClose} isOpen={isOpen}>
       <IonHeader>
           <IonToolbar>
             <IonTitle>{t('actions.reorder')}</IonTitle>

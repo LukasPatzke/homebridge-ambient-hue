@@ -168,7 +168,7 @@ export const CreateCurve: React.FC<ICreateCurveProps> = ({isOpen, onClose, pageR
   let history = useHistory();
   
   return (
-    <IonModal isOpen={isOpen} presentingElement={pageRef} swipeToClose onDidDismiss={()=>onClose()}>
+    <IonModal isOpen={isOpen} presentingElement={pageRef} canDismiss onDidDismiss={()=>onClose()}>
       <IonHeader>
         <IonToolbar>
           <IonTitle>{t('curves:create.title')}</IonTitle>

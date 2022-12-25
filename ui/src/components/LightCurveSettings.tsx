@@ -139,7 +139,7 @@ const CurveSettings: React.FC<ICurveSettingsProps> = ({isOpen, kind, defaultValu
     </IonItem>
   ))
   return (
-    <IonModal ref={modalRef} isOpen={isOpen} presentingElement={pageRef} swipeToClose onDidDismiss={onClose} >
+    <IonModal ref={modalRef} isOpen={isOpen} presentingElement={pageRef} canDismiss onDidDismiss={onClose} >
       <IonHeader>
         <IonToolbar>
           {isDetail?
