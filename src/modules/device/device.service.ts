@@ -5,6 +5,14 @@ import { UpdateLightDto } from '../light/dto/update-light.dto';
 import { Light } from '../light/entities/light.entity';
 import { LightService } from '../light/light.service';
 
+
+/**
+ * Typeguard to differenciate lights and groups
+ */
+function isGroup(device: Light | Group): device is Group {
+  return (device as Group).lights !== undefined;
+}
+
 @Injectable()
 export class DeviceService {
   constructor(
@@ -13,34 +21,32 @@ export class DeviceService {
   ) {}
 
   async findOne(uniqueId: string) {
-    let device: Light | Group | undefined;
-
-    device = await this.lightService.findByUniqueId(uniqueId);
-    if (device === undefined) {
-      device = await this.groupService.findByUniqueId(uniqueId);
-    }
-    if (device === undefined) {
-      throw new NotFoundException(
-        `Device with unique id ${uniqueId} not found`,
-      );
-    } else {
-      return device;
+    try {
+      return await this.lightService.findByUniqueId(uniqueId);
+    } catch (err) {
+      if (err instanceof NotFoundException) {
+        try {
+          return await this.groupService.findByUniqueId(uniqueId);
+        } catch (err) {
+          if (err instanceof NotFoundException) {
+            throw new NotFoundException(
+              `Device with unique id ${uniqueId} not found`,
+            );
+          } else {
+            throw err;
+          }
+        }
+      } else {
+        throw err;
+      }
     }
   }
 
   async update(uniqueId: string, updateLightDto: UpdateLightDto) {
-    let device: Light | Group | undefined;
+    const device = await this.findOne(uniqueId);
 
-    device = await this.lightService.findByUniqueId(uniqueId);
-    if (device === undefined) {
-      device = await this.groupService.findByUniqueId(uniqueId);
-      if (device !== undefined) {
-        return this.groupService.updateLights(device.id, updateLightDto);
-      } else {
-        throw new NotFoundException(
-          `Device with unique id ${uniqueId} not found`,
-        );
-      }
+    if (isGroup(device)) {
+      return this.groupService.updateLights(device.id, updateLightDto);
     } else {
       return this.lightService.update(device.id, updateLightDto);
     }

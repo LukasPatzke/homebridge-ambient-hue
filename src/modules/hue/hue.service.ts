@@ -76,6 +76,7 @@ export class HueService {
   }
 
   private get<T = any>(url: string): Promise<T> {
+    this.logger.debug(`GET ${url}`);
     return lastValueFrom(this.httpService
       .get<T | hueErrorResponse>(url)
       .pipe(
@@ -112,13 +113,17 @@ export class HueService {
   }
 
   setLightState(id: number, state: hueSetState) {
+    const url = `${this.baseurl}/lights/${id}/state`;
     this.logger.debug(
-      `Update HUE ${this.configService.hueHost
-      } for light ${id} with state ${JSON.stringify(state)}`,
+      `PUT ${url}::${JSON.stringify(state)}`,
     );
     return lastValueFrom(this.httpService
-      .put<hueStateResponse>(`${this.baseurl}/lights/${id}/state`, state)
+      .put<hueStateResponse>(url, state)
       .pipe(
+        catchError((err: AxiosError) => {
+          this.logger.error(err);
+          throw err.message;
+        }),
         map((response) => {
           const data = response.data;
           data.forEach((item) => {
