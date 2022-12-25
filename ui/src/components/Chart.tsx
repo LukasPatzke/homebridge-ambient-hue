@@ -8,8 +8,9 @@ import { IPickerChange, Picker } from './Picker';
 import useLongPress from './useLongPress';
 import { IUseSwipe, useSwipe } from './useSwipe';
 import { ICurve, IPoint } from 'src/types/hue';
-import { Chart as ChartJS, ChartDataset } from 'chart.js';
+import { Chart as ChartJS, ChartDataset, Filler, LinearScale, LineElement, PointElement, registerables } from 'chart.js';
 
+ChartJS.register(LinearScale, PointElement, LineElement, Filler, ...registerables)
 
 export interface IChange {
   id: number;
@@ -134,7 +135,7 @@ export const Chart: React.FC<IChart> = ({curve, expanded, xScale={min:0, max:144
   const handleContextmenu = (event: MouseEvent) => {
     event.preventDefault()
     event.stopPropagation();
-    setActionSheetOpen(true)
+    // setActionSheetOpen(true)
   }
 
   const renderGradients = () => {
@@ -175,7 +176,7 @@ export const Chart: React.FC<IChart> = ({curve, expanded, xScale={min:0, max:144
     pointHoverRadius: 20,
     cubicInterpolationMode: 'monotone',
     backgroundColor: gradients?.backgroundColor,
-    pointBackgroundColor: gradients?.pointBackgroundColor,
+    fill: 'origin',
     showLine: true,
     data: curve.points
   },
@@ -239,16 +240,23 @@ export const Chart: React.FC<IChart> = ({curve, expanded, xScale={min:0, max:144
             dragData: {
               dragData: true,
               dragX: true,
-              onDragEnd: (e: any, datasetIndex: any, index: any, value: any) => {
+              onDragEnd: (e: any, datasetIndex: number, index: number, value: {x: number, y:number}) => {
                 // magnet function is not called if onDragEnd is undefined
-                curve.points[0].x = 0
-                curve.points[curve.points.length-1].x = 1440;
-    
-                onChange.change({
+                let change: IChange = {
                   id: pointIds[index],
-                  x: curve.points[index].x,
-                  y: curve.points[index].y
-                })
+                  x: value.x,
+                  y: value.y
+                }
+
+                if (index === 0) {
+                  // The first point must stay at the beginning of the scale
+                  change.x = xScale.min
+                }
+                if (index === curve.points.length-1) {
+                  // The last point must stay at the end of the scale
+                  change.x = xScale.max
+                }
+                onChange.change(change)
               },
               magnet: { to: magnetValue }
             },
@@ -259,29 +267,32 @@ export const Chart: React.FC<IChart> = ({curve, expanded, xScale={min:0, max:144
               enabled: false
             }
           } as any,
-          events: ["mousemove", "mouseout", "mousedown", "click", "touchstart", "touchmove", "touchend"],
+          events: ["mousemove", "mouseout", "mousedown", "click", "touchstart", "touchmove", "touchend", "contextmenu"],
           scales: {
-            xAxes: [{
+            x: {
               type: 'linear',
               position: 'bottom',
+              max: xScale.max,
+              min: xScale.min,
               ticks: {
-                max: xScale.max,
-                min: xScale.min,
-                stepSize: expanded?180:360,
-                callback: (value: number) => (formatMinutes(value))
+                // max: xScale.max,
+                // min: xScale.min,
+                // stepSize: expanded?180:360,
+                callback: (value) => (formatMinutes(Number(value)))
               },
-              gridLines: {
+              grid: {
                 color: '#666',
-                zeroLineColor: '#666'
+                borderColor: '#666'
               }
-            }] as any,
-            yAxes: [{
+            },
+            y: {
+              max: yScale.max,
+              min: yScale.min,
               display: false,
-              ticks: yScale,
-              gridLines: {
+              grid: {
                 display: false
               }
-            }] as any
+            }
           },
           layout: {
             padding: {
@@ -293,33 +304,37 @@ export const Chart: React.FC<IChart> = ({curve, expanded, xScale={min:0, max:144
           },  
           maintainAspectRatio: !expanded,
           onResize: () => {renderGradients();},
-          onHover: (event:any, activeElements:any[]) => {
+          onHover: (event, activeElements) => {
             if (activeElements.length>0) {
-              setActiveElementIndex(activeElements[0]._index);
-              longPress(event);
+              setActiveElementIndex(activeElements[0].index);
+              if (event.native) {
+                longPress(event.native);
+              }
             } else {
-              if (event.type==='touchstart') {
+              if (event.type as keyof HTMLElementEventMap==='touchstart') {
                 // touchEvents?.onTouchStart(event as any)
                 swipeHandlers?.onTouchStart(event as any)
-              } else if (event.type==='touchmove') {
+              } else if (event.type as keyof HTMLElementEventMap==='touchmove') {
                 // touchEvents?.onTouchMove(event as any)
                 swipeHandlers?.onTouchMove(event as any)
-              } else if (event.type==='touchend') {
+              } else if (event.type as keyof HTMLElementEventMap==='touchend') {
                 // touchEvents?.onTouchEnd(event as any)
                 swipeHandlers?.onTouchEnd(event as any)
-              } else if (event.type==='touchcancel') {
+              } else if (event.type as keyof HTMLElementEventMap==='touchcancel') {
                 // touchEvents?.onTouchCancel(event as any)
               } 
             }
           },
-          onClick: (event, activeElements:any) => {
-            
+          onClick: (event, activeElements) => {
             if (activeElements) {
               if (activeElements.length>0) {
-                setActiveElementIndex(activeElements[0]._index);
+                setActiveElementIndex(activeElements[0].index);
                 if (isPlatform('mobile')) {
                   setPickerOpen(true);
                 } 
+                if (event.type === 'contextmenu') {
+                  setActionSheetOpen(true)
+                }
               }
             }
           }

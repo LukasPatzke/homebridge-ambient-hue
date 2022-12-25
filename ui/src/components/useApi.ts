@@ -18,9 +18,9 @@ const api = (method: 'GET'|'POST'|'PUT'|'PATCH'|'DELETE', options: IApiOptions) 
     
   return fetch('/api' + options.url, {
       method: method,
-      headers: {'Content-Type': 'application/json'},
+      headers: options.data?{'Content-Type': 'application/json'}:undefined,
       redirect: 'follow',
-      body: JSON.stringify(options.data)
+      body: options.data?JSON.stringify(options.data): undefined
     }).then(response=>response.json())
 }
 
