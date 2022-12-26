@@ -275,9 +275,7 @@ export const Chart: React.FC<IChart> = ({curve, expanded, xScale={min:0, max:144
               max: xScale.max,
               min: xScale.min,
               ticks: {
-                // max: xScale.max,
-                // min: xScale.min,
-                // stepSize: expanded?180:360,
+                stepSize: expanded?180:360,
                 callback: (value) => (formatMinutes(Number(value)))
               },
               grid: {
