@@ -7,8 +7,10 @@ import {
   Param,
   Delete,
   Query,
+  UseInterceptors,
 } from '@nestjs/common';
 import { HueService } from '../hue/hue.service';
+import { UpdateInterceptor } from '../hue/update.interceptor';
 import { CurveService } from './curve.service';
 import { CreateCurveDto, curveKind } from './dto/create-curve.dto';
 import { InsertPointDto } from './dto/insert-point.dto';
@@ -41,12 +43,12 @@ export class CurveController {
   }
 
   @Post(':id')
+  @UseInterceptors(UpdateInterceptor)
   async insertPoint(
     @Param('id') id: string,
     @Body() insertPointDto: InsertPointDto,
   ) {
     const curve = await this.curveService.insertPoint(+id, insertPointDto);
-    this.hueService.update();
     return curve;
   }
 
@@ -59,9 +61,9 @@ export class CurveController {
   }
 
   @Delete(':id')
+  @UseInterceptors(UpdateInterceptor)
   async remove(@Param('id') id: string) {
     const res = await this.curveService.remove(+id);
-    this.hueService.update();
     return res;
   }
 }
