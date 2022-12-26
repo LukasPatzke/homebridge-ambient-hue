@@ -35,7 +35,7 @@ export const InfoItem: React.FC<IInfoItemProps> = ({label, value}) => {
         textOverflow: 'ellipsis',
         whiteSpace: 'nowrap',
         wordWrap: 'normal',
-        maxWidth: 190
+        maxWidth: '60%'
       }}>
         {value}
       </IonNote>
