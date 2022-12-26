@@ -16,7 +16,7 @@ export class CustomLogger implements LoggerService {
 
   log(message: any, context: string = this.context, level?: LogLevel, trace?: string) {
     /* your implementation */
-    message = util.format(this.maskApiKey(message));
+    message = this.maskApiKey(util.format(message));
 
     let loggingFunction = console.log;
     switch (level) {
