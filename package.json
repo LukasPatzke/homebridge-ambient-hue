@@ -1,7 +1,7 @@
 {
   "displayName": "Homebridge Ambient Hue",
   "name": "homebridge-ambient-hue",
-  "version": "0.0.7-beta.0",
+  "version": "0.0.7",
   "description": "Dynamically adjusts your Philips Hue lights throughout the day.",
   "license": "Apache-2.0",
   "repository": {
@@ -13,13 +13,12 @@
   },
   "engines": {
     "node": ">=14.0.0",
-    "homebridge": ">=1.6.0"
+    "homebridge": ">=1.5.0"
   },
   "main": "dist/index.js",
   "scripts": {
     "lint": "eslint src/**.ts --max-warnings=0",
     "build": "npm run build --prefix ui && rimraf ./dist && tsc -p tsconfig.build.json",
-    "postbuild": "npm run copy-migrations",
     "prepublishOnly": "npm run lint && npm run build",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
     "watch:server": "nest start --watch",
