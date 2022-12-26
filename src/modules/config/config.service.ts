@@ -3,8 +3,13 @@ import { PLATFORM_NAME } from '../../homebridge/settings';
 import * as fs from 'fs-extra';
 import * as path from 'path';
 import * as os from 'os';
-import { TypeOrmModuleOptions } from '@nestjs/typeorm';
-
+import { DataSourceOptions } from 'typeorm';
+import { Curve } from '../curve/entities/curve.entity';
+import { Group } from '../group/entities/group.entity';
+import { Light } from '../light/entities/light.entity';
+import { Point } from '../point/entities/point.entity';
+import { Position } from '../position/entities/position.entity';
+import { init1618418126240 } from '../../migration/1618418126240-init';
 
 export interface Config {
   host?: string;
@@ -76,14 +81,21 @@ export class ConfigService {
     this.logger.debug(JSON.stringify(config, null, 2));
   }
 
-  public getTypeOrmConfig(): TypeOrmModuleOptions {
+  public getTypeOrmConfig(): DataSourceOptions {
     return {
       type: 'sqlite',
       database: this.database,
-      entities: [path.join(__dirname, '../**/*.entity.js')],
-      keepConnectionAlive: true,
+      entities: [
+        Curve,
+        Group,
+        Light,
+        Point,
+        Position,
+      ],
       migrationsTableName: 'migration',
-      migrations: [path.join(__dirname, '../../migration/*.js')],
+      migrations: [
+        init1618418126240,
+      ],
       migrationsRun: true,
     };
   }
