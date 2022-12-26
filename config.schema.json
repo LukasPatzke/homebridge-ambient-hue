@@ -47,6 +47,11 @@
         "title": "Enable debug log",
         "type": "boolean",
         "default:": false
+      },
+      "enableSchedule": {
+        "title": "Enable scheduled updates",
+        "type": "boolean",
+        "default:": true
       }
     }
   }

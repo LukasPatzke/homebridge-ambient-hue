@@ -32,16 +32,17 @@ $ sudo npm -g i homebridge-ambient-hue
 
 - Configure the plugin in Homebridge's `config.json`.
 
-| Key        | Default     | Description                                                                                                                                           |
-| ---------- | ----------- | ----------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `platform` |             | The name of the platform homebridge-ambient-hue provides to homebridge. Mandatory, must be set to `"AmbientHue"`.                                     |
-| `bridgeIp` |             | The IP address of your Hue bridge. Mandantory, if you do not know the ip, visit https://discovery.meethue.com/ in a Browser on your network.          |
-| `user`     |             | The username for your Hue bridge. When connecting to a new bridge, homebridge-ambient-hue will create the username, and prompt to edit `config.json`. |
-| `host`     | `"0.0.0.0"` | Hostname for the web interface.                                                                                                                       |
-| `port`     | `3000`      | Port for the web interface.                                                                                                                           |
-| `prefix`   | `""`        | A prefix that is attached to the name of all Devices.                                                                                                 |
-| `suffix`   | `" Auto"`   | A suffix that is attached to the name of all Devices.                                                                                                 |
-| `debugLog` | `False`     | Output more detailed logs.                                                                                                                            |
+| Key              | Default     | Description                                                                                                                                           |
+| -----------------| ----------- | ----------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `platform`       |             | The name of the platform homebridge-ambient-hue provides to homebridge. Mandatory, must be set to `"AmbientHue"`.                                     |
+| `bridgeIp`       |             | The IP address of your Hue bridge. Mandantory, if you do not know the ip, visit https://discovery.meethue.com/ in a Browser on your network.          |
+| `user`           |             | The username for your Hue bridge. When connecting to a new bridge, homebridge-ambient-hue will create the username, and prompt to edit `config.json`. |
+| `host`           | `"0.0.0.0"` | Hostname for the web interface.                                                                                                                       |
+| `port`           | `3000`      | Port for the web interface.                                                                                                                           |
+| `prefix`         | `""`        | A prefix that is attached to the name of all Devices.                                                                                                 |
+| `suffix`         | `" Auto"`   | A suffix that is attached to the name of all Devices.                                                                                                 |
+| `debugLog`       | `False`     | Output more detailed logs.                                                                                                                            |
+| `enableSchedule` | `True`      | Enable scheduled updates.                                                                                                                             |
 
 ## First Steps
 

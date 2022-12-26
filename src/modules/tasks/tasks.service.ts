@@ -1,5 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { Cron } from '@nestjs/schedule';
+import { ConfigService } from '../config/config.service';
 import { HueService } from '../hue/hue.service';
 import { LightService } from '../light/light.service';
 
@@ -10,12 +11,15 @@ export class TasksService {
   constructor(
     private hueService: HueService,
     private lightService: LightService,
+    private configService: ConfigService,
   ) {}
 
   @Cron('45 * * * * *')
   async update() {
-    const updated = await this.hueService.update();
-    this.logger.log(`Scheduled update affected ${updated} lights`);
+    if (this.configService.enableSchedule) {
+      this.logger.log('Running scheduled update');
+      this.hueService.update();
+    }
   }
 
   @Cron('0 4 * * *')

@@ -15,6 +15,7 @@ export interface Config {
   prefix?: string;
   suffix?: string;
   debugLog: boolean;
+  enableSchedule?: boolean;
 }
 
 @Injectable()
@@ -37,6 +38,7 @@ export class ConfigService {
   public readonly suffix: string;
   public readonly homebridge: string;
   public readonly debugLog: boolean;
+  public readonly enableSchedule: boolean;
 
   constructor() {
     const homebridgeConfig = fs.readJSONSync(this.configPath);
@@ -62,8 +64,16 @@ export class ConfigService {
     this.prefix = config.prefix || '';
     this.suffix = config.suffix || ' Auto';
     this.debugLog = config.debugLog;
+    this.enableSchedule = config.enableSchedule === undefined?true:config.enableSchedule;
 
     this.homebridge = homebridgeConfig.bridge.username || '0E:67:56:95:CA:D8';
+
+    if (this.enableSchedule === false) {
+      this.logger.warn('Scheduled updates are disabled.');
+    }
+
+    this.logger.debug('Configuration loaded');
+    this.logger.debug(JSON.stringify(config, null, 2));
   }
 
   public getTypeOrmConfig(): TypeOrmModuleOptions {
