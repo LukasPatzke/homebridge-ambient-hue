@@ -16,7 +16,7 @@ export class CustomLogger implements LoggerService {
 
   log(message: any, context: string = this.context, level?: LogLevel, trace?: string) {
     /* your implementation */
-    message = util.format(message);
+    message = util.format(this.maskApiKey(message));
 
     let loggingFunction = console.log;
     switch (level) {
@@ -57,6 +57,11 @@ export class CustomLogger implements LoggerService {
         loggingFunction(chalk.gray(trace));
       }
     }
+  }
+
+  private maskApiKey(message: string): string {
+    const expression = new RegExp(this.configService.hueUser||'', 'i');
+    return message.replace(expression, '<api_key>');
   }
 
   error(message: string, context?: string, trace?: string) {
