@@ -5,7 +5,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { In, Repository } from 'typeorm';
 import { CreateGroupDto } from './dto/create-group.dto';
 import { UpdateGroupDto } from './dto/update-group.dto';
 import { LightService } from '../light/light.service';
@@ -42,6 +42,10 @@ export class GroupService {
     });
   }
 
+  findByIds(ids: string[]): Promise<Group[]> {
+    return this.groupsRepository.findBy({ id: In(ids) });
+  }
+
   findByAccessoryId(accessoryId: string): Promise<Group> {
     return this.groupsRepository
       .findOneBy({ accessoryId: accessoryId })
@@ -53,8 +57,8 @@ export class GroupService {
       });
   }
 
-  findByLightId(lightId: string): Promise<Group[]> {
-    return this.groupsRepository.find({
+  async findByLightId(lightId: string): Promise<Group[]> {
+    const groups = await this.groupsRepository.find({
       relations: {
         lights: true,
       },
@@ -64,6 +68,8 @@ export class GroupService {
         },
       },
     });
+    // The second query return all lights for the group
+    return this.findByIds(groups.map(i=>i.id));
   }
 
   async update(id: string, updateGroupDto: UpdateGroupDto) {
