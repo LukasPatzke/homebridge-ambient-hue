@@ -74,15 +74,17 @@ export class LightService {
       );
     }
 
-    if (updateLightDto.on !== light.on && updateLightDto.on !== undefined) {
+    const isOnChanged = (updateLightDto.on !== light.on) && (updateLightDto.on !== undefined);
+    if (isOnChanged) {
       this.resetSmartOff(light);
     }
 
     this.lightsRepository.merge(light, updateLightDto);
 
     light = await this.lightsRepository.save(light);
-    this.lightGateway.emitUpdate(light);
-
+    if (isOnChanged) {
+      this.lightGateway.emitUpdate(light);
+    }
     return light;
   }
 
