@@ -7,6 +7,6 @@ export class HueController {
 
   @Get('update')
   update() {
-    return this.hueService.update();
+    return this.hueService.queueUpdate();
   }
 }

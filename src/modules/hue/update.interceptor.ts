@@ -23,7 +23,7 @@ export class UpdateInterceptor implements NestInterceptor {
     const request = ctx.getRequest<Request>();
     return next.handle().pipe(tap(async () => {
       this.logger.log(`Running update for intercepted route ${request.url}`);
-      this.hueService.update();
+      this.hueService.queueUpdate();
     }));
   }
 }

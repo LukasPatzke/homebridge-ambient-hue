@@ -9,7 +9,7 @@ import { HttpService } from '@nestjs/axios';
 import { LightService } from '../light/light.service';
 import { GroupService } from '../group/group.service';
 import { ConfigService } from '../config/config.service';
-import { lastValueFrom, catchError, map } from 'rxjs';
+import { lastValueFrom, catchError, map, Subject, debounceTime } from 'rxjs';
 import { AxiosError, AxiosRequestConfig } from 'axios';
 import EventSource from 'eventsource';
 import {
@@ -46,6 +46,7 @@ export class HueService {
   private baseurl: string;
   private apiKey: string;
   private eventSource: EventSource;
+  private updateQueue: Subject<undefined>;
 
   constructor(
     private httpService: HttpService,
@@ -58,12 +59,15 @@ export class HueService {
     private curveService: CurveService,
     @Inject(forwardRef(() => PointService))
     private pointService: PointService,
-  ) { }
+  ) {
+    this.updateQueue = new Subject();
+  }
 
   async onModuleInit() {
     const host = this.configService.hueHost;
     let user = this.configService.hueUser;
 
+    // Create a new user if none was configurated
     if (user === undefined) {
       const newUser = await this.createUser();
       if (newUser === undefined) {
@@ -88,6 +92,15 @@ export class HueService {
       );
     }
 
+    // Setup the queue for updates
+    this.updateQueue.pipe(
+      // updates are called only every 250ms
+      debounceTime(250),
+    ).subscribe(()=>{
+      this.update();
+    });
+
+    // Setup the eventstream for updates from hue
     this.eventSource = new EventSource(`https://${host}/eventstream/clip/v2`, {
       headers: { 'hue-application-key': this.apiKey },
       https: { rejectUnauthorized: false },
@@ -134,7 +147,7 @@ export class HueService {
       },
     }).pipe(
       catchError((err: AxiosError) => {
-        this.logger.error(err);
+        //this.logger.error(err);
         throw new InternalServerErrorException(err.message);
       }),
       map(response => response.data),
@@ -193,12 +206,21 @@ export class HueService {
   }
 
   /**
-   * Calculate and execute the current state
-   * @param forLights execute only for these lights
+   * Queue an execution of the update function
+   * The Queue is debounced and will be executed after a
+   * time span has passed without a new emission
    */
-  async update(forLights?: Light[]) {
+  queueUpdate() {
+    this.logger.debug('Adding to update queue');
+    this.updateQueue.next(undefined);
+  }
+
+  /**
+   * Calculate and execute the current state
+   */
+  async update() {
     this.logger.debug('Running update');
-    const lights = forLights || (await this.lightService.findAll());
+    const lights = await this.lightService.findAll();
 
     const updates = lights.map(
       async (light): Promise<number> => {

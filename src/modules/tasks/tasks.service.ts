@@ -18,7 +18,7 @@ export class TasksService {
   async update() {
     if (this.configService.enableSchedule) {
       this.logger.log('Running scheduled update');
-      this.hueService.update();
+      this.hueService.queueUpdate();
     }
   }
 
