@@ -6,7 +6,6 @@ import { AppService } from './app.service';
 import { LightModule } from './modules/light/light.module';
 import { GroupModule } from './modules/group/group.module';
 import { CurveModule } from './modules/curve/curve.module';
-import { PositionModule } from './modules/position/position.module';
 import { HueModule } from './modules/hue/hue.module';
 import { PointModule } from './modules/point/point.module';
 import { TasksModule } from './modules/tasks/tasks.module';
@@ -30,7 +29,6 @@ import { DeviceModule } from './modules/device/device.module';
     GroupModule,
     CurveModule,
     PointModule,
-    PositionModule,
     TasksModule,
     HealthModule,
     ConfigModule,

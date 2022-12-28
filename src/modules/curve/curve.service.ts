@@ -34,12 +34,12 @@ export class CurveService {
           kind: 'bri',
           default: true,
           points: await this.pointService.createMany([
-            { x: 0, y: 254, first: true },
-            { x: 360, y: 216 },
-            { x: 660, y: 182 },
-            { x: 900, y: 221 },
-            { x: 1080, y: 27 },
-            { x: 1440, y: 12, last: true },
+            { x: 0, y: 100, first: true },
+            { x: 360, y: 85 },
+            { x: 660, y: 70 },
+            { x: 900, y: 87 },
+            { x: 1080, y: 10 },
+            { x: 1440, y: 5, last: true },
           ]),
         });
         this.curveRepository.save(curve);

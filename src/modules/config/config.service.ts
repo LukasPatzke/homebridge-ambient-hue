@@ -5,11 +5,13 @@ import * as path from 'path';
 import * as os from 'os';
 import { DataSourceOptions } from 'typeorm';
 import { Curve } from '../curve/entities/curve.entity';
-import { Group } from '../group/entities/group.entity';
-import { Light } from '../light/entities/light.entity';
+import { GroupV1 } from '../group/entities/group.v1.entity';
+import { Group } from '../group/entities/group.v2.entity';
+import { LightV1 } from '../light/entities/light.v1.entity';
+import { Light } from '../light/entities/light.v2.entity';
 import { Point } from '../point/entities/point.entity';
-import { Position } from '../position/entities/position.entity';
 import { init1618418126240 } from '../../migration/1618418126240-init';
+import { v21672161986148 } from '../../migration/1672161986148-v2';
 
 export interface Config {
   host?: string;
@@ -90,13 +92,16 @@ export class ConfigService {
         Group,
         Light,
         Point,
-        Position,
+        LightV1,
+        GroupV1,
       ],
       migrationsTableName: 'migration',
       migrations: [
         init1618418126240,
+        v21672161986148,
       ],
       migrationsRun: true,
+      logging: ['error'],
     };
   }
 }

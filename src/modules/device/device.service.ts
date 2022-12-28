@@ -1,8 +1,8 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { Group } from '../group/entities/group.entity';
+import { Group } from '../group/entities/group.v2.entity';
 import { GroupService } from '../group/group.service';
 import { UpdateLightDto } from '../light/dto/update-light.dto';
-import { Light } from '../light/entities/light.entity';
+import { Light } from '../light/entities/light.v2.entity';
 import { LightService } from '../light/light.service';
 
 
@@ -22,11 +22,11 @@ export class DeviceService {
 
   async findOne(uniqueId: string) {
     try {
-      return await this.lightService.findByUniqueId(uniqueId);
+      return await this.lightService.findByAccessoryId(uniqueId);
     } catch (err) {
       if (err instanceof NotFoundException) {
         try {
-          return await this.groupService.findByUniqueId(uniqueId);
+          return await this.groupService.findByAccessoryId(uniqueId);
         } catch (err) {
           if (err instanceof NotFoundException) {
             throw new NotFoundException(

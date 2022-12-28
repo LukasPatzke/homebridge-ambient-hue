@@ -1,16 +1,14 @@
-import { Light } from '../../light/entities/light.entity';
+import { LightV1 } from '../../light/entities/light.v1.entity';
 import {
   Entity,
   Column,
   PrimaryColumn,
   ManyToMany,
   JoinTable,
-  OneToOne,
 } from 'typeorm';
-import { Position } from '../../position/entities/position.entity';
 
-@Entity()
-export class Group {
+@Entity({name: 'group'})
+export class GroupV1 {
   @PrimaryColumn()
   id: number;
 
@@ -26,14 +24,15 @@ export class Group {
   @Column({ default: true })
   published: boolean;
 
-  @ManyToMany(() => Light, {
+  @ManyToMany(() => LightV1, {
     eager: true,
   })
   @JoinTable()
-  lights: Light[];
+  lights: LightV1[];
 
-  @OneToOne(() => Position, (position) => position.group)
-  position: Position;
+  /** Whether the entity was succesfully migrated to the new v2 schema */
+  @Column({default: false})
+  isMigrated: boolean;
 
   on: boolean;
   onControlled: boolean;

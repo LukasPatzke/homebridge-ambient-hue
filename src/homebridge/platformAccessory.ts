@@ -2,8 +2,8 @@ import { Service, PlatformAccessory, CharacteristicValue } from 'homebridge';
 
 import { AmbientHueHomebridgePlatform } from './platform';
 import axios from 'axios';
-import { Light } from '../modules/light/entities/light.entity';
-import { Group } from '../modules/group/entities/group.entity';
+import { Light } from '../modules/light/entities/light.v2.entity';
+import { Group } from '../modules/group/entities/group.v2.entity';
 
 /**
  * Platform Accessory
@@ -30,7 +30,7 @@ export class Device<T extends Light | Group> {
       )
       .setCharacteristic(
         this.platform.Characteristic.SerialNumber,
-        accessory.context.uniqueId,
+        accessory.context.accessoryId,
       );
 
     // get the LightBulb service if it exists, otherwise create a new LightBulb service
@@ -128,19 +128,12 @@ export class Device<T extends Light | Group> {
     this.platform.log.debug('Set Characteristic Brightness -> ', value);
   }
 
-  isRoom(device: T): boolean {
-    return [
-      'LightGroup',
-      'Luminaire',
-      'LightSource',
-      'Room',
-      'Entertainment',
-      'Zone',
-    ].includes(device.type);
+  isGroup(device: Light | Group): device is Group {
+    return (device as Group).type !== undefined;
   }
 
-  model(device: T): string {
-    if (this.isRoom(device)) {
+  model(device: Light | Group): string {
+    if (this.isGroup(device)) {
       return 'AmbientHue-Room';
     } else {
       return 'AmbientHue-Light';

@@ -1,6 +1,6 @@
 import { IonApp, IonIcon, IonLabel, IonRouterOutlet, IonTabBar, IonTabButton, IonTabs, IonToast, isPlatform, setupIonicReact  } from '@ionic/react';
 import { IonReactHashRouter as IonReactRouter } from '@ionic/react-router';
-import { bulb, home } from 'ionicons/icons';
+import { bulb } from 'ionicons/icons';
 import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Redirect, Route } from 'react-router-dom';
@@ -8,7 +8,6 @@ import PageGroupDetail from './pages/PageGroupDetail';
 import PageGroups from './pages/PageGroups';
 import PageLightDetail from './pages/PageLightDetail';
 import PageLights from './pages/PageLights';
-import TabStart from './pages/TabStart';
 import PageCurves from './pages/PageCurves';
 import PageCurveDetail from './pages/PageCurveDetail';
 import * as serviceWorker from './serviceWorker';
@@ -87,8 +86,7 @@ const App: React.FC = () => {
       <IonReactRouter >
         <IonTabs>
           <IonRouterOutlet >
-            <Route exact path="/" render={() => <Redirect to="/start" />} />
-            <Route exact path="/:tab(start)" component={TabStart} />
+            <Route exact path="/" render={() => <Redirect to="/lights" />} />
             <Route exact path='/:tab(lights)' component={PageLights} />
             <Route exact path='/:tab(lights)/:id' component={PageLightDetail} />
             <Route exact path="/:tab(groups)" component={PageGroups} />
@@ -97,10 +95,6 @@ const App: React.FC = () => {
             <Route exact path="/:tab(curves)/:id" component={PageCurveDetail} />
           </IonRouterOutlet>
           <IonTabBar slot={tabBarSlot} >
-            <IonTabButton tab="start" href="/start" layout={tabBarLayout}>
-              <IonIcon icon={home} />
-              <IonLabel>{t('tabs.home')}</IonLabel>
-            </IonTabButton>
             <IonTabButton tab="lights" href="/lights" layout={tabBarLayout}>
               <IonIcon icon={bulb} />
               <IonLabel>{t('tabs.lights')}</IonLabel>

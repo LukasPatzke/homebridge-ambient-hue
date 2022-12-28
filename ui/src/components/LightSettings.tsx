@@ -16,12 +16,12 @@ interface ILightSettingsProps {
 export const LightSettings: React.FC<ILightSettingsProps> = ({light, onChange}) => {
   const { t } = useTranslation(['lights', 'common']);
   const onBrightnessMaxChange = debounce((value:number)=>(
-    onChange({briMax: value} as ILightUpdate)), 250);
+    onChange({brightnessFactor: value} as ILightUpdate)), 250);
   const onThresholdChange = debounce((value:number)=>(
     onChange({onThreshold: value} as ILightUpdate)), 250);
   return (
     <IonList inset>
-      {light.smartoffActive?
+      {light.smartOff?
         <IonItem color='primary'>
           <IonLabel>{t('common:settings.smart_off')}</IonLabel>
           <IonIcon icon={colorWand}/>
@@ -47,7 +47,7 @@ export const LightSettings: React.FC<ILightSettingsProps> = ({light, onChange}) 
       </IonItem>
       <Range 
         label={t('settings.threshold')} 
-        min={0} max={254} 
+        min={0} max={100} 
         defaultValue={light.onThreshold} 
         onChange={onThresholdChange}>
           <IonIcon slot='start' icon={remove}/>
@@ -58,16 +58,16 @@ export const LightSettings: React.FC<ILightSettingsProps> = ({light, onChange}) 
       <IonItem>
         <IonLabel>{t('settings.brightness')}</IonLabel>
         <IonToggle 
-          checked={light.briControlled} 
+          checked={light.brightnessControlled} 
           onIonChange={(e)=>{
-            onChange({briControlled: e.detail.checked} as ILightUpdate)
+            onChange({brightnessControlled: e.detail.checked} as ILightUpdate)
           }}
         />
       </IonItem>
       <Range 
         label={t('settings.maxBrightness')} 
-        min={0} max={254} 
-        defaultValue={light.briMax} 
+        min={0} max={100} 
+        defaultValue={light.brightnessFactor} 
         onChange={onBrightnessMaxChange}
       >
           <IonIcon size='small' slot='start' icon={sunny}/>
@@ -79,9 +79,9 @@ export const LightSettings: React.FC<ILightSettingsProps> = ({light, onChange}) 
       <IonItem>
         <IonLabel>{t('settings.colorTemp')}</IonLabel>
         <IonToggle 
-          checked={light.ctControlled} 
+          checked={light.colorTemperatureControlled} 
           onIonChange={(e)=>{
-            onChange({ctControlled: e.detail.checked} as ILightUpdate)
+            onChange({colorTemperatureControlled: e.detail.checked} as ILightUpdate)
           }}
         />
       </IonItem>

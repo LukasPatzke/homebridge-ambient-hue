@@ -14,8 +14,8 @@ import * as path from 'path';
 import * as child_process from 'child_process';
 import axios from 'axios';
 import { ConfigService } from '../modules/config/config.service';
-import { Light } from '../modules/light/entities/light.entity';
-import { Group } from '../modules/group/entities/group.entity';
+import { Light } from '../modules/light/entities/light.v2.entity';
+import { Group } from '../modules/group/entities/group.v2.entity';
 import { updateAccessory } from './updateAccessory';
 
 /**
@@ -146,8 +146,8 @@ export class AmbientHueHomebridgePlatform implements DynamicPlatformPlugin {
 
     // Remove stale accessories
     const staleAccessories = this.accessories.filter((accessory)=>(
-      !lights.map(l=>l.uniqueId).includes(accessory.UUID) &&
-      !groups.map(g=>g.uniqueId).includes(accessory.UUID) &&
+      !lights.map(l=>l.accessoryId).includes(accessory.UUID) &&
+      !groups.map(g=>g.accessoryId).includes(accessory.UUID) &&
       accessory.UUID !== this.homebridgeUUID
     ));
     if (staleAccessories.length > 0) {
@@ -185,7 +185,7 @@ export class AmbientHueHomebridgePlatform implements DynamicPlatformPlugin {
     // see if an accessory with the same uuid has already been registered and restored from
     // the cached devices we stored in the `configureAccessory` method above
     const existingAccessory = this.accessories.find(
-      (accessory) => accessory.UUID === device.uniqueId,
+      (accessory) => accessory.UUID === device.accessoryId,
     );
 
     if (existingAccessory) {
@@ -215,7 +215,7 @@ export class AmbientHueHomebridgePlatform implements DynamicPlatformPlugin {
       // create a new accessory
       const accessory = new this.api.platformAccessory<T>(
         this.displayName(device.name),
-        device.uniqueId,
+        device.accessoryId,
       );
 
       // store a copy of the device object in the `accessory.context`

@@ -1,6 +1,4 @@
 import {
-  forwardRef,
-  Inject,
   Injectable,
   NotFoundException,
   Logger,
@@ -8,17 +6,12 @@ import {
 import { InjectRepository } from '@nestjs/typeorm';
 import { CreateLightDto } from './dto/create-light.dto';
 import { UpdateLightDto } from './dto/update-light.dto';
-import { Light } from './entities/light.entity';
 import { In, Repository } from 'typeorm';
 import { CurveService } from '../curve/curve.service';
-import {
-  hueLightState,
-  hueSetState,
-  hueStateResponse,
-} from '../hue/dto/hueLight.dto';
-import { HueService } from '../hue/hue.service';
-import { PositionService } from '../position/position.service';
 import { LightGateway } from './light.gateway';
+import { Light } from './entities/light.v2.entity';
+import { LightGet } from '../hue/hue.api.v2';
+import { LightV1 } from './entities/light.v1.entity';
 
 @Injectable()
 export class LightService {
@@ -27,16 +20,14 @@ export class LightService {
   constructor(
     @InjectRepository(Light)
     private lightsRepository: Repository<Light>,
+    @InjectRepository(LightV1)
+    private lightsRepositoryV1: Repository<LightV1>,
     private curveService: CurveService,
-    @Inject(forwardRef(() => HueService))
-    private hueService: HueService,
-    private positionService: PositionService,
     private lightGateway: LightGateway,
   ) { }
 
   async create(createLightDto: CreateLightDto): Promise<Light> {
     const light = this.lightsRepository.create(createLightDto);
-    light.position = await this.positionService.create({});
     return this.lightsRepository.save(light);
   }
 
@@ -44,46 +35,46 @@ export class LightService {
     return this.lightsRepository.find();
   }
 
-  findOne(id: number): Promise<Light> {
+  findOne(id: string): Promise<Light> {
     return this.lightsRepository.findOneBy({id: id}).then((light) => {
       if (light === null) {
         throw new NotFoundException(`Light with id ${id} not found.`);
-      } else {
-        return light;
       }
+      return light;
     });
   }
 
-  findByIds(ids: number[]): Promise<Light[]> {
+  findByIds(ids: string[]): Promise<Light[]> {
     return this.lightsRepository.findBy({ id: In(ids) });
   }
 
-  findByUniqueId(uniqueId: string): Promise<Light> {
-    return this.lightsRepository.findOneBy({ uniqueId: uniqueId }).then((light) => {
+  findByAccessoryId(accessoryId: string): Promise<Light> {
+    return this.lightsRepository.findOneBy({ accessoryId: accessoryId }).then((light) => {
       if (light === null) {
-        throw new NotFoundException(`Light with uniqueId ${uniqueId} not found.`);
-      } else {
-        return light;
+        throw new NotFoundException(`Light with accessoryId ${accessoryId} not found.`);
       }
+      return light;
     });
   }
 
-  async update(id: number, updateLightDto: UpdateLightDto) {
+  async update(id: string, updateLightDto: UpdateLightDto) {
     this.logger.debug(`Update light ${id}: ${JSON.stringify(updateLightDto)}`);
 
     let light = await this.findOne(id);
-    if (updateLightDto.briCurveId !== undefined) {
-      updateLightDto.briCurve = await this.curveService.findOne(
-        updateLightDto.briCurveId,
+
+    // If the update contains curve IDs, they need to be attached manually
+    if (updateLightDto.brightnessCurveId !== undefined) {
+      updateLightDto.brightnessCurve = await this.curveService.findOne(
+        updateLightDto.brightnessCurveId,
       );
     }
-    if (updateLightDto.ctCurveId !== undefined) {
-      updateLightDto.ctCurve = await this.curveService.findOne(
-        updateLightDto.ctCurveId,
+    if (updateLightDto.colorTemperatureCurveId !== undefined) {
+      updateLightDto.colorTemperatureCurve = await this.curveService.findOne(
+        updateLightDto.colorTemperatureCurveId,
       );
     }
 
-    if (updateLightDto.on !== light.on && light.on !== undefined) {
+    if (updateLightDto.on !== light.on && updateLightDto.on !== undefined) {
       this.resetSmartOff(light);
     }
 
@@ -99,8 +90,29 @@ export class LightService {
     return this.lightsRepository.count();
   }
 
-  async remove(id: number) {
+  async remove(id: string) {
     await this.lightsRepository.delete(id);
+  }
+
+  /**
+   * Access lights in the depricated v1 schema that where not successfully migrated
+   */
+  findAllNotMigratedV1(): Promise<LightV1[]> {
+    return this.lightsRepositoryV1.find({where: {isMigrated: false}});
+  }
+
+  /**
+   * Mark a v1 entity as successfully migrated to the v1 schema
+   * @param id
+   */
+  async markAsMigratedV1(id: number) {
+    const light = await this.lightsRepositoryV1.findOneBy({id: id});
+    if (light === null) {
+      return false;
+    }
+    light.isMigrated = true;
+    await this.lightsRepositoryV1.save(light);
+    return true;
   }
 
   /**
@@ -109,9 +121,9 @@ export class LightService {
    */
   async brightness(light: Light) {
     const curve =
-      light.briCurve || (await this.curveService.findDefault('bri'));
+      light.brightnessCurve || (await this.curveService.findDefault('bri'));
     const value = await this.curveService.calcValue(curve.id);
-    return Math.floor((light.briMax / 254) * value);
+    return Math.min(100, Math.floor((light.brightnessFactor / 100) * value));
   }
 
   /**
@@ -119,159 +131,69 @@ export class LightService {
    * @param light
    */
   async colorTemp(light: Light) {
-    const curve = light.ctCurve || (await this.curveService.findDefault('ct'));
+    const curve = light.colorTemperatureCurve || (await this.curveService.findDefault('ct'));
     return this.curveService.calcValue(curve.id);
   }
 
   /**
-   * Calculate the smart of state of the light.
-   * @param light
-   * @param currentState
+   * Reset the values last sent by ambientHUE
+   * @param light the light to update
+   * @returns
    */
-  smartOff(light: Light, currentState: hueLightState) {
-    let on = false;
-    let bri = false;
-    let ct = false;
-    const logInfo: string[] = [];
-
-    if (light.onControlled) {
-      on = light.smartoffOn !== null && light.smartoffOn !== currentState.on;
-      if (on) {
-        logInfo.push(`on: ${light.smartoffOn} !== ${currentState.on}`);
-      }
-    }
-
-    if (light.briControlled) {
-      bri =
-        light.smartoffBri !== null &&
-        Math.abs(light.smartoffBri - currentState.bri) >= 1;
-      if (bri) {
-        logInfo.push(`bri: ${light.smartoffBri} !== ${currentState.bri}`);
-      }
-    }
-
-    if (light.ctControlled) {
-      ct =
-        light.smartoffCt !== null &&
-        Math.abs(light.smartoffCt - currentState.ct) >= 1;
-      if (ct) {
-        logInfo.push(`ct: ${light.smartoffCt} !== ${currentState.ct}`);
-      }
-    }
-
-    const isSmartoffActive = on || bri || ct;
-    const smartOff = { on: on, bri: bri, ct: ct };
-    light.smartoffActive = isSmartoffActive;
-    this.lightsRepository.save(light);
-
-    if (isSmartoffActive) {
-      this.logger.log(
-        `Smart off active for light ${light.id}: ${JSON.stringify(
-          smartOff,
-        )}; ${logInfo.join(', ')}`,
-      );
-    }
-
-    return smartOff;
-  }
-
   async resetSmartOff(light: Light) {
-    this.logger.debug(`Reset smart off for light ${light.id}`);
-    const hue = await this.hueService.findOneLight(light.id);
+    this.logger.debug(`Reset smart off for light ${light.id} ${light.name}`);
 
-    light.smartoffOn = hue.state.on;
-    light.smartoffBri = hue.state.bri;
-    light.smartoffCt = hue.state.ct;
-    light.smartoffActive = false;
+    light.lastOn = light.currentOn;
+    light.lastBrightness = light.currentBrightness;
+    light.lastColorTemperature = light.currentColorTemperature;
 
     return this.lightsRepository.save(light);
   }
 
-  async updateSmartOff(light: Light, hueResponse: hueStateResponse) {
-    this.logger.debug(
-      `Update smart off for light ${light.id}: ${JSON.stringify(hueResponse)}`,
-    );
-
-    hueResponse.forEach((item) => {
-      if (item.success !== undefined) {
-        const address = Object.keys(item.success)[0];
-        const match = address.match(/\/lights\/\d+\/state\/(\w+)/);
-        if (match === null) {
-          this.logger.error(
-            `Hue response item cannot be parsed: ${JSON.stringify(item)}`,
-          );
-        } else {
-          const param = match[1];
-          switch (param) {
-            case 'on':
-              light.smartoffOn = item.success[address] as boolean;
-              break;
-            case 'bri':
-              light.smartoffBri = item.success[address] as number;
-              break;
-            case 'ct':
-              light.smartoffCt = item.success[address] as number;
-              break;
-            default:
-              this.logger.warn(
-                `Hue response gave unknown parameter ${param} in ${JSON.stringify(
-                  item,
-                )}`,
-              );
-              break;
-          }
-        }
-      }
-    });
-
-    return this.lightsRepository.save(light);
-  }
-
+  /**
+   * Calculate the neccessary state changes for a given light
+   * @param light the light to calculate for
+   * @returns the data that can be sent to the hue bridge
+   */
   async nextState(
     light: Light,
-    currentState: hueLightState,
-  ): Promise<hueSetState> {
-    let state: hueSetState = {};
+  ): Promise<Partial<LightGet>> {
+    let state: Partial<LightGet> = {};
 
     const brightness = await this.brightness(light);
     const colorTemp = await this.colorTemp(light);
-    const smartOff = this.smartOff(light, currentState);
 
     if (!light.on) {
-      if (currentState.on && light.onControlled && !smartOff.on) {
-        state.on = false;
+      if (light.currentOn && light.onControlled && !light.smartOffOn) {
+        state.on = {on: false};
       }
+      // If the light should be off, we don't care about any other property.
       return state;
     }
 
-    if (light.ctControlled && !smartOff.ct && currentState.ct !== colorTemp) {
-      state.ct = colorTemp;
-    }
-    if (
-      light.briControlled &&
-      !smartOff.bri &&
-      currentState.bri !== brightness
-    ) {
-      state.bri = brightness;
-    }
-    if (light.onControlled && !smartOff.on) {
+    if (light.onControlled && !light.smartOffOn) {
       if (brightness > light.onThreshold) {
-        state.on = true;
+        state.on = {on: true};
       } else {
-        state.on = false;
+        state.on = {on: false};
+        // Do not send a request if the light stays off
+        if (light.currentOn === false) {
+          state = {};
+        }
+        // If the light should be off, we don't care about any other property.
+        return state;
       }
     }
-    if (state.on === false) {
-      state = { on: false };
-    }
 
-    // Do not send a request if the light stays off
-    if (currentState.on === false && state.on !== true) {
-      state = {};
+    if (light.colorTemperatureControlled && !light.smartOffColorTemperature && light.currentColorTemperature !== colorTemp) {
+      state.color_temperature = {mirek: colorTemp};
+    }
+    if (light.brightnessControlled && !light.smartOffBrightness && light.currentBrightness !== brightness) {
+      state.dimming = {brightness: brightness};
     }
 
     // Signify recommends to not resent the 'on' value
-    if (state.on === currentState.on) {
+    if (state.on?.on === light.currentOn) {
       delete state.on;
     }
 

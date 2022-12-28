@@ -21,7 +21,7 @@ export const Range: React.FC<IRangeProps> = ({label, min, max, defaultValue, onC
 
   const renderPercentage = (value: number | undefined) => {
     if (value) {
-      return `${Math.round(value/2.54)} %`;
+      return `${Math.round(value)} %`;
     } else {
       return '0 %';
     }

@@ -12,11 +12,9 @@ export const LightInfos: React.FC<ILightInfosProps> = ({light}) => {
 
   return (
     <IonList inset>
-      <InfoItem label={t('info.id')} value={`lights/${light.id}`}/>
-      <InfoItem label={t('info.uniqueId')} value={light.uniqueId}/>
+      <InfoItem label={t('info.id')} value={light.id}/>
+      <InfoItem label={t('info.uniqueId')} value={light.accessoryId}/>
       <InfoItem label={t('info.type')} value={light.type}/>
-      <InfoItem label={t('info.manufacturer')} value={light.manufacturername}/>
-      <InfoItem label={t('info.model')} value={light.modelid}/>
     </IonList>
   )
 }

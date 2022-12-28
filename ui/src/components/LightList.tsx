@@ -1,5 +1,5 @@
 import  React from 'react';
-import { IonList, IonItem, IonLabel, IonIcon, IonSkeletonText } from '@ionic/react';
+import { IonList, IonItem, IonLabel, IonIcon, IonSkeletonText, IonMenuToggle } from '@ionic/react';
 import { bulb } from 'ionicons/icons';
 import { ILight, ILightInfo, IGroupInfo, IGroup } from '../types/hue';
 import Room from '../icons/room.svg';
@@ -7,33 +7,15 @@ import Zone from '../icons/zone.svg';
 
 
 export const isLightHueControlled = (light: ILightInfo|ILight) => {
-  if (light.type==='Color light') {
-    return true
-  } else if (light.type==='Extended color light') {
-    return true
-  } else {
-    return false
-  }
+  return false
 }
 
 export const isLightCtControlled = (light: ILightInfo|ILight) => {
-  if (light.type==='Color temperature light') {
-    return true
-  } else if (light.type==='Extended color light') {
-    return true
-  } else {
-    return false
-  }
+  return light.currentColorTemperature !== null
 }
 
 export const isLightBriControlled = (light: ILightInfo|ILight) => {
-  if (light.type==='On/off light') {
-    return false
-  } else if (light.type==='On/Off plug-in unit') {
-    return false
-  } else {
-    return true
-  }
+  return light.currentBrightness !== null
 }
 
 interface ILightListProps {
@@ -66,17 +48,16 @@ export const ItemIcon: React.FC<IItemIcon> = ({item, disabled, ...props}) => {
   let icon: string
   let color: string
 
-  if (item.type === 'Room') {
+  if (item.type === 'room') {
     icon = Room;
     color = 'secondary'
-  } else 
-  if (item.type === 'Zone') {
+  } else if (item.type === 'zone') {
     icon = Zone;
     color = 'primary'
-  } else if ((item.type === 'Color light') || (item.type === 'Extended color light')){
+  } else if (item.type === 'classic_bulb'){
     icon = bulb;
     color = 'primary'
-  } else if (item.type === 'Color temperature light') {
+  } else if (item.type === 'luster_bulb') {
     icon = bulb;
     color = 'secondary'
   } else {

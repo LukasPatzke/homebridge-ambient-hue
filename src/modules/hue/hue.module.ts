@@ -7,13 +7,23 @@ import { HueController } from './hue.controller';
 import { GroupModule } from '../group/group.module';
 import { ConfigModule } from '../config/config.module';
 import { UpdateInterceptor } from './update.interceptor';
+import { Agent } from 'https';
+import { CurveModule } from '../curve/curve.module';
+import { PointModule } from '../point/point.module';
 
 @Module({
   imports: [
-    HttpModule,
+    HttpModule.register({
+      httpsAgent: new Agent({
+        rejectUnauthorized: false,
+        keepAlive: true,
+      }),
+    }),
     ConfigModule,
     forwardRef(() => LightModule),
     forwardRef(() => GroupModule),
+    forwardRef(() => CurveModule),
+    forwardRef(() => PointModule),
   ],
   controllers: [HueController],
   providers: [HueService, LightService, UpdateInterceptor],

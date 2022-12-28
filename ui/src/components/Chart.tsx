@@ -123,7 +123,7 @@ export const Chart: React.FC<IChart> = ({curve, expanded, xScale={min:0, max:144
 
   var yScale = {min:0, max:100};
   if (curve.kind==='bri') {
-    yScale = {min:0, max:254}
+    yScale = {min:0, max:100}
   } else if (curve.kind==='ct') {
     yScale = {min:153, max: 500}
   } else if (curve.kind==='hue') {

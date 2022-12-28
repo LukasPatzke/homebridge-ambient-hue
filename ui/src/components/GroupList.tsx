@@ -11,19 +11,19 @@ interface IGroupListProps {
 export const GroupList: React.FC<IGroupListProps> = ({groups}) => {
   const { t } = useTranslation('groups');
 
-  const rooms = groups.filter(group=>group.type==='Room').map((group, index) => (
+  const rooms = groups.filter(group=>group.type==='room').map((group, index) => (
     <IonItem button routerLink={`/groups/${group.id}`} routerDirection='forward' key={index}>
       <IonLabel>{group.name}</IonLabel>
       <ItemIcon slot='start' item={group}/>
     </IonItem>
   ))
-  const zones = groups.filter(group=>group.type==='Zone').map((group, index) => (
+  const zones = groups.filter(group=>group.type==='zone').map((group, index) => (
     <IonItem button routerLink={`/groups/${group.id}`} routerDirection='forward' key={index}>
       <IonLabel>{group.name}</IonLabel>
       <ItemIcon slot='start' item={group}/>
     </IonItem>
   ))
-  const other = groups.filter(group=>(group.type!=='Zone')&&(group.type!=='Room')).map((group, index) => (
+  const other = groups.filter(group=>(group.type!=='zone')&&(group.type!=='room')).map((group, index) => (
     <IonItem button routerLink={`/groups/${group.id}`} routerDirection='forward' key={index}>
       <IonLabel>{group.name}</IonLabel>
       <ItemIcon slot='start' item={group}/>

@@ -13,8 +13,8 @@ export const GroupInfos: React.FC<IGroupInfosProps> = ({group}) => {
 
   return (
     <IonList inset>
-      <InfoItem label={t('info.id')} value={`groups/${group.id}`}/>
-      <InfoItem label={t('info.uniqueId')} value={group.uniqueId}/>
+      <InfoItem label={t('info.id')} value={group.id}/>
+      <InfoItem label={t('info.uniqueId')} value={group.accessoryId}/>
       <InfoItem label={t('info.type')} value={group.type}/>
     </IonList>
   )

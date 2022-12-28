@@ -1,22 +1,21 @@
 import { forwardRef, Module } from '@nestjs/common';
 import { LightService } from './light.service';
 import { LightController } from './light.controller';
-import { Light } from './entities/light.entity';
+import { LightV1 } from './entities/light.v1.entity';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { CurveModule } from '../curve/curve.module';
-import { HueModule } from '../hue/hue.module';
-import { PositionModule } from '../position/position.module';
 import { PointModule } from '../point/point.module';
 import { LightGateway } from './light.gateway';
 import { GroupModule } from '../group/group.module';
+import { Light } from './entities/light.v2.entity';
+import { HueModule } from '../hue/hue.module';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([Light]),
+    TypeOrmModule.forFeature([LightV1, Light]),
     CurveModule,
     forwardRef(() => HueModule),
     forwardRef(() => GroupModule),
-    PositionModule,
     PointModule,
   ],
   controllers: [LightController],
@@ -27,7 +26,6 @@ import { GroupModule } from '../group/group.module';
     LightGateway,
     HueModule,
     CurveModule,
-    PositionModule,
     PointModule,
   ],
 })

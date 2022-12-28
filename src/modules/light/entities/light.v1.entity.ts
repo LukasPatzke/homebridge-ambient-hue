@@ -1,9 +1,8 @@
 import { Curve } from '../../curve/entities/curve.entity';
-import { Position } from '../../position/entities/position.entity';
-import { Entity, Column, PrimaryColumn, ManyToOne, OneToOne } from 'typeorm';
+import { Entity, Column, PrimaryColumn, ManyToOne } from 'typeorm';
 
-@Entity()
-export class Light {
+@Entity({name: 'light'})
+export class LightV1 {
   @PrimaryColumn()
   id: number;
 
@@ -72,6 +71,7 @@ export class Light {
   })
   ctCurve: Curve;
 
-  @OneToOne(() => Position, (position) => position.light)
-  position: Position;
+  /** Whether the entity was succesfully migrated to the new v2 schema */
+  @Column({default: false})
+  isMigrated: boolean;
 }

@@ -1,5 +1,6 @@
 import {
   Body,
+  ClassSerializerInterceptor,
   Controller,
   Get,
   Param,
@@ -11,6 +12,7 @@ import { UpdateLightDto } from '../light/dto/update-light.dto';
 import { DeviceService } from './device.service';
 
 @Controller('devices')
+@UseInterceptors(ClassSerializerInterceptor)
 export class DeviceController {
   constructor(private readonly deviceService: DeviceService) {}
 
