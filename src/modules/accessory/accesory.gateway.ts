@@ -2,12 +2,12 @@ import { WebSocketGateway, WebSocketServer } from '@nestjs/websockets';
 import { Logger } from '@nestjs/common';
 import { Server } from 'socket.io';
 import { GroupService } from '../group/group.service';
-import { Light } from './entities/light.v2.entity';
+import { Light } from '../light/entities/light.v2.entity';
 import { instanceToPlain } from 'class-transformer';
 
 @WebSocketGateway({ transports: ['websocket'] })
-export class LightGateway {
-  private readonly logger = new Logger(LightGateway.name);
+export class AccessoryGateway {
+  private readonly logger = new Logger(AccessoryGateway.name);
 
   constructor(private groupService: GroupService) {}
 

@@ -5,10 +5,10 @@ import { LightV1 } from './entities/light.v1.entity';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { CurveModule } from '../curve/curve.module';
 import { PointModule } from '../point/point.module';
-import { LightGateway } from './light.gateway';
 import { GroupModule } from '../group/group.module';
 import { Light } from './entities/light.v2.entity';
 import { HueModule } from '../hue/hue.module';
+import { AccessoryModule } from '../accessory/accessory.module';
 
 @Module({
   imports: [
@@ -17,13 +17,14 @@ import { HueModule } from '../hue/hue.module';
     forwardRef(() => HueModule),
     forwardRef(() => GroupModule),
     PointModule,
+    forwardRef(() => AccessoryModule),
   ],
   controllers: [LightController],
-  providers: [LightService, LightGateway],
+  providers: [LightService],
   exports: [
     TypeOrmModule,
     LightService,
-    LightGateway,
+    AccessoryModule,
     HueModule,
     CurveModule,
     PointModule,

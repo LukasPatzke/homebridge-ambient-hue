@@ -8,7 +8,7 @@ import { CreateLightDto } from './dto/create-light.dto';
 import { UpdateLightDto } from './dto/update-light.dto';
 import { In, Repository } from 'typeorm';
 import { CurveService } from '../curve/curve.service';
-import { LightGateway } from './light.gateway';
+import { AccessoryGateway } from '../accessory/accesory.gateway';
 import { Light } from './entities/light.v2.entity';
 import { LightGet } from '../hue/hue.api.v2';
 import { LightV1 } from './entities/light.v1.entity';
@@ -23,7 +23,7 @@ export class LightService {
     @InjectRepository(LightV1)
     private lightsRepositoryV1: Repository<LightV1>,
     private curveService: CurveService,
-    private lightGateway: LightGateway,
+    private accessoryGateway: AccessoryGateway,
   ) { }
 
   async create(createLightDto: CreateLightDto): Promise<Light> {
@@ -83,7 +83,7 @@ export class LightService {
 
     light = await this.lightsRepository.save(light);
     if (isOnChanged) {
-      this.lightGateway.emitUpdate(light);
+      this.accessoryGateway.emitUpdate(light);
     }
     return light;
   }

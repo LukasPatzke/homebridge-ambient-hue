@@ -13,7 +13,7 @@ import { HealthModule } from './modules/health/health.module';
 import { ConfigModule } from './modules/config/config.module';
 import { ConfigService } from './modules/config/config.service';
 import { LoggerModule } from './modules/logger/logger.module';
-import { DeviceModule } from './modules/device/device.module';
+import { AccessoryModule } from './modules/accessory/accessory.module';
 
 @Module({
   imports: [
@@ -33,7 +33,7 @@ import { DeviceModule } from './modules/device/device.module';
     HealthModule,
     ConfigModule,
     LoggerModule,
-    DeviceModule,
+    AccessoryModule,
   ],
   controllers: [AppController],
   providers: [AppService],
