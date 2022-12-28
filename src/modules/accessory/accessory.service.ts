@@ -20,6 +20,12 @@ export class AccessoryService {
     private readonly groupService: GroupService,
   ) {}
 
+  async findAll() {
+    const lights = await this.lightService.findAll();
+    const groups = await this.groupService.findAll();
+    return [...lights, ...groups];
+  }
+
   async findOne(accessoryId: string) {
     try {
       return await this.lightService.findByAccessoryId(accessoryId);

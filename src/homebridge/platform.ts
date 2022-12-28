@@ -125,29 +125,20 @@ export class AmbientHueHomebridgePlatform implements DynamicPlatformPlugin {
    * must not be registered again to prevent "duplicate UUID" errors.
    */
   async discoverDevices() {
-    const lights = await axios
-      .get<Light[]>(`${this.serverUri}/api/lights`)
+    const accessories = await axios
+      .get<(Light | Group)[]>(`${this.serverUri}/api/accessories`)
       .then((res) => res.data);
 
-    const groups = await axios
-      .get<Group[]>(`${this.serverUri}/api/groups`)
-      .then((res) => res.data);
-
-    this.log.debug('lights:', lights.length, '| groups:', groups.length);
+    this.log.debug('discovered ', accessories.length, ' accessories.');
 
     // loop over the discovered devices and register each one if it has not already been registered
-    for (const light of lights) {
-      this.registerDevice(light);
-    }
-
-    for (const group of groups) {
-      this.registerDevice(group);
+    for (const accessory of accessories) {
+      this.registerDevice(accessory);
     }
 
     // Remove stale accessories
     const staleAccessories = this.accessories.filter((accessory)=>(
-      !lights.map(l=>l.accessoryId).includes(accessory.UUID) &&
-      !groups.map(g=>g.accessoryId).includes(accessory.UUID) &&
+      !accessories.map(i=>i.accessoryId).includes(accessory.UUID) &&
       accessory.UUID !== this.homebridgeUUID
     ));
     if (staleAccessories.length > 0) {
