@@ -2,16 +2,16 @@ import {
   forwardRef,
   Inject,
   Injectable,
-  NotFoundException,
+  NotFoundException
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { In, Repository } from 'typeorm';
+import { UpdateLightDto } from '../light/dto/update-light.dto';
+import { LightService } from '../light/light.service';
 import { CreateGroupDto } from './dto/create-group.dto';
 import { UpdateGroupDto } from './dto/update-group.dto';
-import { LightService } from '../light/light.service';
-import { UpdateLightDto } from '../light/dto/update-light.dto';
-import { Group } from './entities/group.v2.entity';
 import { GroupV1 } from './entities/group.v1.entity';
+import { Group } from './entities/group.v2.entity';
 
 @Injectable()
 export class GroupService {
@@ -30,7 +30,14 @@ export class GroupService {
   }
 
   findAll(): Promise<Group[]> {
-    return this.groupsRepository.find();
+    return this.groupsRepository.find({
+      order: {
+        name: 'ASC',
+        lights: {
+          'name': 'ASC',
+        },
+      },
+    });
   }
 
   findOne(id: string): Promise<Group> {
