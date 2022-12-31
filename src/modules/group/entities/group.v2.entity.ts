@@ -1,12 +1,8 @@
-import { Light } from '../../light/entities/light.v2.entity';
-import {
-  Entity,
-  Column,
-  PrimaryColumn,
-  ManyToMany,
-  JoinTable,
-} from 'typeorm';
 import { Expose } from 'class-transformer';
+import {
+  Column, Entity, JoinTable, ManyToMany, PrimaryColumn
+} from 'typeorm';
+import { Light } from '../../light/entities/light.v2.entity';
 
 @Entity({name: 'v2_group'})
 export class Group {
@@ -49,19 +45,31 @@ export class Group {
 
   /** Whether amientHUE controls the On/Off state of all lights in the group */
   @Expose()
-  get allOnControlled(): boolean {
+  get onControlled(): boolean {
     return this.lights.reduce((accumulator, current) => accumulator && current.onControlled, true);
+  }
+
+  /** The onThreshold of the first light in the group */
+  @Expose()
+  get onThreshold(): number {
+    return this.lights[0].onThreshold;
   }
 
   /** Whether amientHUE controls the brightness of all lights in the group */
   @Expose()
-  get allBrightnessControlled(): boolean {
+  get brightnessControlled(): boolean {
     return this.lights.reduce((accumulator, current) => accumulator && current.brightnessControlled, true);
+  }
+
+  /** The brightnessFactor of the first light in the group */
+  @Expose()
+  get brightnessFactor(): number {
+    return this.lights[0].brightnessFactor;
   }
 
   /** Whether amientHUE controls the color temperature of all lights in the group */
   @Expose()
-  get allColorTemperatureControlled(): boolean {
+  get colorTemperatureControlled(): boolean {
     return this.lights.reduce((accumulator, current) => accumulator && current.colorTemperatureControlled, true);
   }
 
@@ -69,5 +77,17 @@ export class Group {
   @Expose()
   get smartOff(): boolean {
     return this.lights.reduce((accumulator, current) => accumulator && current.smartOff, true);
+  }
+
+  /** Whether any of the lights in the group is capable to display brightness */
+  @Expose()
+  get isBrightnessCapable(): boolean {
+    return this.lights.reduce((accumulator, current) => accumulator || current.isBrightnessCapable, false);
+  }
+
+  /** Whether any of the the lights in the group is capable to display color temperature */
+  @Expose()
+  get isColorTemperatureCapable(): boolean {
+    return this.lights.reduce((accumulator, current) => accumulator || current.isColorTemperatureCapable, false);
   }
 }

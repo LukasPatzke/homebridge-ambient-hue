@@ -1,6 +1,6 @@
-import { Curve } from '../../curve/entities/curve.entity';
-import { Entity, Column, PrimaryColumn, ManyToOne } from 'typeorm';
 import { Expose } from 'class-transformer';
+import { Column, Entity, ManyToOne, PrimaryColumn } from 'typeorm';
+import { Curve } from '../../curve/entities/curve.entity';
 
 @Entity({name: 'v2_light'})
 export class Light {
@@ -134,5 +134,17 @@ export class Light {
   @Expose()
   get smartOff(): boolean {
     return this.smartOffOn || this.smartOffBrightness || this.smartOffColorTemperature;
+  }
+
+  /** Whether the light is capable to display brightness */
+  @Expose()
+  get isBrightnessCapable(): boolean {
+    return this.currentBrightness !== null;
+  }
+
+  /** Whether the light is capable to display color temperature */
+  @Expose()
+  get isColorTemperatureCapable(): boolean {
+    return this.currentColorTemperature !== null;
   }
 }
