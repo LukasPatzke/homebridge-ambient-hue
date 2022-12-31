@@ -7,9 +7,12 @@ export class CreateLightDto {
   deviceId: string;
   name: string;
   archetype: string;
-  currentOn?: boolean;
-  currentBrightness?: number;
-  currentColorTemperature?: number;
+  currentOn?: boolean|null;
+  currentBrightness?: number|null;
+  currentColorTemperature?: number|null;
+  lastOn?: boolean|null;
+  lastBrightness?: number|null;
+  lastColorTemperature?: number|null;
   on?: boolean;
   onControlled?: boolean;
   onThreshold?: number;

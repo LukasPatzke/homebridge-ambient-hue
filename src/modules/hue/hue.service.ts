@@ -1,32 +1,30 @@
+import { HttpService } from '@nestjs/axios';
 import {
   forwardRef,
   Inject,
   Injectable,
   InternalServerErrorException,
-  Logger,
+  Logger
 } from '@nestjs/common';
-import { HttpService } from '@nestjs/axios';
-import { LightService } from '../light/light.service';
-import { GroupService } from '../group/group.service';
-import { ConfigService } from '../config/config.service';
-import { lastValueFrom, catchError, map, Subject, debounceTime } from 'rxjs';
 import { AxiosError, AxiosRequestConfig } from 'axios';
 import EventSource from 'eventsource';
+import { catchError, debounceTime, lastValueFrom, map, Subject } from 'rxjs';
+import { ConfigService } from '../config/config.service';
+import { CurveService } from '../curve/curve.service';
+import { GroupService } from '../group/group.service';
+import { Light } from '../light/entities/light.v2.entity';
+import { LightService } from '../light/light.service';
+import { PointService } from '../point/point.service';
 import {
   BridgeConfig,
   DeviceGet,
-  isLightEvent,
-  JSONResponse,
+  isLightEvent, isRoomGet, JSONResponse,
   LightGet,
   ResourceIdentifier,
   RoomGet,
   StreamingResponse,
-  ZoneGet,
-  isRoomGet,
+  ZoneGet
 } from './hue.api.v2';
-import { Light } from '../light/entities/light.v2.entity';
-import { CurveService } from '../curve/curve.service';
-import { PointService } from '../point/point.service';
 
 interface HueUserResponse {
   success?: {
@@ -200,6 +198,9 @@ export class HueService {
         currentOn: state.on?.on,
         currentBrightness: state.dimming?.brightness,
         currentColorTemperature: state.color_temperature?.mirek,
+        lastOn: state.on?.on,
+        lastBrightness: state.dimming?.brightness,
+        lastColorTemperature: state.color_temperature?.mirek,
       });
       return response;
     });
@@ -416,6 +417,9 @@ export class HueService {
           currentOn: hueLight.on.on,
           currentBrightness: hueLight.dimming?.brightness,
           currentColorTemperature: hueLight.color_temperature?.mirek,
+          lastOn: null,
+          lastBrightness: null,
+          lastColorTemperature: null,
         });
       } else {
         // Update an existing light
@@ -425,6 +429,9 @@ export class HueService {
           currentOn: hueLight.on.on,
           currentBrightness: hueLight.dimming?.brightness,
           currentColorTemperature: hueLight.color_temperature?.mirek,
+          lastOn: null,
+          lastBrightness: null,
+          lastColorTemperature: null,
         });
       }
     });

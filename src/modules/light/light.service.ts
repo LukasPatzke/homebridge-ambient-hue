@@ -1,17 +1,15 @@
 import {
-  Injectable,
-  NotFoundException,
-  Logger,
+  Injectable, Logger, NotFoundException
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { In, Repository } from 'typeorm';
+import { AccessoryGateway } from '../accessory/accesory.gateway';
+import { CurveService } from '../curve/curve.service';
+import { LightGet } from '../hue/hue.api.v2';
 import { CreateLightDto } from './dto/create-light.dto';
 import { UpdateLightDto } from './dto/update-light.dto';
-import { In, Repository } from 'typeorm';
-import { CurveService } from '../curve/curve.service';
-import { AccessoryGateway } from '../accessory/accesory.gateway';
-import { Light } from './entities/light.v2.entity';
-import { LightGet } from '../hue/hue.api.v2';
 import { LightV1 } from './entities/light.v1.entity';
+import { Light } from './entities/light.v2.entity';
 
 @Injectable()
 export class LightService {
@@ -75,14 +73,12 @@ export class LightService {
     }
 
     const isOnChanged = (updateLightDto.on !== light.on) && (updateLightDto.on !== undefined);
-    if (isOnChanged) {
-      this.resetSmartOff(light);
-    }
 
     this.lightsRepository.merge(light, updateLightDto);
 
     light = await this.lightsRepository.save(light);
     if (isOnChanged) {
+      this.resetSmartOff(light);
       this.accessoryGateway.emitUpdate(light);
     }
     return light;
