@@ -44,8 +44,8 @@ export class LightService {
     });
   }
 
-  findByIds(ids: string[]): Promise<Light[]> {
-    return this.lightsRepository.findBy({ id: In(ids) });
+  findByHueIds(hueIds: string[]): Promise<Light[]> {
+    return this.lightsRepository.findBy({ hueId: In(hueIds) });
   }
 
   findByAccessoryId(accessoryId: string): Promise<Light> {

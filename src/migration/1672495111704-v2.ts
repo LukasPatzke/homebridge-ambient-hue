@@ -16,6 +16,8 @@ export class v21672495111704 implements MigrationInterface {
     await queryRunner.query(`INSERT INTO "temporary_point"( "id", "x", "y", "first", "last", "brightnessCurveId", "colorTemperatureCurveId" ) SELECT "point"."id", "x", "y", "first", "last", CASE WHEN "curve"."kind" = 'bri' THEN CASE WHEN "curve"."default" = 1 THEN 0 ELSE "curveId" END ELSE NULL END "brightnessCurveId", CASE WHEN "curve"."kind" = 'ct' THEN CASE WHEN "curve"."default" = 1 THEN 0 ELSE "curveId" END ELSE NULL END "colorTemperatureCurveId" FROM "point" INNER JOIN "curve" ON "point"."curveId" = "curve"."id"`);
     await queryRunner.query(`DROP TABLE "point"`);
     await queryRunner.query(`ALTER TABLE "temporary_point" RENAME TO "point"`);
+    await queryRunner.query('CREATE TABLE "temporary_group_lights_light" ("groupId" integer NOT NULL, "lightId" integer NOT NULL)');
+    await queryRunner.query('INSERT INTO "temporary_group_lights_light"("groupId", "lightId") SELECT "groupId", "lightId" FROM "group_lights_light"');
     await queryRunner.query(`CREATE TABLE "temporary_light" ( "id" integer PRIMARY KEY NOT NULL, "hueId" varchar, "legacyId" varchar, "accessoryId" varchar NOT NULL, "deviceId" varchar, "name" varchar NOT NULL, "archetype" varchar NOT NULL, "currentOn" boolean, "currentBrightness" integer, "currentColorTemperature" integer, "on" boolean NOT NULL DEFAULT (0), "onControlled" boolean NOT NULL DEFAULT (0), "onThreshold" integer NOT NULL DEFAULT (0), "brightnessControlled" boolean NOT NULL DEFAULT (0), "brightnessFactor" integer NOT NULL DEFAULT (100), "colorTemperatureControlled" boolean NOT NULL DEFAULT (0), "lastOn" boolean, "lastBrightness" integer, "lastColorTemperature" integer, "published" boolean NOT NULL DEFAULT (1), "brightnessCurveId" integer NOT NULL DEFAULT (0), "colorTemperatureCurveId" integer NOT NULL DEFAULT (0), CONSTRAINT "FK_d1ca235a3fdc1cee0b86779072a" FOREIGN KEY ("brightnessCurveId") REFERENCES "brightness_curve" ("id") ON DELETE SET DEFAULT ON UPDATE NO ACTION, CONSTRAINT "FK_dd1c1631d2bd1015d6eb5e10487" FOREIGN KEY ("colorTemperatureCurveId") REFERENCES "color_temperature_curve" ("id") ON DELETE SET DEFAULT ON UPDATE NO ACTION )`);
     await queryRunner.query(`INSERT INTO "temporary_light" ( "id", "legacyId", "accessoryId", "name", "archetype", "on", "onControlled", "onThreshold", "brightnessControlled", "brightnessFactor", "colorTemperatureControlled", "published", "brightnessCurveId", "colorTemperatureCurveId" ) SELECT "id", '/lights/' || "id", "uniqueId", "name", '', "on", "onControlled", "onThreshold", "briControlled", "briMax", "ctControlled", "published", IFNULL("briCurveId", 0), IFNULL("ctCurveId", 0) FROM "light"`);
     await queryRunner.query(`DROP TABLE "light"`);
@@ -24,6 +26,8 @@ export class v21672495111704 implements MigrationInterface {
     await queryRunner.query(`INSERT INTO "temporary_group" ( "id", "legacyId", "accessoryId", "name", "type", "published" ) SELECT "id", '/groups/' || "id", "uniqueId", "name", LOWER("type"), "published" FROM "group"`);
     await queryRunner.query(`DROP TABLE "group"`);
     await queryRunner.query(`ALTER TABLE "temporary_group" RENAME TO "group"`);
+    await queryRunner.query('INSERT INTO "group_lights_light"("groupId", "lightId") SELECT "groupId", "lightId" FROM "temporary_group_lights_light"');
+    await queryRunner.query(`DROP TABLE "temporary_group_lights_light"`);
     await queryRunner.query(`DROP TABLE "curve"`);
   }
 

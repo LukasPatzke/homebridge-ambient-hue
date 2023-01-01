@@ -295,13 +295,16 @@ export class HueService {
       (light.hueId === hueLight.id) || (light.legacyId === hueLight.id_v1)
     );
 
-    /** Create/Update Lights */
-    hueLights.forEach(async hueLight => {
+    /** Create/Update Lights
+     *  Wait for all lights to be updated
+     *  Groups need access to the updated lights
+    */
+    await Promise.all(hueLights.map(hueLight => {
       const light = lights.find(light => compareLights(light, hueLight));
 
       if (light === undefined) {
         // Create a new light
-        await this.lightService.create({
+        return this.lightService.create({
           hueId: hueLight.id,
           legacyId: hueLight.id_v1,
           accessoryId: this.generateUuid(hueLight.id),
@@ -317,7 +320,7 @@ export class HueService {
         });
       } else {
         // Update an existing light
-        await this.lightService.update(light.id, {
+        return this.lightService.update(light.id, {
           hueId: hueLight.id,
           legacyId: hueLight.id_v1,
           name: hueLight.metadata.name,
@@ -330,30 +333,31 @@ export class HueService {
           lastColorTemperature: null,
         });
       }
-    });
+    }));
+
 
     // Delete lights that don't exist in the bridge
-    lights.forEach((light) => {
+    await Promise.all(lights.map((light) => {
       const hueLight = hueLights.find(l=> compareLights(light, l));
       if (hueLight===undefined) {
-        this.lightService.remove(light.id);
+        return this.lightService.remove(light.id);
       }
-    });
+    }));
 
     const compareGroups = (group: Group, hueGroup: RoomGet|ZoneGet) => (
       (group.hueId === hueGroup.id) || (group.legacyId === hueGroup.id_v1)
     );
 
     /** Create/Update Rooms */
-    hueRooms.forEach(async hueRoom => {
+    await Promise.all(hueRooms.map(async hueRoom => {
       const group = groups.find(group => compareGroups(group, hueRoom));
 
       const lightIds = await this.findLightIdsByRoom(hueRoom, hueDevices);
-      const lights = await this.lightService.findByIds(lightIds);
+      const lights = await this.lightService.findByHueIds(lightIds);
 
       if (group === undefined) {
         // Create a new group
-        await this.groupService.create({
+        return this.groupService.create({
           hueId: hueRoom.id,
           legacyId: hueRoom.id_v1,
           accessoryId: this.generateUuid(hueRoom.id),
@@ -363,7 +367,7 @@ export class HueService {
         });
       } else {
         // Update an existing group
-        await this.groupService.update(group.id, {
+        return this.groupService.update(group.id, {
           hueId: hueRoom.id,
           legacyId: hueRoom.id_v1,
           name: hueRoom.metadata.name,
@@ -371,18 +375,18 @@ export class HueService {
           lights: lights,
         });
       }
-    });
+    }));
 
     /** Create/Update Zones */
-    hueZones.forEach(async hueZone => {
+    await Promise.all(hueZones.map(async hueZone => {
       const group = groups.find(group =>compareGroups(group, hueZone));
 
       const lightIds: string[] = await this.findLightIdsByZone(hueZone);
-      const lights = await this.lightService.findByIds(lightIds);
+      const lights = await this.lightService.findByHueIds(lightIds);
 
       if (group === undefined) {
         // Create a new group
-        await this.groupService.create({
+        return this.groupService.create({
           hueId: hueZone.id,
           legacyId: hueZone.id_v1,
           accessoryId: this.generateUuid(hueZone.id),
@@ -392,7 +396,7 @@ export class HueService {
         });
       } else {
         // Update an existing group
-        await this.groupService.update(group.id, {
+        return this.groupService.update(group.id, {
           hueId: hueZone.id,
           legacyId: hueZone.id_v1,
           name: hueZone.metadata.name,
@@ -400,17 +404,17 @@ export class HueService {
           lights: lights,
         });
       }
-    });
+    }));
 
 
     /** Delete Groups */
-    groups.forEach((group) => {
+    await Promise.all(groups.map((group) => {
       const hueRoom = hueRooms.find(r=>compareGroups(group, r));
       const hueZone = hueZones.find(z=>compareGroups(group, z));
       if ((hueRoom===undefined) && (hueZone===undefined)) {
-        this.groupService.remove(group.id);
+        return this.groupService.remove(group.id);
       }
-    });
+    }));
 
     return {
       lights: await this.lightService.count(),
