@@ -1,14 +1,12 @@
-import { Controller, Get, Body, Patch, Param, Delete, UseInterceptors } from '@nestjs/common';
-import { PointService } from './point.service';
-import { UpdatePointDto } from './dto/update-point.dto';
-import { HueService } from '../hue/hue.service';
+import { Body, Controller, Delete, Get, Param, Patch, UseInterceptors } from '@nestjs/common';
 import { UpdateInterceptor } from '../hue/update.interceptor';
+import { UpdatePointDto } from './dto/update-point.dto';
+import { PointService } from './point.service';
 
 @Controller('points')
 export class PointController {
   constructor(
     private readonly pointService: PointService,
-    private readonly hueService: HueService,
   ) {}
 
   @Get(':id')

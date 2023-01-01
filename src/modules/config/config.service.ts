@@ -1,17 +1,17 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { PLATFORM_NAME } from '../../homebridge/settings';
 import * as fs from 'fs-extra';
-import * as path from 'path';
 import * as os from 'os';
+import * as path from 'path';
 import { DataSourceOptions } from 'typeorm';
-import { Curve } from '../curve/entities/curve.entity';
-import { GroupV1 } from '../group/entities/group.v1.entity';
-import { Group } from '../group/entities/group.v2.entity';
-import { LightV1 } from '../light/entities/light.v1.entity';
-import { Light } from '../light/entities/light.v2.entity';
-import { Point } from '../point/entities/point.entity';
+import { PLATFORM_NAME } from '../../homebridge/settings';
 import { init1618418126240 } from '../../migration/1618418126240-init';
-import { v21672161986148 } from '../../migration/1672161986148-v2';
+import { v21672495111704 } from '../../migration/1672495111704-v2';
+import { BrightnessCurve } from '../curve/entities/brightness.curve.entity';
+import { ColorTemperatureCurve } from '../curve/entities/colorTemperature.curve.entity';
+import { Group } from '../group/entities/group.entity';
+import { Light } from '../light/entities/light.entity';
+import { Point } from '../point/entities/point.entity';
+
 
 export interface Config {
   host?: string;
@@ -88,17 +88,16 @@ export class ConfigService {
       type: 'sqlite',
       database: this.database,
       entities: [
-        Curve,
+        BrightnessCurve,
+        ColorTemperatureCurve,
         Group,
         Light,
         Point,
-        LightV1,
-        GroupV1,
       ],
       migrationsTableName: 'migration',
       migrations: [
         init1618418126240,
-        v21672161986148,
+        v21672495111704,
       ],
       migrationsRun: true,
       logging: ['error'],

@@ -1,45 +1,33 @@
 import {
-  Controller,
-  Get,
-  Post,
-  Body,
-  Patch,
-  Param,
-  Delete,
-  Query,
-  UseInterceptors,
+  Body, Controller, Delete, Get, Param, Patch, Post, UseInterceptors
 } from '@nestjs/common';
-import { HueService } from '../hue/hue.service';
 import { UpdateInterceptor } from '../hue/update.interceptor';
+import { ColorTemperatureCurveService } from './colorTemperature.curve.service';
 import { CurveService } from './curve.service';
-import { CreateCurveDto, curveKind } from './dto/create-curve.dto';
+import { CreateCurveDto } from './dto/create-curve.dto';
 import { InsertPointDto } from './dto/insert-point.dto';
 import { UpdateCurveDto } from './dto/update-curve.dto';
 
-@Controller('curves')
-export class CurveController {
+@Controller('curves/colorTemperature')
+export class ColorTemperatureCurveController {
   constructor(
+    private readonly colorTemperaturecurveService: ColorTemperatureCurveService,
     private readonly curveService: CurveService,
-    private readonly hueService: HueService,
   ) {}
 
   @Post()
   create(@Body() createCurveDto: CreateCurveDto) {
-    return this.curveService.create(createCurveDto);
+    return this.colorTemperaturecurveService.create(createCurveDto);
   }
 
   @Get()
-  findAll(@Query('kind') kind: curveKind) {
-    if (kind === undefined) {
-      return this.curveService.findAll();
-    } else {
-      return this.curveService.findByKind(kind);
-    }
+  findAll() {
+    return this.colorTemperaturecurveService.findAll();
   }
 
   @Get(':id')
   findOne(@Param('id') id: string) {
-    return this.curveService.findOne(+id);
+    return this.colorTemperaturecurveService.findOne(+id);
   }
 
   @Post(':id')
@@ -48,8 +36,9 @@ export class CurveController {
     @Param('id') id: string,
     @Body() insertPointDto: InsertPointDto,
   ) {
-    const curve = await this.curveService.insertPoint(+id, insertPointDto);
-    return curve;
+    const curve = await this.findOne(id);
+    await this.curveService.insertPoint(curve, insertPointDto);
+    return await this.findOne(id);
   }
 
   @Patch(':id')
@@ -57,13 +46,13 @@ export class CurveController {
     @Param('id') id: string,
     @Body() updateCurveDto: UpdateCurveDto,
   ) {
-    return this.curveService.update(+id, updateCurveDto);
+    return this.colorTemperaturecurveService.update(+id, updateCurveDto);
   }
 
   @Delete(':id')
   @UseInterceptors(UpdateInterceptor)
   async remove(@Param('id') id: string) {
-    const res = await this.curveService.remove(+id);
+    const res = await this.colorTemperaturecurveService.remove(+id);
     return res;
   }
 }

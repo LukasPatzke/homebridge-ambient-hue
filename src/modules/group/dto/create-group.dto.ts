@@ -1,7 +1,8 @@
-import { Light } from '../../light/entities/light.v2.entity';
+import { Light } from '../../light/entities/light.entity';
 
 export class CreateGroupDto {
-  id: string;
+  id?: number;
+  hueId: string;
   legacyId?: string;
   accessoryId: string;
   name: string;

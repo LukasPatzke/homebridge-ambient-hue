@@ -4,12 +4,13 @@ import {
 import { InjectRepository } from '@nestjs/typeorm';
 import { In, Repository } from 'typeorm';
 import { AccessoryGateway } from '../accessory/accesory.gateway';
+import { BrightnessCurveService } from '../curve/brightness.curve.service';
+import { ColorTemperatureCurveService } from '../curve/colorTemperature.curve.service';
 import { CurveService } from '../curve/curve.service';
 import { LightGet } from '../hue/hue.api.v2';
 import { CreateLightDto } from './dto/create-light.dto';
 import { UpdateLightDto } from './dto/update-light.dto';
-import { LightV1 } from './entities/light.v1.entity';
-import { Light } from './entities/light.v2.entity';
+import { Light } from './entities/light.entity';
 
 @Injectable()
 export class LightService {
@@ -18,9 +19,9 @@ export class LightService {
   constructor(
     @InjectRepository(Light)
     private lightsRepository: Repository<Light>,
-    @InjectRepository(LightV1)
-    private lightsRepositoryV1: Repository<LightV1>,
     private curveService: CurveService,
+    private brightnessCurveService: BrightnessCurveService,
+    private colorTemperatureCurveService: ColorTemperatureCurveService,
     private accessoryGateway: AccessoryGateway,
   ) { }
 
@@ -33,7 +34,7 @@ export class LightService {
     return this.lightsRepository.find();
   }
 
-  findOne(id: string): Promise<Light> {
+  findOne(id: number): Promise<Light> {
     return this.lightsRepository.findOneBy({id: id}).then((light) => {
       if (light === null) {
         throw new NotFoundException(`Light with id ${id} not found.`);
@@ -55,19 +56,29 @@ export class LightService {
     });
   }
 
-  async update(id: string, updateLightDto: UpdateLightDto) {
+  async updateByHueId(hueId: string, updateLightDto: UpdateLightDto) {
+    const light = await this.lightsRepository.findOneBy({
+      hueId: hueId,
+    });
+    if (light === null) {
+      throw new NotFoundException(`Light with hue id ${hueId} not found.`);
+    }
+    return this.update(light.id, updateLightDto);
+  }
+
+  async update(id: number, updateLightDto: UpdateLightDto) {
     this.logger.debug(`Update light ${id}: ${JSON.stringify(updateLightDto)}`);
 
     let light = await this.findOne(id);
 
     // If the update contains curve IDs, they need to be attached manually
     if (updateLightDto.brightnessCurveId !== undefined) {
-      updateLightDto.brightnessCurve = await this.curveService.findOne(
+      updateLightDto.brightnessCurve = await this.brightnessCurveService.findOne(
         updateLightDto.brightnessCurveId,
       );
     }
     if (updateLightDto.colorTemperatureCurveId !== undefined) {
-      updateLightDto.colorTemperatureCurve = await this.curveService.findOne(
+      updateLightDto.colorTemperatureCurve = await this.colorTemperatureCurveService.findOne(
         updateLightDto.colorTemperatureCurveId,
       );
     }
@@ -88,29 +99,8 @@ export class LightService {
     return this.lightsRepository.count();
   }
 
-  async remove(id: string) {
+  async remove(id: number) {
     await this.lightsRepository.delete(id);
-  }
-
-  /**
-   * Access lights in the depricated v1 schema that where not successfully migrated
-   */
-  findAllNotMigratedV1(): Promise<LightV1[]> {
-    return this.lightsRepositoryV1.find({where: {isMigrated: false}});
-  }
-
-  /**
-   * Mark a v1 entity as successfully migrated to the v1 schema
-   * @param id
-   */
-  async markAsMigratedV1(id: number) {
-    const light = await this.lightsRepositoryV1.findOneBy({id: id});
-    if (light === null) {
-      return false;
-    }
-    light.isMigrated = true;
-    await this.lightsRepositoryV1.save(light);
-    return true;
   }
 
   /**
@@ -118,9 +108,7 @@ export class LightService {
    * @param light
    */
   async brightness(light: Light) {
-    const curve =
-      light.brightnessCurve || (await this.curveService.findDefault('bri'));
-    const value = await this.curveService.calcValue(curve.id);
+    const value = await this.curveService.calcValue(light.brightnessCurve);
     return Math.min(100, Math.floor((light.brightnessFactor / 100) * value));
   }
 
@@ -129,8 +117,7 @@ export class LightService {
    * @param light
    */
   async colorTemp(light: Light) {
-    const curve = light.colorTemperatureCurve || (await this.curveService.findDefault('ct'));
-    return this.curveService.calcValue(curve.id);
+    return this.curveService.calcValue(light.colorTemperatureCurve);
   }
 
   /**

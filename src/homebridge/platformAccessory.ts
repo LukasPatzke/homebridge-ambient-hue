@@ -1,9 +1,9 @@
-import { Service, PlatformAccessory, CharacteristicValue } from 'homebridge';
+import { CharacteristicValue, PlatformAccessory, Service } from 'homebridge';
 
-import { AmbientHueHomebridgePlatform } from './platform';
 import axios from 'axios';
-import { Light } from '../modules/light/entities/light.v2.entity';
-import { Group } from '../modules/group/entities/group.v2.entity';
+import { Group } from '../modules/group/entities/group.entity';
+import { Light } from '../modules/light/entities/light.entity';
+import { AmbientHueHomebridgePlatform } from './platform';
 
 /**
  * Platform Accessory

@@ -1,15 +1,10 @@
 import {
-  Controller,
-  Get,
-  Body,
-  Patch,
-  Param,
-  UseInterceptors,
-  ClassSerializerInterceptor,
+  Body, ClassSerializerInterceptor, Controller,
+  Get, Param, Patch, UseInterceptors
 } from '@nestjs/common';
-import { GroupService } from './group.service';
-import { UpdateLightDto } from '../light/dto/update-light.dto';
 import { UpdateInterceptor } from '../hue/update.interceptor';
+import { UpdateLightDto } from '../light/dto/update-light.dto';
+import { GroupService } from './group.service';
 
 @Controller('groups')
 @UseInterceptors(ClassSerializerInterceptor)
@@ -23,7 +18,7 @@ export class GroupController {
 
   @Get(':id')
   findOne(@Param('id') id: string) {
-    return this.groupService.findOne(id);
+    return this.groupService.findOne(+id);
   }
 
   @Patch(':id')
@@ -32,6 +27,6 @@ export class GroupController {
     @Param('id') id: string,
     @Body() updateLightDto: UpdateLightDto,
   ) {
-    return this.groupService.updateLights(id, updateLightDto);
+    return this.groupService.updateLights(+id, updateLightDto);
   }
 }

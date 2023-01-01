@@ -9,16 +9,16 @@ import {
 import { AxiosError, AxiosRequestConfig } from 'axios';
 import EventSource from 'eventsource';
 import { catchError, debounceTime, lastValueFrom, map, Subject } from 'rxjs';
+import { v5 as uuidv5 } from 'uuid';
 import { ConfigService } from '../config/config.service';
-import { CurveService } from '../curve/curve.service';
+import { Group } from '../group/entities/group.entity';
 import { GroupService } from '../group/group.service';
-import { Light } from '../light/entities/light.v2.entity';
+import { Light } from '../light/entities/light.entity';
 import { LightService } from '../light/light.service';
-import { PointService } from '../point/point.service';
 import {
   BridgeConfig,
   DeviceGet,
-  isLightEvent, isRoomGet, JSONResponse,
+  isLightEvent, JSONResponse,
   LightGet,
   ResourceIdentifier,
   RoomGet,
@@ -53,10 +53,6 @@ export class HueService {
     private lightService: LightService,
     @Inject(forwardRef(() => GroupService))
     private groupService: GroupService,
-    @Inject(forwardRef(() => CurveService))
-    private curveService: CurveService,
-    @Inject(forwardRef(() => PointService))
-    private pointService: PointService,
   ) {
     this.updateQueue = new Subject();
   }
@@ -104,8 +100,6 @@ export class HueService {
       https: { rejectUnauthorized: false },
     });
 
-    this.logger.log('Migrate to v2 schema.');
-    await this.migrateToV2();
     this.logger.log('Syncronize with Hue bridge.');
     await this.sync();
 
@@ -117,7 +111,7 @@ export class HueService {
           event.data.forEach(eventData => {
             if (isLightEvent(eventData)) {
               // this.logger.debug(JSON.stringify(eventData, null, 2));
-              this.lightService.update(eventData.id, {
+              this.lightService.updateByHueId(eventData.id, {
                 currentOn: eventData.on?.on,
                 currentBrightness: eventData.dimming?.brightness,
                 currentColorTemperature: eventData.color_temperature?.mirek,
@@ -136,7 +130,7 @@ export class HueService {
    * @returns the response data
    */
   private request<T, D=any>(config: AxiosRequestConfig<D>) {
-    this.logger.debug(`${config.method} ${config.url}::${JSON.stringify(config.data)}`);
+    this.logger.debug(`${config.method} ${config.url} ${config.data?`::${JSON.stringify(config.data)}`:''}`);
     return lastValueFrom(this.httpService.request<T>({
       ...config,
       headers: {
@@ -194,7 +188,7 @@ export class HueService {
       method: 'PUT',
       data: state,
     }).then(response => {
-      this.lightService.update(id, {
+      this.lightService.updateByHueId(id, {
         currentOn: state.on?.on,
         currentBrightness: state.dimming?.brightness,
         currentColorTemperature: state.color_temperature?.mirek,
@@ -228,7 +222,7 @@ export class HueService {
         const nextState = await this.lightService.nextState(light);
 
         if (Object.keys(nextState).length > 0) {
-          await this.setLightState(light.id, nextState);
+          await this.setLightState(light.hueId, nextState);
           this.lightService.resetSmartOff(light);
           return 1;
         }
@@ -241,110 +235,6 @@ export class HueService {
     );
     this.logger.debug(`${countUpdated} lights updated`);
     return countUpdated;
-  }
-
-  /**
-   * Migrate database contents to the new v2 api schema
-   */
-  async migrateToV2() {
-    const lights = await this.lightService.findAllNotMigratedV1();
-    const groups = await this.groupService.findAllNotMigratedV1();
-
-    if ((lights.length === 0) && (groups.length === 0)) {
-      // There are no lights to migrate
-      return;
-    }
-    const hueLights = await this.findAllLights();
-    const hueRooms = await this.findAllRooms();
-    const hueZones = await this.findAllZones();
-    const hueDevices = await this.findAllDevices();
-
-    // The brightness scale was changed from 0-254 to 0-100
-    const migrateBrightnessValue = (value: number) => (
-      Math.floor(value / 2.54)
-    );
-
-    const light_migrations = lights.map(async v1 => {
-      const legacyId = `/lights/${v1.id}`;
-      const hueLight = hueLights.find(i=>i.id_v1 === legacyId);
-
-      if (hueLight === undefined) {
-        // The light does not exist anymore
-        await this.lightService.markAsMigratedV1(v1.id);
-        this.logger.log(`Light ${v1.id} was not migrated because it does not exist in the bridge.`);
-        return;
-      }
-
-      await this.lightService.create({
-        id: hueLight.id,
-        legacyId: legacyId,
-        accessoryId: v1.uniqueId,
-        deviceId: hueLight.owner.rid,
-        name: hueLight.metadata.name,
-        archetype: hueLight.metadata.archetype,
-        on: v1.on,
-        onControlled: v1.onControlled,
-        onThreshold: migrateBrightnessValue(v1.onThreshold),
-        brightnessControlled: v1.briControlled,
-        brightnessFactor: migrateBrightnessValue(v1.briMax),
-        colorTemperatureControlled: v1.ctControlled,
-        published: v1.published,
-        brightnessCurve: v1.briCurve,
-        colorTemperatureCurve: v1.ctCurve,
-      });
-
-      await this.lightService.markAsMigratedV1(v1.id);
-      this.logger.log(`Light ${v1.id} successfully migrated.`);
-    });
-
-    await Promise.all(light_migrations);
-
-    const group_migrations = groups.map(async v1 => {
-      const legacyId = `/groups/${v1.id}`;
-      const hueGroup = hueRooms.find(r=>r.id_v1===legacyId) || hueZones.find(z=>z.id_v1===legacyId);
-
-      if (hueGroup === undefined) {
-        // The group does not exist anymore
-        await this.groupService.markAsMigratedV1(v1.id);
-        this.logger.log(`Group ${v1.id} was not migrated because it does not exist in the bridge.`);
-        return;
-      }
-      let lights: Light[];
-      if (isRoomGet(hueGroup)) {
-        lights = await this.lightService.findByIds(await this.findLightIdsByRoom(hueGroup, hueDevices));
-      } else {
-        lights = await this.lightService.findByIds(await this.findLightIdsByZone(hueGroup));
-      }
-
-      await this.groupService.create({
-        id: hueGroup.id,
-        legacyId: legacyId,
-        accessoryId: v1.uniqueId,
-        name: hueGroup.metadata.name,
-        type: hueGroup.type,
-        lights: lights,
-        published: v1.published,
-      });
-
-      await this.groupService.markAsMigratedV1(v1.id);
-      this.logger.log(`Group ${v1.id} successfully migrated.`);
-    });
-
-    await Promise.all(group_migrations);
-
-    // Migrate brightness curves
-    const curves = await this.curveService.findByKind('bri');
-
-    const curve_migrations = curves.map(curve=>{
-      return curve.points.map(point=>{
-        return this.pointService.update(point.id, {
-          y: migrateBrightnessValue(point.y),
-        });
-      });
-    });
-
-    await Promise.all(curve_migrations);
-
   }
 
   /**
@@ -401,16 +291,20 @@ export class HueService {
     const hueZones = await this.findAllZones();
     const hueDevices = await this.findAllDevices();
 
+    const compareLights = (light: Light, hueLight: LightGet) => (
+      (light.hueId === hueLight.id) || (light.legacyId === hueLight.id_v1)
+    );
+
     /** Create/Update Lights */
     hueLights.forEach(async hueLight => {
-      const light = lights.find(light => light.id === hueLight.id);
+      const light = lights.find(light => compareLights(light, hueLight));
 
       if (light === undefined) {
         // Create a new light
         await this.lightService.create({
-          id: hueLight.id,
+          hueId: hueLight.id,
           legacyId: hueLight.id_v1,
-          accessoryId: hueLight.id,
+          accessoryId: this.generateUuid(hueLight.id),
           deviceId: hueLight.owner.rid,
           name: hueLight.metadata.name,
           archetype: hueLight.metadata.archetype,
@@ -423,7 +317,9 @@ export class HueService {
         });
       } else {
         // Update an existing light
-        await this.lightService.update(hueLight.id, {
+        await this.lightService.updateByHueId(hueLight.id, {
+          hueId: hueLight.id,
+          legacyId: hueLight.id_v1,
           name: hueLight.metadata.name,
           archetype: hueLight.metadata.archetype,
           currentOn: hueLight.on.on,
@@ -438,15 +334,19 @@ export class HueService {
 
     // Delete lights that don't exist in the bridge
     lights.forEach((light) => {
-      const hueLight = hueLights.find(l=>l.id===light.id);
+      const hueLight = hueLights.find(l=> compareLights(light, l));
       if (hueLight===undefined) {
         this.lightService.remove(light.id);
       }
     });
 
+    const compareGroups = (group: Group, hueGroup: RoomGet|ZoneGet) => (
+      (group.hueId === hueGroup.id) || (group.legacyId === hueGroup.id_v1)
+    );
+
     /** Create/Update Rooms */
     hueRooms.forEach(async hueRoom => {
-      const group = groups.find(group => group.id === hueRoom.id);
+      const group = groups.find(group => compareGroups(group, hueRoom));
 
       const lightIds = await this.findLightIdsByRoom(hueRoom, hueDevices);
       const lights = await this.lightService.findByIds(lightIds);
@@ -454,16 +354,18 @@ export class HueService {
       if (group === undefined) {
         // Create a new group
         await this.groupService.create({
-          id: hueRoom.id,
+          hueId: hueRoom.id,
           legacyId: hueRoom.id_v1,
-          accessoryId: hueRoom.id,
+          accessoryId: this.generateUuid(hueRoom.id),
           name: hueRoom.metadata.name,
           type: hueRoom.type,
           lights: lights,
         });
       } else {
         // Update an existing group
-        await this.groupService.update(hueRoom.id, {
+        await this.groupService.updateByHueId(hueRoom.id, {
+          hueId: hueRoom.id,
+          legacyId: hueRoom.id_v1,
           name: hueRoom.metadata.name,
           type: hueRoom.type,
           lights: lights,
@@ -473,7 +375,7 @@ export class HueService {
 
     /** Create/Update Zones */
     hueZones.forEach(async hueZone => {
-      const group = groups.find(group => group.id === hueZone.id);
+      const group = groups.find(group =>compareGroups(group, hueZone));
 
       const lightIds: string[] = await this.findLightIdsByZone(hueZone);
       const lights = await this.lightService.findByIds(lightIds);
@@ -481,16 +383,18 @@ export class HueService {
       if (group === undefined) {
         // Create a new group
         await this.groupService.create({
-          id: hueZone.id,
+          hueId: hueZone.id,
           legacyId: hueZone.id_v1,
-          accessoryId: hueZone.id,
+          accessoryId: this.generateUuid(hueZone.id),
           name: hueZone.metadata.name,
           type: hueZone.type,
           lights: lights,
         });
       } else {
         // Update an existing group
-        await this.groupService.update(hueZone.id, {
+        await this.groupService.updateByHueId(hueZone.id, {
+          hueId: hueZone.id,
+          legacyId: hueZone.id_v1,
           name: hueZone.metadata.name,
           type: hueZone.type,
           lights: lights,
@@ -501,8 +405,8 @@ export class HueService {
 
     /** Delete Groups */
     groups.forEach((group) => {
-      const hueRoom = hueRooms.find(r=>r.id===group.id);
-      const hueZone = hueZones.find(r=>r.id===group.id);
+      const hueRoom = hueRooms.find(r=>compareGroups(group, r));
+      const hueZone = hueZones.find(z=>compareGroups(group, z));
       if ((hueRoom===undefined) && (hueZone===undefined)) {
         this.groupService.remove(group.id);
       }
@@ -554,5 +458,10 @@ export class HueService {
   async isApiv2Available() {
     const config = await this.get<BridgeConfig>(`https://${this.configService.hueHost}/api/config`);
     return config.swversion >= '1948086000';
+  }
+
+  generateUuid(id: string) {
+    const NAMESPACE = '97722234-dae4-4ed5-b316-c2424ee4f2d1';
+    return uuidv5(id, NAMESPACE);
   }
 }

@@ -1,7 +1,7 @@
 import {
   BadRequestException,
   Injectable,
-  NotFoundException,
+  NotFoundException
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -22,9 +22,7 @@ export class PointService {
   }
 
   createMany(createPointDto: CreatePointDto[]) {
-    const points = createPointDto.map((dto) =>
-      this.pointRepository.create(dto),
-    );
+    const points = this.pointRepository.create(createPointDto);
     return this.pointRepository.save(points);
   }
 
@@ -36,19 +34,9 @@ export class PointService {
     return this.pointRepository.findOneBy({id: id}).then((point) => {
       if (point === null) {
         throw new NotFoundException(`Point with id ${id} not found.`);
-      } else {
-        return point;
       }
+      return point;
     });
-  }
-
-  findByCurve(id: number) {
-    return this.pointRepository
-      .createQueryBuilder('point')
-      .select()
-      .where('point.curveId = :id', { id: id })
-      .orderBy('point.x', 'ASC')
-      .getMany();
   }
 
   async update(id: number, updatePointDto: UpdatePointDto) {
@@ -66,9 +54,8 @@ export class PointService {
       throw new BadRequestException('The first point can not be deleted.');
     } else if (point.last) {
       throw new BadRequestException('The last point can not be deleted.');
-    } else {
-      return this.pointRepository.delete(id);
     }
+    return this.pointRepository.delete(id);
   }
 
   /**

@@ -1,15 +1,12 @@
 import {
-  Controller,
-  Get,
-  Body,
-  Param,
+  Body, ClassSerializerInterceptor, Controller,
+  Get, Param,
   Patch,
-  UseInterceptors,
-  ClassSerializerInterceptor,
+  UseInterceptors
 } from '@nestjs/common';
-import { LightService } from './light.service';
-import { UpdateLightDto } from './dto/update-light.dto';
 import { UpdateInterceptor } from '../hue/update.interceptor';
+import { UpdateLightDto } from './dto/update-light.dto';
+import { LightService } from './light.service';
 
 @Controller('lights')
 @UseInterceptors(ClassSerializerInterceptor)
@@ -23,7 +20,7 @@ export class LightController {
 
   @Get(':id')
   findOne(@Param('id') id: string) {
-    return this.lightService.findOne(id);
+    return this.lightService.findOne(+id);
   }
 
   @Patch(':id')
@@ -32,6 +29,6 @@ export class LightController {
     @Param('id') id: string,
     @Body() updateLightDto: UpdateLightDto,
   ) {
-    return this.lightService.update(id, updateLightDto);
+    return this.lightService.update(+id, updateLightDto);
   }
 }

@@ -1,14 +1,17 @@
 import { Expose } from 'class-transformer';
 import {
-  Column, Entity, JoinTable, ManyToMany, PrimaryColumn
+  Column, Entity, JoinTable, ManyToMany, PrimaryGeneratedColumn
 } from 'typeorm';
-import { Light } from '../../light/entities/light.v2.entity';
+import { Light } from '../../light/entities/light.entity';
 
-@Entity({name: 'v2_group'})
+@Entity()
 export class Group {
+  @PrimaryGeneratedColumn()
+  id: number;
+
   /** Unique ressource identifier in hue */
-  @PrimaryColumn({type: 'uuid'})
-  id: string;
+  @Column({nullable: true, type: 'varchar'})
+  hueId: string | null;
 
   /** Legacy v1 ressource identifier in hue  */
   @Column({nullable: true, type: 'varchar'})
@@ -52,6 +55,9 @@ export class Group {
   /** The onThreshold of the first light in the group */
   @Expose()
   get onThreshold(): number {
+    if (this.lights.length===0) {
+      return 0;
+    }
     return this.lights[0].onThreshold;
   }
 

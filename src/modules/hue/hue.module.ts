@@ -1,15 +1,12 @@
-import { forwardRef, Module } from '@nestjs/common';
 import { HttpModule } from '@nestjs/axios';
-import { LightModule } from '../light/light.module';
-import { LightService } from '../light/light.service';
-import { HueService } from './hue.service';
-import { HueController } from './hue.controller';
-import { GroupModule } from '../group/group.module';
-import { ConfigModule } from '../config/config.module';
-import { UpdateInterceptor } from './update.interceptor';
+import { forwardRef, Module } from '@nestjs/common';
 import { Agent } from 'https';
-import { CurveModule } from '../curve/curve.module';
-import { PointModule } from '../point/point.module';
+import { ConfigModule } from '../config/config.module';
+import { GroupModule } from '../group/group.module';
+import { LightModule } from '../light/light.module';
+import { HueController } from './hue.controller';
+import { HueService } from './hue.service';
+import { UpdateInterceptor } from './update.interceptor';
 
 @Module({
   imports: [
@@ -20,13 +17,11 @@ import { PointModule } from '../point/point.module';
       }),
     }),
     ConfigModule,
-    forwardRef(() => LightModule),
-    forwardRef(() => GroupModule),
-    forwardRef(() => CurveModule),
-    forwardRef(() => PointModule),
+    forwardRef(()=>LightModule),
+    forwardRef(()=>GroupModule),
   ],
   controllers: [HueController],
-  providers: [HueService, LightService, UpdateInterceptor],
-  exports: [HttpModule, HueService, GroupModule, LightService],
+  providers: [HueService, UpdateInterceptor],
+  exports: [HueService, UpdateInterceptor],
 })
 export class HueModule {}

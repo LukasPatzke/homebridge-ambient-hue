@@ -1,5 +1,6 @@
-import { Curve } from '../../curve/entities/curve.entity';
 import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
+import { BrightnessCurve } from '../../curve/entities/brightness.curve.entity';
+import { ColorTemperatureCurve } from '../../curve/entities/colorTemperature.curve.entity';
 
 @Entity()
 export class Point {
@@ -18,9 +19,15 @@ export class Point {
   @Column({ default: false })
   last: boolean;
 
-  @ManyToOne(() => Curve, (curve) => curve.points, {
+  @ManyToOne(() => BrightnessCurve, (curve) => curve.points, {
     orphanedRowAction: 'delete',
     onDelete: 'CASCADE',
   })
-  curve: Curve;
+  brightnessCurve: BrightnessCurve;
+
+  @ManyToOne(() => ColorTemperatureCurve, (curve) => curve.points, {
+    orphanedRowAction: 'delete',
+    onDelete: 'CASCADE',
+  })
+  colorTemperatureCurve: ColorTemperatureCurve;
 }

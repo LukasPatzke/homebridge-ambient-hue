@@ -1,8 +1,8 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
-import { Group } from '../group/entities/group.v2.entity';
+import { forwardRef, Inject, Injectable, NotFoundException } from '@nestjs/common';
+import { Group } from '../group/entities/group.entity';
 import { GroupService } from '../group/group.service';
 import { UpdateLightDto } from '../light/dto/update-light.dto';
-import { Light } from '../light/entities/light.v2.entity';
+import { Light } from '../light/entities/light.entity';
 import { LightService } from '../light/light.service';
 
 
@@ -16,7 +16,9 @@ function isGroup(device: Light | Group): device is Group {
 @Injectable()
 export class AccessoryService {
   constructor(
+    @Inject(forwardRef(() => LightService))
     private readonly lightService: LightService,
+    @Inject(forwardRef(() => GroupService))
     private readonly groupService: GroupService,
   ) {}
 

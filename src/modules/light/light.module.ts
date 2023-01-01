@@ -1,33 +1,25 @@
-import { forwardRef, Module } from '@nestjs/common';
-import { LightService } from './light.service';
-import { LightController } from './light.controller';
-import { LightV1 } from './entities/light.v1.entity';
+import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { CurveModule } from '../curve/curve.module';
-import { PointModule } from '../point/point.module';
-import { GroupModule } from '../group/group.module';
-import { Light } from './entities/light.v2.entity';
-import { HueModule } from '../hue/hue.module';
 import { AccessoryModule } from '../accessory/accessory.module';
+import { CurveModule } from '../curve/curve.module';
+import { GroupModule } from '../group/group.module';
+import { HueModule } from '../hue/hue.module';
+import { Light } from './entities/light.entity';
+import { LightController } from './light.controller';
+import { LightService } from './light.service';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([LightV1, Light]),
+    TypeOrmModule.forFeature([Light]),
     CurveModule,
-    forwardRef(() => HueModule),
-    forwardRef(() => GroupModule),
-    PointModule,
-    forwardRef(() => AccessoryModule),
+    GroupModule,
+    AccessoryModule,
+    HueModule,
   ],
   controllers: [LightController],
   providers: [LightService],
   exports: [
-    TypeOrmModule,
     LightService,
-    AccessoryModule,
-    HueModule,
-    CurveModule,
-    PointModule,
   ],
 })
 export class LightModule {}

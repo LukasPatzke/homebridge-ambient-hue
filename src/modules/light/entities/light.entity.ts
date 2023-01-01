@@ -1,12 +1,16 @@
 import { Expose } from 'class-transformer';
-import { Column, Entity, ManyToOne, PrimaryColumn } from 'typeorm';
-import { Curve } from '../../curve/entities/curve.entity';
+import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
+import { BrightnessCurve } from '../../curve/entities/brightness.curve.entity';
+import { ColorTemperatureCurve } from '../../curve/entities/colorTemperature.curve.entity';
 
-@Entity({name: 'v2_light'})
+@Entity()
 export class Light {
+  @PrimaryGeneratedColumn()
+  id: number;
+
   /** Unique ressource identifier in hue */
-  @PrimaryColumn({type: 'uuid'})
-  id: string;
+  @Column()
+  hueId: string;
 
   /** Legacy v1 ressource identifier in hue  */
   @Column({nullable: true, type: 'varchar'})
@@ -17,8 +21,8 @@ export class Light {
   accessoryId: string;
 
   /** Ressource identifier of the owner in hue  */
-  @Column({type: 'uuid'})
-  deviceId: string;
+  @Column({nullable: true, type: 'uuid'})
+  deviceId: string | null;
 
   /** Human readable name in hue */
   @Column()
@@ -80,21 +84,29 @@ export class Light {
   @Column({ default: true })
   published: boolean;
 
-  /** The brigtness curve that is associated with the light */
-  @ManyToOne(() => Curve, {
+  @Column({ default: 0})
+  brightnessCurveId: number;
+
+  /** The brightness curve that is associated with the light */
+  @ManyToOne(() => BrightnessCurve, {
     eager: true,
-    nullable: true,
-    onDelete: 'SET NULL',
+    nullable: false,
+    onDelete: 'DEFAULT',
   })
-  brightnessCurve: Curve;
+  @JoinColumn({name: 'brightnessCurveId' })
+  brightnessCurve: BrightnessCurve;
+
+  @Column({ default: 0})
+  colorTemperatureCurveId: number;
 
   /** The color temperature curve that is associated with the light */
-  @ManyToOne(() => Curve, {
+  @ManyToOne(() => ColorTemperatureCurve, {
     eager: true,
     nullable: true,
-    onDelete: 'SET NULL',
+    onDelete: 'DEFAULT',
   })
-  colorTemperatureCurve: Curve;
+  @JoinColumn({name: 'colorTemperatureCurveId' })
+  colorTemperatureCurve: ColorTemperatureCurve;
 
   /** Whether the On/Off property was changed by a third party */
   @Expose()

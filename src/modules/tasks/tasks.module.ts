@@ -1,11 +1,12 @@
 import { Module } from '@nestjs/common';
-import { TasksService } from './tasks.service';
-import { TasksController } from './tasks.controller';
-import { HueModule } from '../hue/hue.module';
 import { ConfigModule } from '../config/config.module';
+import { HueModule } from '../hue/hue.module';
+import { LightModule } from '../light/light.module';
+import { TasksController } from './tasks.controller';
+import { TasksService } from './tasks.service';
 
 @Module({
-  imports: [HueModule, ConfigModule],
+  imports: [HueModule, ConfigModule, LightModule],
   providers: [TasksService],
   controllers: [TasksController],
 })

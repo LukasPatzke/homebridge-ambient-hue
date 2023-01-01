@@ -1,10 +1,13 @@
-import { Curve } from '../../curve/entities/curve.entity';
+import { BrightnessCurve } from '../../curve/entities/brightness.curve.entity';
+import { ColorTemperatureCurve } from '../../curve/entities/colorTemperature.curve.entity';
+
 
 export class CreateLightDto {
-  id: string;
+  id?: number;
+  hueId: string;
   legacyId?: string;
   accessoryId: string;
-  deviceId: string;
+  deviceId?: string;
   name: string;
   archetype: string;
   currentOn?: boolean|null;
@@ -19,9 +22,7 @@ export class CreateLightDto {
   brightnessControlled?: boolean;
   brightnessFactor?: number;
   colorTemperatureControlled?: boolean;
-  brightnessCurveId?: number;
-  brightnessCurve?: Curve;
-  colorTemperatureCurveId?: number;
-  colorTemperatureCurve?: Curve;
+  brightnessCurve?: BrightnessCurve;
+  colorTemperatureCurve?: ColorTemperatureCurve;
   published?: boolean;
 }
