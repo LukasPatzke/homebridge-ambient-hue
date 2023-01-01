@@ -317,7 +317,7 @@ export class HueService {
         });
       } else {
         // Update an existing light
-        await this.lightService.updateByHueId(hueLight.id, {
+        await this.lightService.update(light.id, {
           hueId: hueLight.id,
           legacyId: hueLight.id_v1,
           name: hueLight.metadata.name,
@@ -363,7 +363,7 @@ export class HueService {
         });
       } else {
         // Update an existing group
-        await this.groupService.updateByHueId(hueRoom.id, {
+        await this.groupService.update(group.id, {
           hueId: hueRoom.id,
           legacyId: hueRoom.id_v1,
           name: hueRoom.metadata.name,
@@ -392,7 +392,7 @@ export class HueService {
         });
       } else {
         // Update an existing group
-        await this.groupService.updateByHueId(hueZone.id, {
+        await this.groupService.update(group.id, {
           hueId: hueZone.id,
           legacyId: hueZone.id_v1,
           name: hueZone.metadata.name,
