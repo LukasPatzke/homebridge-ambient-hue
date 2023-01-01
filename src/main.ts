@@ -1,12 +1,12 @@
 import { NestFactory } from '@nestjs/core';
 import {
   FastifyAdapter,
-  NestFastifyApplication,
+  NestFastifyApplication
 } from '@nestjs/platform-fastify';
+import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import { FastifyReply, FastifyRequest } from 'fastify';
 import * as fs from 'fs-extra';
 import * as path from 'path';
-import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
-import { FastifyRequest, FastifyReply } from 'fastify';
 import { AppModule } from './app.module';
 import { ConfigService } from './modules/config/config.service';
 import { CustomLogger } from './modules/logger/logger.service';
@@ -18,10 +18,9 @@ export async function bootstrap() {
   const app = await NestFactory.create<NestFastifyApplication>(
     AppModule,
     fAdapter,
-    { logger: ['error', 'warn'] },
+    { logger: new CustomLogger('Root')},
   );
   const config = app.get(ConfigService);
-  app.useLogger(new CustomLogger(config, 'AmbientHue'));
 
   // serve index.html without a cache
   app

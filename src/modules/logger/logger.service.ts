@@ -1,9 +1,7 @@
-import { LoggerService } from '@nestjs/common';
-import util from 'util';
+import { ConsoleLogger, LogLevel } from '@nestjs/common';
 import chalk from 'chalk';
-import { ConfigService } from '../config/config.service';
 
-export const enum LogLevel {
+export const enum LogLevels {
   INFO = 'info',
   WARN = 'warn',
   ERROR = 'error',
@@ -11,72 +9,50 @@ export const enum LogLevel {
   VERBOSE = 'verbose',
 }
 
-export class CustomLogger implements LoggerService {
-  constructor(private configService: ConfigService, private context: string) { }
+export class CustomLogger extends ConsoleLogger {
 
-  log(message: any, context: string = this.context, level?: LogLevel, trace?: string) {
-    /* your implementation */
-    message = this.maskApiKey(util.format(message));
+  constructor(protected context: string) {
+    const logLevels: LogLevel[] = ['log', 'error', 'warn'];
+    if (process.env.AMBIENTHUE_DEBUG==='TRUE') {
+      logLevels.push('debug');
+    }
+    super(context, {logLevels: logLevels});
+  }
 
-    let loggingFunction = console.log;
+  protected formatContext(context: string): string {
+    if (!context) {
+      return chalk.cyan('[AmbientHue]');
+    }
+    return chalk.cyan(`[AmbientHue:${chalk.green(context)}]`);
+  }
+
+  protected formatMessage(
+    logLevel: LogLevel,
+    message: unknown,
+    pidMessage: string,
+    formattedLogLevel: string,
+    contextMessage: string,
+    timestampDiff: string): string {
+    const output = this.stringifyMessage(message, logLevel);
+    return `[${this.getTimestamp()}] ${contextMessage} ${output} ${timestampDiff}\n`;
+  }
+
+  protected colorize(message: string, logLevel: LogLevel): string {
+    return this.color(logLevel)(message);
+  }
+
+  private color(level: LogLevel) {
     switch (level) {
-      case LogLevel.WARN:
-        message = chalk.yellow(message);
-        loggingFunction = console.error;
-        break;
-      case LogLevel.ERROR:
-        message = chalk.red(message);
-        loggingFunction = console.error;
-        break;
-      case LogLevel.DEBUG:
-        if (this.configService.debugLog) {
-          message = chalk.gray(message);
-        } else {
-          message = undefined;
-        }
-        break;
-      case LogLevel.VERBOSE:
-        if (this.configService.debugLog) {
-          message = chalk.gray(message);
-        } else {
-          message = undefined;
-        }
-        break;
-      case undefined:
-        message = chalk.gray(message);
+      case 'debug':
+        return chalk.gray;
+      case 'warn':
+        return chalk.yellow;
+      case 'error':
+        return chalk.red;
+      case 'verbose':
+        return chalk.cyanBright;
+      default:
+        return chalk.white;
     }
-
-    if (message !== undefined) {
-      message = chalk.cyan(`[AmbientHue:${chalk.green(context)}] `) + message;
-
-      const date = new Date();
-      message = chalk.white(`[${date.toLocaleString()}] `) + message;
-
-      loggingFunction(message);
-      if (trace) {
-        loggingFunction(chalk.gray(trace));
-      }
-    }
-  }
-
-  private maskApiKey(message: string): string {
-    const expression = new RegExp(this.configService.hueUser||'', 'i');
-    return message.replace(expression, '<api_key>');
-  }
-
-  error(message: string, context?: string, trace?: string) {
-    this.log(message, context, LogLevel.ERROR, trace);
-  }
-
-  warn(message: string, context?: string) {
-    this.log(message, context, LogLevel.WARN);
-  }
-
-  debug(message: string, context?: string) {
-    this.log(message, context, LogLevel.DEBUG);
-  }
-
-  verbose(message: string, context?: string) {
-    this.log(message, context, LogLevel.VERBOSE);
   }
 }

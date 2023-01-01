@@ -1,21 +1,19 @@
+import axios from 'axios';
+import * as child_process from 'child_process';
 import {
-  API,
-  DynamicPlatformPlugin,
+  API, Characteristic, DynamicPlatformPlugin,
   Logger,
   PlatformAccessory,
   PlatformConfig,
-  Service,
-  Characteristic,
+  Service
 } from 'homebridge';
-import { PLATFORM_NAME, PLUGIN_NAME } from './settings';
-import { Device } from './platformAccessory';
-import {io, Socket} from 'socket.io-client';
 import * as path from 'path';
-import * as child_process from 'child_process';
-import axios from 'axios';
+import { io, Socket } from 'socket.io-client';
 import { ConfigService } from '../modules/config/config.service';
-import { Light } from '../modules/light/entities/light.v2.entity';
-import { Group } from '../modules/group/entities/group.v2.entity';
+import { Group } from '../modules/group/entities/group.entity';
+import { Light } from '../modules/light/entities/light.entity';
+import { Device } from './platformAccessory';
+import { PLATFORM_NAME, PLUGIN_NAME } from './settings';
 import { updateAccessory } from './updateAccessory';
 
 /**
@@ -50,6 +48,8 @@ export class AmbientHueHomebridgePlatform implements DynamicPlatformPlugin {
     this.homebridgeUUID = this.api.hap.uuid.generate(
       this.configService.homebridge,
     );
+
+    process.env.AMBIENTHUE_DEBUG = this.configService.debugLog?'TRUE':'FALSE';
 
     this.fork();
 
