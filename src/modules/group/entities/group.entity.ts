@@ -70,6 +70,9 @@ export class Group {
   /** The brightnessFactor of the first light in the group */
   @Expose()
   get brightnessFactor(): number {
+    if (this.lights.length===0) {
+      return 100;
+    }
     return this.lights[0].brightnessFactor;
   }
 
