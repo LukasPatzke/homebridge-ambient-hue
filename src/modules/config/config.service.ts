@@ -1,4 +1,4 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import * as fs from 'fs-extra';
 import * as os from 'os';
 import * as path from 'path';
@@ -10,6 +10,7 @@ import { BrightnessCurve } from '../curve/entities/brightness.curve.entity';
 import { ColorTemperatureCurve } from '../curve/entities/colorTemperature.curve.entity';
 import { Group } from '../group/entities/group.entity';
 import { Light } from '../light/entities/light.entity';
+import { CustomLogger } from '../logger/logger.service';
 import { Point } from '../point/entities/point.entity';
 
 
@@ -27,7 +28,7 @@ export interface Config {
 
 @Injectable()
 export class ConfigService {
-  private readonly logger = new Logger(ConfigService.name);
+  private readonly logger = new CustomLogger(ConfigService.name);
 
   public configPath =
     process.env.HAH_CONFIG_PATH ||
