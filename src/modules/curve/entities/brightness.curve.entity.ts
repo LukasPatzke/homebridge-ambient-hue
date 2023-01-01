@@ -6,6 +6,7 @@ import { Curve } from './curve';
 export class BrightnessCurve extends Curve {
   @OneToMany(() => Point, (point) => point.brightnessCurve, {
     cascade: true,
+    eager: true,
   })
   points: Point[];
 
