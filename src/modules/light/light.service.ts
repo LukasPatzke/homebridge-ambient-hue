@@ -26,6 +26,7 @@ export class LightService {
   ) { }
 
   async create(createLightDto: CreateLightDto): Promise<Light> {
+    this.logger.debug(`Create light ${createLightDto.name}: ${JSON.stringify(createLightDto)}`);
     const light = this.lightsRepository.create(createLightDto);
     return this.lightsRepository.save(light);
   }
@@ -100,6 +101,7 @@ export class LightService {
   }
 
   async remove(id: number) {
+    this.logger.log(`Delete light ${id}`);
     await this.lightsRepository.delete(id);
   }
 

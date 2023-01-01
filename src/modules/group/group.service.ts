@@ -2,6 +2,7 @@ import {
   forwardRef,
   Inject,
   Injectable,
+  Logger,
   NotFoundException
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -14,6 +15,7 @@ import { Group } from './entities/group.entity';
 
 @Injectable()
 export class GroupService {
+  private readonly logger = new Logger(LightService.name);
   constructor(
     @InjectRepository(Group)
     private groupsRepository: Repository<Group>,
@@ -22,6 +24,7 @@ export class GroupService {
   ) {}
 
   async create(createGroupDto: CreateGroupDto): Promise<Group> {
+    this.logger.debug(`Update group ${createGroupDto.name}: ${JSON.stringify(createGroupDto)}`);
     const group = this.groupsRepository.create(createGroupDto);
     return this.groupsRepository.save(group);
   }
@@ -104,6 +107,7 @@ export class GroupService {
   }
 
   async remove(id: number) {
+    this.logger.debug(`Delete group ${id}`);
     await this.groupsRepository.delete(id);
   }
 }
