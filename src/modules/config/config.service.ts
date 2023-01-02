@@ -81,7 +81,7 @@ export class ConfigService {
     }
 
     this.logger.debug('Configuration loaded');
-    this.logger.debug(JSON.stringify(config, null, 2));
+    this.logger.debug(JSON.stringify(config, null, 2).replace(config.user || '', '***'));
   }
 
   public getTypeOrmConfig(): DataSourceOptions {
