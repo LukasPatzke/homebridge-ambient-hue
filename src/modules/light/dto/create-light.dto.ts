@@ -10,12 +10,12 @@ export class CreateLightDto {
   deviceId?: string;
   name: string;
   archetype: string;
-  currentOn?: boolean|null;
-  currentBrightness?: number|null;
-  currentColorTemperature?: number|null;
-  lastOn?: boolean|null;
-  lastBrightness?: number|null;
-  lastColorTemperature?: number|null;
+  currentOn?: boolean | null;
+  currentBrightness?: number | null;
+  currentColorTemperature?: number | null;
+  lastOn?: boolean | null;
+  lastBrightness?: number | null;
+  lastColorTemperature?: number | null;
   on?: boolean;
   onControlled?: boolean;
   onThreshold?: number;
@@ -25,4 +25,6 @@ export class CreateLightDto {
   brightnessCurve?: BrightnessCurve;
   colorTemperatureCurve?: ColorTemperatureCurve;
   published?: boolean;
+  isBrightnessCapable?: boolean;
+  isColorTemperatureCapable?: boolean;
 }

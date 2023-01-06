@@ -13,15 +13,15 @@ export class Light {
   hueId: string;
 
   /** Legacy v1 ressource identifier in hue  */
-  @Column({nullable: true, type: 'varchar'})
+  @Column({ nullable: true, type: 'varchar' })
   legacyId: string | null;
 
   /** Unique accessory identifier in HomeKit */
-  @Column({type: 'uuid'})
+  @Column({ type: 'uuid' })
   accessoryId: string;
 
   /** Ressource identifier of the owner in hue  */
-  @Column({nullable: true, type: 'uuid'})
+  @Column({ nullable: true, type: 'uuid' })
   deviceId: string | null;
 
   /** Human readable name in hue */
@@ -33,15 +33,15 @@ export class Light {
   archetype: string;
 
   /** Current On/Off state of the light in hue */
-  @Column({ nullable: true, type: 'boolean'})
+  @Column({ nullable: true, type: 'boolean' })
   currentOn: boolean | null;
 
   /** Current brightness percentage of the light in hue */
-  @Column({ nullable: true, type: 'integer'})
+  @Column({ nullable: true, type: 'integer' })
   currentBrightness: number | null;
 
   /** Current color temperature of the light in hue */
-  @Column({ nullable: true, type: 'integer'})
+  @Column({ nullable: true, type: 'integer' })
   currentColorTemperature: number | null;
 
   /** On/Off state in amientHUE */
@@ -84,7 +84,7 @@ export class Light {
   @Column({ default: true })
   published: boolean;
 
-  @Column({ default: 0})
+  @Column({ default: 0 })
   brightnessCurveId: number;
 
   /** The brightness curve that is associated with the light */
@@ -93,10 +93,10 @@ export class Light {
     nullable: false,
     onDelete: 'DEFAULT',
   })
-  @JoinColumn({name: 'brightnessCurveId' })
+  @JoinColumn({ name: 'brightnessCurveId' })
   brightnessCurve: BrightnessCurve;
 
-  @Column({ default: 0})
+  @Column({ default: 0 })
   colorTemperatureCurveId: number;
 
   /** The color temperature curve that is associated with the light */
@@ -105,8 +105,16 @@ export class Light {
     nullable: true,
     onDelete: 'DEFAULT',
   })
-  @JoinColumn({name: 'colorTemperatureCurveId' })
+  @JoinColumn({ name: 'colorTemperatureCurveId' })
   colorTemperatureCurve: ColorTemperatureCurve;
+
+  /** Whether the light is capable to display brightness */
+  @Column({ default: false })
+  isBrightnessCapable: boolean;
+
+  /** Whether the light is capable to display color temperature */
+  @Column({ default: false })
+  isColorTemperatureCapable: boolean;
 
   /** Whether the On/Off property was changed by a third party */
   @Expose()
@@ -115,7 +123,7 @@ export class Light {
       return false;
     }
     return this.lastOn !== null &&
-           this.lastOn !== this.currentOn;
+      this.lastOn !== this.currentOn;
   }
 
 
@@ -126,8 +134,8 @@ export class Light {
       return false;
     }
     return this.lastBrightness !== null &&
-           this.currentBrightness !== null &&
-           Math.abs(this.lastBrightness - this.currentBrightness) >= 1;
+      this.currentBrightness !== null &&
+      Math.abs(this.lastBrightness - this.currentBrightness) >= 1;
   }
 
 
@@ -138,26 +146,14 @@ export class Light {
       return false;
     }
     return this.lastColorTemperature !== null &&
-           this.currentColorTemperature !== null &&
-           Math.abs(this.lastColorTemperature - this.currentColorTemperature) >= 1;
+      this.currentColorTemperature !== null &&
+      Math.abs(this.lastColorTemperature - this.currentColorTemperature) >= 1;
   }
 
   /** Whether any property was changed by a third party */
   @Expose()
   get smartOff(): boolean {
     return this.smartOffOn || this.smartOffBrightness || this.smartOffColorTemperature;
-  }
-
-  /** Whether the light is capable to display brightness */
-  @Expose()
-  get isBrightnessCapable(): boolean {
-    return this.currentBrightness !== null;
-  }
-
-  /** Whether the light is capable to display color temperature */
-  @Expose()
-  get isColorTemperatureCapable(): boolean {
-    return this.currentColorTemperature !== null;
   }
 
   @Expose()

@@ -4,7 +4,7 @@ import {
   Inject,
   Injectable,
   InternalServerErrorException,
-  Logger
+  Logger,
 } from '@nestjs/common';
 import { AxiosError, AxiosRequestConfig } from 'axios';
 import EventSource from 'eventsource';
@@ -23,7 +23,7 @@ import {
   ResourceIdentifier,
   RoomGet,
   StreamingResponse,
-  ZoneGet
+  ZoneGet,
 } from './hue.api.v2';
 
 interface HueUserResponse {
@@ -90,7 +90,7 @@ export class HueService {
     this.updateQueue.pipe(
       // updates are called only every 250ms
       debounceTime(250),
-    ).subscribe(()=>{
+    ).subscribe(() => {
       this.update();
     });
 
@@ -129,8 +129,8 @@ export class HueService {
    * @throws InternalServerErrorExeption
    * @returns the response data
    */
-  private request<T, D=any>(config: AxiosRequestConfig<D>) {
-    this.logger.debug(`${config.method} ${config.url} ${config.data?`::${JSON.stringify(config.data)}`:''}`);
+  private request<T, D = any>(config: AxiosRequestConfig<D>) {
+    this.logger.debug(`${config.method} ${config.url} ${config.data ? `::${JSON.stringify(config.data)}` : ''}`);
     return lastValueFrom(this.httpService.request<T>({
       ...config,
       headers: {
@@ -147,7 +147,7 @@ export class HueService {
   }
 
   private get<T = any>(url: string): Promise<T> {
-    return this.request<T>({url: url, method: 'GET'});
+    return this.request<T>({ url: url, method: 'GET' });
   }
 
   findAllLights(): Promise<LightGet[]> {
@@ -317,6 +317,8 @@ export class HueService {
           lastOn: null,
           lastBrightness: null,
           lastColorTemperature: null,
+          isBrightnessCapable: !(hueLight.dimming === undefined),
+          isColorTemperatureCapable: !(hueLight.color_temperature === undefined),
         });
       } else {
         // Update an existing light
@@ -331,6 +333,8 @@ export class HueService {
           lastOn: null,
           lastBrightness: null,
           lastColorTemperature: null,
+          isBrightnessCapable: !(hueLight.dimming === undefined),
+          isColorTemperatureCapable: !(hueLight.color_temperature === undefined),
         });
       }
     }));
@@ -338,13 +342,13 @@ export class HueService {
 
     // Delete lights that don't exist in the bridge
     await Promise.all(lights.map((light) => {
-      const hueLight = hueLights.find(l=> compareLights(light, l));
-      if (hueLight===undefined) {
+      const hueLight = hueLights.find(l => compareLights(light, l));
+      if (hueLight === undefined) {
         return this.lightService.remove(light.id);
       }
     }));
 
-    const compareGroups = (group: Group, hueGroup: RoomGet|ZoneGet) => (
+    const compareGroups = (group: Group, hueGroup: RoomGet | ZoneGet) => (
       (group.hueId === hueGroup.id) || (group.legacyId === hueGroup.id_v1)
     );
 
@@ -379,7 +383,7 @@ export class HueService {
 
     /** Create/Update Zones */
     await Promise.all(hueZones.map(async hueZone => {
-      const group = groups.find(group =>compareGroups(group, hueZone));
+      const group = groups.find(group => compareGroups(group, hueZone));
 
       const lightIds: string[] = await this.findLightIdsByZone(hueZone);
       const lights = await this.lightService.findByHueIds(lightIds);
@@ -409,9 +413,9 @@ export class HueService {
 
     /** Delete Groups */
     await Promise.all(groups.map((group) => {
-      const hueRoom = hueRooms.find(r=>compareGroups(group, r));
-      const hueZone = hueZones.find(z=>compareGroups(group, z));
-      if ((hueRoom===undefined) && (hueZone===undefined)) {
+      const hueRoom = hueRooms.find(r => compareGroups(group, r));
+      const hueZone = hueZones.find(z => compareGroups(group, z));
+      if ((hueRoom === undefined) && (hueZone === undefined)) {
         return this.groupService.remove(group.id);
       }
     }));
