@@ -159,4 +159,9 @@ export class Light {
   get isColorTemperatureCapable(): boolean {
     return this.currentColorTemperature !== null;
   }
+
+  @Expose()
+  get resource(): string {
+    return `lights/${this.id}`;
+  }
 }

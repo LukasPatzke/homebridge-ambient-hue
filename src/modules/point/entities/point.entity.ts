@@ -1,3 +1,4 @@
+import { Expose } from 'class-transformer';
 import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
 import { BrightnessCurve } from '../../curve/entities/brightness.curve.entity';
 import { ColorTemperatureCurve } from '../../curve/entities/colorTemperature.curve.entity';
@@ -30,4 +31,9 @@ export class Point {
     onDelete: 'CASCADE',
   })
   colorTemperatureCurve: ColorTemperatureCurve;
+
+  @Expose()
+  get resource(): string {
+    return `points/${this.id}`;
+  }
 }

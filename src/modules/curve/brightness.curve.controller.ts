@@ -1,5 +1,5 @@
 import {
-  Body, Controller, Delete, Get, Param, Patch, Post, UseInterceptors
+  Body, ClassSerializerInterceptor, Controller, Delete, Get, Param, Patch, Post, UseInterceptors,
 } from '@nestjs/common';
 import { UpdateInterceptor } from '../hue/update.interceptor';
 import { BrightnessCurveService } from './brightness.curve.service';
@@ -9,11 +9,12 @@ import { InsertPointDto } from './dto/insert-point.dto';
 import { UpdateCurveDto } from './dto/update-curve.dto';
 
 @Controller('curves/brightness')
+@UseInterceptors(ClassSerializerInterceptor)
 export class BrightnessCurveController {
   constructor(
     private readonly brightnesscurveService: BrightnessCurveService,
     private readonly curveService: CurveService,
-  ) {}
+  ) { }
 
   @Post()
   create(@Body() createCurveDto: CreateCurveDto) {

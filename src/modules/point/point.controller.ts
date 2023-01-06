@@ -1,13 +1,14 @@
-import { Body, Controller, Delete, Get, Param, Patch, UseInterceptors } from '@nestjs/common';
+import { Body, ClassSerializerInterceptor, Controller, Delete, Get, Param, Patch, UseInterceptors } from '@nestjs/common';
 import { UpdateInterceptor } from '../hue/update.interceptor';
 import { UpdatePointDto } from './dto/update-point.dto';
 import { PointService } from './point.service';
 
 @Controller('points')
+@UseInterceptors(ClassSerializerInterceptor)
 export class PointController {
   constructor(
     private readonly pointService: PointService,
-  ) {}
+  ) { }
 
   @Get(':id')
   findOne(@Param('id') id: string) {

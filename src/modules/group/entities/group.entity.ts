@@ -99,4 +99,9 @@ export class Group {
   get isColorTemperatureCapable(): boolean {
     return this.lights.reduce((accumulator, current) => accumulator || current.isColorTemperatureCapable, false);
   }
+
+  @Expose()
+  get resource(): string {
+    return `groups/${this.id}`;
+  }
 }
