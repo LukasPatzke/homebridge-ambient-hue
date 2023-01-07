@@ -13,7 +13,6 @@ import { Group } from '../modules/group/entities/group.entity';
 import { Light } from '../modules/light/entities/light.entity';
 import { Device } from './platformAccessory';
 import { PLATFORM_NAME, PLUGIN_NAME } from './settings';
-import { updateAccessory } from './updateAccessory';
 
 /**
  * HomebridgePlatform
@@ -26,7 +25,7 @@ export class AmbientHueHomebridgePlatform implements DynamicPlatformPlugin {
     .Characteristic;
 
   // this is used to track restored cached accessories
-  public readonly accessories: PlatformAccessory[] = [];
+  public accessories: PlatformAccessory<Group | Light>[] = [];
 
   public readonly configService: ConfigService;
 
@@ -48,7 +47,7 @@ export class AmbientHueHomebridgePlatform implements DynamicPlatformPlugin {
       this.configService.homebridge,
     );
 
-    process.env.AMBIENTHUE_DEBUG = this.configService.debugLog?'TRUE':'FALSE';
+    process.env.AMBIENTHUE_DEBUG = this.configService.debugLog ? 'TRUE' : 'FALSE';
 
     const app = bootstrap();
 
@@ -77,7 +76,7 @@ export class AmbientHueHomebridgePlatform implements DynamicPlatformPlugin {
       });
     });
 
-    Promise.all([socketConnected, homebridgeLaunched])
+    Promise.all([socketConnected, homebridgeLaunched, app])
       .catch((err) => {
         this.log.error(JSON.stringify(err));
       })
@@ -86,23 +85,20 @@ export class AmbientHueHomebridgePlatform implements DynamicPlatformPlugin {
         this.discoverDevices();
       });
 
-  /**
-   * Run plugin as a seperate node.js process
-   */
-  fork() {
-    const ui = child_process.fork(
-      path.resolve(__dirname, 'bin/fork'),
-      undefined,
-      {
-        env: process.env,
-      },
-    );
+    // Register handler for publishing / unpublishing
+    this.socket.on('publish', (device: Light | Group) => {
+      this.log.debug(`Recieved publish update for ${device.name}: ${JSON.stringify(device.published, null, 2)}`);
+      const accessory = this.accessories.find(a => a.UUID === device.accessoryId);
 
-    this.log.info('Spawning homebridge-ambient-hue with PID', ui.pid);
+      if (device.published === true && accessory === undefined) {
+        this.log.info(`Register accessory ${device.accessoryId} for device ${device.name}`);
+        this.registerDevice(device);
+      }
 
-    ui.on('close', (code, signal) => {
-      this.log.error('UI Process closed: ', code, signal);
-      process.kill(process.pid, 'SIGTERM');
+      if (device.published === false && accessory !== undefined) {
+        this.log.warn(`Unregister accessory ${device.accessoryId} for device ${device.name}`);
+        this.unregisterDevice(device);
+      }
     });
   }
 
@@ -110,7 +106,7 @@ export class AmbientHueHomebridgePlatform implements DynamicPlatformPlugin {
    * This function is invoked when homebridge restores cached accessories from disk at startup.
    * It should be used to setup event handlers for characteristics and update respective values.
    */
-  configureAccessory(accessory: PlatformAccessory) {
+  configureAccessory(accessory: PlatformAccessory<Group | Light>) {
     this.log.debug('Loading accessory from cache:', accessory.displayName);
 
     // add the restored accessory to the accessories cache so we can track if it has already been registered
@@ -125,7 +121,7 @@ export class AmbientHueHomebridgePlatform implements DynamicPlatformPlugin {
   async discoverDevices() {
     const accessories = await axios
       .get<(Light | Group)[]>(`${this.serverUri}/api/accessories`)
-      .then((res) => res.data);
+      .then((res) => res.data.filter(a => a.published));
 
     this.log.debug('discovered ', accessories.length, ' accessories.');
 
@@ -135,34 +131,28 @@ export class AmbientHueHomebridgePlatform implements DynamicPlatformPlugin {
     }
 
     // Remove stale accessories
-    const staleAccessories = this.accessories.filter((accessory)=>(
-      !accessories.map(i=>i.accessoryId).includes(accessory.UUID) &&
-      accessory.UUID !== this.homebridgeUUID
+    const staleAccessories = this.accessories.filter((accessory) => (
+      !accessories.map(i => i.accessoryId).includes(accessory.UUID)
     ));
     if (staleAccessories.length > 0) {
       this.log.warn(
         'Removing stale accessories: ',
-        JSON.stringify(staleAccessories.map(a=>a.displayName)),
+        JSON.stringify(staleAccessories.map(a => a.displayName)),
       );
-      this.api.unregisterPlatformAccessories(PLUGIN_NAME, PLATFORM_NAME, staleAccessories);
+      for (const accessory of staleAccessories) {
+        this.unregisterDevice(accessory.context);
+      }
     }
+  }
 
-    // Add an Accessory that allows to force an Update of AmbientHUE
-    const existingUpdateAccessory = this.accessories.find(
-      (accessory) => accessory.UUID === this.homebridgeUUID,
+  unregisterDevice<T extends Light | Group>(device: T) {
+    const existingAccessory = this.accessories.find(
+      (accessory) => accessory.UUID === device.accessoryId,
     );
 
-    if (existingUpdateAccessory) {
-      new updateAccessory(this, existingUpdateAccessory);
-    } else {
-      const accessory = new this.api.platformAccessory(
-        'AmbientHue',
-        this.homebridgeUUID,
-      );
-      new updateAccessory(this, accessory);
-      this.api.registerPlatformAccessories(PLUGIN_NAME, PLATFORM_NAME, [
-        accessory,
-      ]);
+    if (existingAccessory) {
+      this.api.unregisterPlatformAccessories(PLUGIN_NAME, PLATFORM_NAME, [existingAccessory]);
+      this.accessories = this.accessories.filter(accessory => accessory.UUID !== device.accessoryId);
     }
   }
 
@@ -188,15 +178,8 @@ export class AmbientHueHomebridgePlatform implements DynamicPlatformPlugin {
       existingAccessory.displayName = this.displayName(device.name);
       this.api.updatePlatformAccessories([existingAccessory]);
 
-      this.log.debug(
-        'Restoring existing accessory from cache:',
-        existingAccessory.displayName,
-      );
-
       // create the accessory handler for the restored accessory
-      new Device(this, existingAccessory as PlatformAccessory<T>);
-
-      this.api.updatePlatformAccessories([existingAccessory]);
+      new Device(this, existingAccessory);
     } else {
       // the accessory does not yet exist, so we need to create it
       this.log.info('Adding new accessory for Device:', device.name);
@@ -218,6 +201,8 @@ export class AmbientHueHomebridgePlatform implements DynamicPlatformPlugin {
       this.api.registerPlatformAccessories(PLUGIN_NAME, PLATFORM_NAME, [
         accessory,
       ]);
+
+      this.accessories.push(accessory);
     }
   }
 

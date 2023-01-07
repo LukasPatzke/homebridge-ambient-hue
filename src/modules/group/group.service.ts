@@ -3,10 +3,11 @@ import {
   Inject,
   Injectable,
   Logger,
-  NotFoundException
+  NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { In, Repository } from 'typeorm';
+import { AccessoryGateway } from '../accessory/accesory.gateway';
 import { UpdateLightDto } from '../light/dto/update-light.dto';
 import { LightService } from '../light/light.service';
 import { CreateGroupDto } from './dto/create-group.dto';
@@ -21,7 +22,8 @@ export class GroupService {
     private groupsRepository: Repository<Group>,
     @Inject(forwardRef(() => LightService))
     private lightService: LightService,
-  ) {}
+    private accessoryGateway: AccessoryGateway,
+  ) { }
 
   async create(createGroupDto: CreateGroupDto): Promise<Group> {
     this.logger.debug(`Update group ${createGroupDto.name}: ${JSON.stringify(createGroupDto)}`);
@@ -41,7 +43,7 @@ export class GroupService {
   }
 
   findOne(id: number): Promise<Group> {
-    return this.groupsRepository.findOneBy({id: id}).then((group) => {
+    return this.groupsRepository.findOneBy({ id: id }).then((group) => {
       if (group === null) {
         throw new NotFoundException(`Group with id ${id} not found.`);
       }
@@ -76,7 +78,7 @@ export class GroupService {
       },
     });
     // The second query return all lights for the group
-    return this.findByIds(groups.map(i=>i.id));
+    return this.findByIds(groups.map(i => i.id));
   }
 
   async updateByHueId(hueId: string, updateGroupDto: UpdateGroupDto) {
@@ -90,11 +92,25 @@ export class GroupService {
   }
 
   async update(id: number, updateGroupDto: UpdateGroupDto) {
-    updateGroupDto.id = id;
-    return this.groupsRepository.save(updateGroupDto);
+    let group = await this.findOne(id);
+
+    const isPublishedChanged = (updateGroupDto.published !== group.published) && (updateGroupDto.published !== undefined);
+
+    this.groupsRepository.merge(group, updateGroupDto);
+    group = await this.groupsRepository.save(group);
+
+    if (isPublishedChanged) {
+      this.accessoryGateway.emitPublish(group);
+    }
+    return group;
   }
 
   async updateLights(id: number, updateLightDto: UpdateLightDto) {
+    if (updateLightDto.published !== undefined) {
+      await this.update(+id, { published: updateLightDto.published });
+      updateLightDto.published = undefined;
+    }
+
     const group = await this.findOne(id);
     const lightUpdates = group.lights.map((light) =>
       this.lightService.update(light.id, updateLightDto),

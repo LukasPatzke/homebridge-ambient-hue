@@ -2,6 +2,7 @@ import { forwardRef, Inject, Logger } from '@nestjs/common';
 import { WebSocketGateway, WebSocketServer } from '@nestjs/websockets';
 import { instanceToPlain } from 'class-transformer';
 import { Server } from 'socket.io';
+import { Group } from '../group/entities/group.entity';
 import { GroupService } from '../group/group.service';
 import { Light } from '../light/entities/light.entity';
 
@@ -11,7 +12,7 @@ export class AccessoryGateway {
 
   constructor(
     @Inject(forwardRef(() => GroupService))
-    private groupService: GroupService) {}
+    private groupService: GroupService) { }
 
   @WebSocketServer()
   server: Server;
@@ -24,5 +25,10 @@ export class AccessoryGateway {
     groups.forEach((group) => {
       this.server.emit(`update/${group.accessoryId}`, instanceToPlain(group));
     });
+  }
+
+  emitPublish(accessory: Light | Group) {
+    this.logger.debug(`Emitting publish update for accessory ${accessory.id} ${accessory.name}`);
+    this.server.emit('publish', instanceToPlain(accessory));
   }
 }

@@ -1,5 +1,5 @@
 import {
-  Injectable, Logger, NotFoundException
+  Injectable, Logger, NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { In, Repository } from 'typeorm';
@@ -36,7 +36,7 @@ export class LightService {
   }
 
   findOne(id: number): Promise<Light> {
-    return this.lightsRepository.findOneBy({id: id}).then((light) => {
+    return this.lightsRepository.findOneBy({ id: id }).then((light) => {
       if (light === null) {
         throw new NotFoundException(`Light with id ${id} not found.`);
       }
@@ -85,6 +85,7 @@ export class LightService {
     }
 
     const isOnChanged = (updateLightDto.on !== light.on) && (updateLightDto.on !== undefined);
+    const isPublishedChanged = (updateLightDto.published !== light.published) && (updateLightDto.published !== undefined);
 
     this.lightsRepository.merge(light, updateLightDto);
 
@@ -92,6 +93,9 @@ export class LightService {
     if (isOnChanged) {
       this.resetSmartOff(light);
       this.accessoryGateway.emitUpdate(light);
+    }
+    if (isPublishedChanged) {
+      this.accessoryGateway.emitPublish(light);
     }
     return light;
   }
@@ -152,7 +156,7 @@ export class LightService {
 
     if (!light.on) {
       if (light.currentOn && light.onControlled && !light.smartOffOn) {
-        state.on = {on: false};
+        state.on = { on: false };
       }
       // If the light should be off, we don't care about any other property.
       return state;
@@ -160,9 +164,9 @@ export class LightService {
 
     if (light.onControlled && !light.smartOffOn) {
       if (brightness > light.onThreshold) {
-        state.on = {on: true};
+        state.on = { on: true };
       } else {
-        state.on = {on: false};
+        state.on = { on: false };
         // Do not send a request if the light stays off
         if (light.currentOn === false) {
           state = {};
@@ -173,10 +177,10 @@ export class LightService {
     }
 
     if (light.colorTemperatureControlled && !light.smartOffColorTemperature && light.currentColorTemperature !== colorTemp) {
-      state.color_temperature = {mirek: colorTemp};
+      state.color_temperature = { mirek: colorTemp };
     }
     if (light.brightnessControlled && !light.smartOffBrightness && light.currentBrightness !== brightness) {
-      state.dimming = {brightness: brightness};
+      state.dimming = { brightness: brightness };
     }
 
     // Signify recommends to not resent the 'on' value

@@ -9,11 +9,11 @@ import { AccessoryService } from './accessory.service';
 @Module({
   imports: [
     forwardRef(() => LightModule),
-    GroupModule,
+    forwardRef(() => GroupModule),
     HueModule,
   ],
   controllers: [AccessoryController],
   providers: [AccessoryService, AccessoryGateway],
   exports: [AccessoryGateway],
 })
-export class AccessoryModule {}
+export class AccessoryModule { }
