@@ -1,6 +1,8 @@
 import { Expose } from 'class-transformer';
+import { BrightnessCurve } from 'src/modules/curve/entities/brightness.curve.entity';
+import { ColorTemperatureCurve } from 'src/modules/curve/entities/colorTemperature.curve.entity';
 import {
-  Column, Entity, JoinTable, ManyToMany, PrimaryGeneratedColumn
+  Column, Entity, JoinTable, ManyToMany, PrimaryGeneratedColumn,
 } from 'typeorm';
 import { Light } from '../../light/entities/light.entity';
 
@@ -10,15 +12,15 @@ export class Group {
   id: number;
 
   /** Unique ressource identifier in hue */
-  @Column({nullable: true, type: 'varchar'})
+  @Column({ nullable: true, type: 'varchar' })
   hueId: string | null;
 
   /** Legacy v1 ressource identifier in hue  */
-  @Column({nullable: true, type: 'varchar'})
+  @Column({ nullable: true, type: 'varchar' })
   legacyId: string | null;
 
   /** Unique accessory identifier in HomeKit */
-  @Column({type: 'uuid'})
+  @Column({ type: 'uuid' })
   accessoryId: string;
 
   /** Human readable name in hue */
@@ -26,7 +28,7 @@ export class Group {
   name: string;
 
   /** Ressource type in hue */
-  @Column({type: 'varchar'})
+  @Column({ type: 'varchar' })
   type: 'room' | 'zone';
 
   /** Whether the group is published */
@@ -55,7 +57,7 @@ export class Group {
   /** The onThreshold of the first light in the group */
   @Expose()
   get onThreshold(): number {
-    if (this.lights.length===0) {
+    if (this.lights.length === 0) {
       return 0;
     }
     return this.lights[0].onThreshold;
@@ -70,7 +72,7 @@ export class Group {
   /** The brightnessFactor of the first light in the group */
   @Expose()
   get brightnessFactor(): number {
-    if (this.lights.length===0) {
+    if (this.lights.length === 0) {
       return 100;
     }
     return this.lights[0].brightnessFactor;
@@ -98,6 +100,24 @@ export class Group {
   @Expose()
   get isColorTemperatureCapable(): boolean {
     return this.lights.reduce((accumulator, current) => accumulator || current.isColorTemperatureCapable, false);
+  }
+
+  /** The brightnessCurve of the first light in the group */
+  @Expose()
+  get brightnessCurve(): BrightnessCurve | undefined {
+    if (this.lights.length === 0) {
+      return;
+    }
+    return this.lights[0].brightnessCurve;
+  }
+
+  /** The brightnessCurve of the first light in the group */
+  @Expose()
+  get colorTemperatureCurve(): ColorTemperatureCurve | undefined {
+    if (this.lights.length === 0) {
+      return;
+    }
+    return this.lights[0].colorTemperatureCurve;
   }
 
   @Expose()
