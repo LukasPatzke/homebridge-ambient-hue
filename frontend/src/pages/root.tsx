@@ -97,9 +97,6 @@ export const RootPage: FC = () => {
     setOpened(false);
   }, [location]);
 
-  const allLoaded =
-    groups.groups && brightness.curves && colorTemperature.curves;
-
   return (
     <AppShell
       padding={0}
@@ -135,7 +132,7 @@ export const RootPage: FC = () => {
       navbar={
         <Navbar
           hiddenBreakpoint="sm"
-          hidden={!opened || !allLoaded}
+          hidden={!opened || !groups.groups}
           width={{ sm: 300 }}
           className={classes.navbar}
         >
@@ -164,6 +161,7 @@ export const RootPage: FC = () => {
                           }}
                           label={group.name}
                           to={`groups/${group.id}`}
+                          preloadKey={`/api/${group.resource}`}
                         />
                         {group.lights.map((light) => (
                           <NavLink
@@ -172,6 +170,7 @@ export const RootPage: FC = () => {
                             label={light.name}
                             icon={<LightIcon lightId={light.id} />}
                             to={`groups/${group.id}/${light.id}`}
+                            preloadKey={`/api/${light.resource}`}
                           />
                         ))}
                       </div>
@@ -191,6 +190,7 @@ export const RootPage: FC = () => {
                           }}
                           label={group.name}
                           to={`groups/${group.id}`}
+                          preloadKey={`/api/${group.resource}`}
                         />
                         {group.lights.map((light) => (
                           <NavLink
@@ -199,6 +199,7 @@ export const RootPage: FC = () => {
                             label={light.name}
                             icon={<LightIcon lightId={light.id} />}
                             to={`groups/${group.id}/${light.id}`}
+                            preloadKey={`/api/${light.resource}`}
                           />
                         ))}
                       </div>
@@ -220,6 +221,7 @@ export const RootPage: FC = () => {
                         classNames={{ root: classes.link }}
                         label={curve.name}
                         to={`curves/brightness/${curve.id}`}
+                        preloadKey={`/api/${curve.resource}`}
                       />
                     ))}
                   </div>
@@ -235,6 +237,7 @@ export const RootPage: FC = () => {
                         classNames={{ root: classes.link }}
                         label={curve.name}
                         to={`curves/colorTemperature/${curve.id}`}
+                        preloadKey={`/api/${curve.resource}`}
                       />
                     ))}
                   </div>
@@ -246,7 +249,7 @@ export const RootPage: FC = () => {
       }
       classNames={{ main: classes.main }}
     >
-      {allLoaded ? <Outlet /> : <LoadingPage />}
+      {groups.groups ? <Outlet /> : <LoadingPage />}
     </AppShell>
   );
 };

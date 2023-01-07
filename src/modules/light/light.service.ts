@@ -7,6 +7,8 @@ import { AccessoryGateway } from '../accessory/accesory.gateway';
 import { BrightnessCurveService } from '../curve/brightness.curve.service';
 import { ColorTemperatureCurveService } from '../curve/colorTemperature.curve.service';
 import { CurveService } from '../curve/curve.service';
+import { isBrightnessCurveWithPoints } from '../curve/entities/brightness.curve.entity';
+import { isColorTemperatureCurveWithPoints } from '../curve/entities/colorTemperature.curve.entity';
 import { LightGet } from '../hue/hue.api.v2';
 import { CreateLightDto } from './dto/create-light.dto';
 import { UpdateLightDto } from './dto/update-light.dto';
@@ -114,7 +116,13 @@ export class LightService {
    * @param light
    */
   async brightness(light: Light) {
-    const value = await this.curveService.calcValue(light.brightnessCurve);
+    let value: number;
+    if (isBrightnessCurveWithPoints(light.brightnessCurve)) {
+      value = await this.curveService.calcValue(light.brightnessCurve);
+    } else {
+      const curve = await this.brightnessCurveService.findOne(light.brightnessCurve.id);
+      value = await this.curveService.calcValue(curve);
+    }
     return Math.min(100, Math.floor((light.brightnessFactor / 100) * value));
   }
 
@@ -123,7 +131,12 @@ export class LightService {
    * @param light
    */
   async colorTemp(light: Light) {
-    return this.curveService.calcValue(light.colorTemperatureCurve);
+    if (isColorTemperatureCurveWithPoints(light.colorTemperatureCurve)) {
+      return this.curveService.calcValue(light.colorTemperatureCurve);
+    } else {
+      const curve = await this.colorTemperatureCurveService.findOne(light.colorTemperatureCurve.id);
+      return this.curveService.calcValue(curve);
+    }
   }
 
   /**

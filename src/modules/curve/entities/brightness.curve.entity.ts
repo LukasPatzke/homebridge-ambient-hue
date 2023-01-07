@@ -7,9 +7,8 @@ import { Curve } from './curve';
 export class BrightnessCurve extends Curve {
   @OneToMany(() => Point, (point) => point.brightnessCurve, {
     cascade: true,
-    eager: true,
   })
-  points: Point[];
+  points?: Point[];
 
   kind = 'bri';
 
@@ -17,4 +16,12 @@ export class BrightnessCurve extends Curve {
   get resource(): string {
     return `curves/brightness/${this.id}`;
   }
+}
+
+export class BrightnessCurveWithPoints extends BrightnessCurve {
+  points: Point[];
+}
+
+export function isBrightnessCurveWithPoints(curve: BrightnessCurve): curve is BrightnessCurveWithPoints {
+  return (curve as BrightnessCurveWithPoints).points !== undefined;
 }

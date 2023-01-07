@@ -31,8 +31,15 @@ export class GroupService {
     return this.groupsRepository.save(group);
   }
 
-  findAll(): Promise<Group[]> {
+  findAll(loadCurves = true): Promise<Group[]> {
     return this.groupsRepository.find({
+      loadEagerRelations: false,
+      relations: {
+        lights: {
+          brightnessCurve: loadCurves,
+          colorTemperatureCurve: loadCurves,
+        },
+      },
       order: {
         name: 'ASC',
         lights: {

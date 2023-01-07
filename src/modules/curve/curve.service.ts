@@ -1,11 +1,11 @@
 import {
   BadRequestException,
-  Injectable
+  Injectable,
 } from '@nestjs/common';
 import { PointService } from '../point/point.service';
 import { InsertPointDto } from './dto/insert-point.dto';
-import { BrightnessCurve } from './entities/brightness.curve.entity';
-import { ColorTemperatureCurve } from './entities/colorTemperature.curve.entity';
+import { BrightnessCurveWithPoints } from './entities/brightness.curve.entity';
+import { ColorTemperatureCurveWithPoints } from './entities/colorTemperature.curve.entity';
 import { monospline } from './interpolation';
 
 @Injectable()
@@ -13,10 +13,10 @@ export class CurveService {
 
   constructor(
     private pointService: PointService,
-  ) {}
+  ) { }
 
 
-  async insertPoint(curve: BrightnessCurve | ColorTemperatureCurve, insertPointDto: InsertPointDto) {
+  async insertPoint(curve: BrightnessCurveWithPoints | ColorTemperatureCurveWithPoints, insertPointDto: InsertPointDto) {
 
     const points = curve.points;
     const point = points[insertPointDto.index];
@@ -47,8 +47,8 @@ export class CurveService {
     return await this.pointService.create({
       x: xLocation,
       y: await this.calcValue(curve, xLocation),
-      brightnessCurve: curve.kind==='bri'?curve: undefined,
-      colorTemperatureCurve: curve.kind==='ct'?curve: undefined,
+      brightnessCurve: curve.kind === 'bri' ? curve : undefined,
+      colorTemperatureCurve: curve.kind === 'ct' ? curve : undefined,
     });
   }
 
@@ -58,7 +58,7 @@ export class CurveService {
    * @param x Time in Seconds, defaults to now
    * @returns new y value
    */
-  async calcValue(curve: BrightnessCurve | ColorTemperatureCurve, x?: number): Promise<number> {
+  async calcValue(curve: BrightnessCurveWithPoints | ColorTemperatureCurveWithPoints, x?: number): Promise<number> {
     const points = curve.points;
     const spline = monospline(
       points.map((point) => point.x),

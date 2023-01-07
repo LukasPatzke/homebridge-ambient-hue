@@ -1,6 +1,7 @@
 import {
   BadRequestException,
   Injectable,
+  InternalServerErrorException,
   Logger,
   NotFoundException,
 } from '@nestjs/common';
@@ -10,7 +11,7 @@ import { CreatePointDto } from '../point/dto/create-point.dto';
 import { PointService } from '../point/point.service';
 import { CreateCurveDto } from './dto/create-curve.dto';
 import { UpdateCurveDto } from './dto/update-curve.dto';
-import { BrightnessCurve } from './entities/brightness.curve.entity';
+import { BrightnessCurve, isBrightnessCurveWithPoints } from './entities/brightness.curve.entity';
 
 
 @Injectable()
@@ -62,14 +63,8 @@ export class BrightnessCurveService {
 
   findAll() {
     return this.curveRepository.find({
-      relations: {
-        points: true,
-      },
       order: {
         name: 'ASC',
-        points: {
-          x: 'ASC',
-        },
       },
     });
   }
@@ -91,11 +86,14 @@ export class BrightnessCurveService {
     if (curve === null) {
       throw new NotFoundException(`Brightness curve with id ${id} not found.`);
     }
-    return curve;
+    if (isBrightnessCurveWithPoints(curve)) {
+      return curve;
+    }
+    throw new InternalServerErrorException(`Brightness curve ${id} has no points!`);
   }
 
-  findDefault() {
-    return this.curveRepository.findOneOrFail({
+  async findDefault() {
+    const curve = await this.curveRepository.findOneOrFail({
       where: {
         id: 0,
       },
@@ -108,6 +106,10 @@ export class BrightnessCurveService {
         },
       },
     });
+    if (isBrightnessCurveWithPoints(curve)) {
+      return curve;
+    }
+    throw new InternalServerErrorException(`Brightness curve ${curve.id} has no points!`);
   }
 
   async update(id: number, updateCurveDto: UpdateCurveDto) {
