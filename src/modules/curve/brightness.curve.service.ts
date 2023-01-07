@@ -2,7 +2,7 @@ import {
   BadRequestException,
   Injectable,
   Logger,
-  NotFoundException
+  NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -21,7 +21,7 @@ export class BrightnessCurveService {
     @InjectRepository(BrightnessCurve)
     private curveRepository: Repository<BrightnessCurve>,
     private pointService: PointService,
-  ) {}
+  ) { }
 
   async onModuleInit() {
     this.findDefault().catch(async (reason) => {
@@ -47,13 +47,13 @@ export class BrightnessCurveService {
   async create(createCurveDto: CreateCurveDto) {
     const curve = this.curveRepository.create(createCurveDto);
     const createPointsDto: CreatePointDto[] = [
-      { x: 0, y: 200, first: true },
-      { x: 1440, y: 200, last: true },
+      { x: 0, y: 100, first: true },
+      { x: 1440, y: 0, last: true },
     ];
     for (let index = 1; index < createCurveDto.count - 1; index++) {
       createPointsDto.push({
         x: (1440 / (createCurveDto.count - 1)) * index,
-        y: 200,
+        y: (100 / (createCurveDto.count - 1)) * index,
       });
     }
     curve.points = await this.pointService.createMany(createPointsDto);
@@ -88,7 +88,7 @@ export class BrightnessCurveService {
         },
       },
     });
-    if (curve === null ) {
+    if (curve === null) {
       throw new NotFoundException(`Brightness curve with id ${id} not found.`);
     }
     return curve;
@@ -117,7 +117,7 @@ export class BrightnessCurveService {
   }
 
   async remove(id: number) {
-    if (id===0) {
+    if (id === 0) {
       throw new BadRequestException('Can not delete default curves.');
     }
     return this.curveRepository.delete(id);

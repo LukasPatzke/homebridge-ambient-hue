@@ -6,9 +6,6 @@ export class CreateCurveDto {
   @ApiProperty()
   name: string;
 
-  @ApiProperty({enum: ['ct', 'bri']})
-  kind: curveKind;
-
-  @ApiProperty({type: Number, required: false, default: 2})
+  @ApiProperty({ type: Number, required: false, default: 2 })
   count = 2;
 }

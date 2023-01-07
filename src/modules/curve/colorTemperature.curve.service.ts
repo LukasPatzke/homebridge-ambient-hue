@@ -2,7 +2,7 @@ import {
   BadRequestException,
   Injectable,
   Logger,
-  NotFoundException
+  NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -20,7 +20,7 @@ export class ColorTemperatureCurveService {
     @InjectRepository(ColorTemperatureCurve)
     private curveRepository: Repository<ColorTemperatureCurve>,
     private pointService: PointService,
-  ) {}
+  ) { }
 
   async onModuleInit() {
     this.findDefault().catch(async (reason) => {
@@ -45,13 +45,13 @@ export class ColorTemperatureCurveService {
   async create(createCurveDto: CreateCurveDto) {
     const curve = this.curveRepository.create(createCurveDto);
     const createPointsDto: CreatePointDto[] = [
-      { x: 0, y: 200, first: true },
-      { x: 1440, y: 200, last: true },
+      { x: 0, y: 153, first: true },
+      { x: 1440, y: 500, last: true },
     ];
     for (let index = 1; index < createCurveDto.count - 1; index++) {
       createPointsDto.push({
         x: (1440 / (createCurveDto.count - 1)) * index,
-        y: 200,
+        y: 153 + ((500 - 153) / (createCurveDto.count - 1)) * index,
       });
     }
     curve.points = await this.pointService.createMany(createPointsDto);
@@ -86,7 +86,7 @@ export class ColorTemperatureCurveService {
         },
       },
     });
-    if (curve === null ) {
+    if (curve === null) {
       throw new NotFoundException(`Color Temperature curve with id ${id} not found.`);
     }
     return curve;
@@ -115,7 +115,7 @@ export class ColorTemperatureCurveService {
   }
 
   async remove(id: number) {
-    if (id===0) {
+    if (id === 0) {
       throw new BadRequestException('Can not delete default curves.');
     }
     return this.curveRepository.delete(id);
