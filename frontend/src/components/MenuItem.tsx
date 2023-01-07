@@ -21,15 +21,19 @@ const useStyles = createStyles((theme, { color }: MenuItemStylesParams) => ({
     cursor: 'pointer',
     borderRadius: theme.radius.sm,
     color: color
-      ? theme.fn.variant({ variant: 'filled', primaryFallback: false, color }).background
+      ? theme.fn.variant({ variant: 'filled', primaryFallback: false, color })
+          .background
       : theme.colorScheme === 'dark'
-        ? theme.colors.dark[0]
-        : theme.black,
+      ? theme.colors.dark[0]
+      : theme.black,
     display: 'flex',
     alignItems: 'center',
 
     '&:disabled': {
-      color: theme.colorScheme === 'dark' ? theme.colors.dark[3] : theme.colors.gray[5],
+      color:
+        theme.colorScheme === 'dark'
+          ? theme.colors.dark[3]
+          : theme.colors.gray[5],
       pointerEvents: 'none',
       userSelect: 'none',
     },
@@ -38,8 +42,8 @@ const useStyles = createStyles((theme, { color }: MenuItemStylesParams) => ({
       backgroundColor: color
         ? theme.fn.variant({ variant: 'light', color }).background
         : theme.colorScheme === 'dark'
-          ? theme.fn.rgba(theme.colors.dark[3], 0.35)
-          : theme.colors.gray[1],
+        ? theme.fn.rgba(theme.colors.dark[3], 0.35)
+        : theme.colors.gray[1],
     },
   },
 
@@ -63,10 +67,18 @@ interface MenuItemProps {
   icon?: React.ReactNode;
   rightSection?: React.ReactNode;
   onClick?: React.MouseEventHandler<HTMLButtonElement>;
+  disabled?: boolean;
 }
 
-export const MenuItem: React.FC<MenuItemProps> = ({children, color, icon, rightSection, onClick}) => {
-  const {classes, cx} = useStyles({color});
+export const MenuItem: React.FC<MenuItemProps> = ({
+  children,
+  color,
+  icon,
+  rightSection,
+  onClick,
+  disabled,
+}) => {
+  const { classes, cx } = useStyles({ color });
   return (
     <Box
       component="button"
@@ -76,10 +88,13 @@ export const MenuItem: React.FC<MenuItemProps> = ({children, color, icon, rightS
       role="menuitem"
       data-menu-item
       onClick={onClick}
+      disabled={disabled}
     >
       {icon && <div className={classes.itemIcon}>{icon}</div>}
       {children && <div className={classes.itemLabel}>{children}</div>}
-      {rightSection && <div className={classes.itemRightSection}>{rightSection}</div>}
+      {rightSection && (
+        <div className={classes.itemRightSection}>{rightSection}</div>
+      )}
     </Box>
   );
 };

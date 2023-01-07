@@ -1,12 +1,17 @@
 {
   "files.eol": "\n",
-  "editor.codeActionsOnSave": {
-    "source.fixAll.eslint": true,
-    "source.organizeImports": true,
-    "source.sortMembers": true
-  },
-  "editor.rulers": [ 140 ],
+  "editor.codeActionsOnSave": [
+    "source.organizeImports",
+    "source.sortMembers",
+    "source.fixAll.eslint"
+  ],
+  "editor.rulers": [140],
   "eslint.enable": true,
   "typescript.tsdk": "node_modules/typescript/lib",
-  "editor.tabSize": 2
+  "editor.tabSize": 2,
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "editor.formatOnSave": true,
+  "[sql]": {
+    "editor.defaultFormatter": "adpyke.vscode-sql-formatter"
+  }
 }
