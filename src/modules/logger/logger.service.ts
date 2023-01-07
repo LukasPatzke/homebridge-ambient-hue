@@ -13,10 +13,10 @@ export class CustomLogger extends ConsoleLogger {
 
   constructor(protected context: string) {
     const logLevels: LogLevel[] = ['log', 'error', 'warn'];
-    if (process.env.AMBIENTHUE_DEBUG==='TRUE') {
+    if (process.env.AMBIENTHUE_DEBUG === 'TRUE') {
       logLevels.push('debug');
     }
-    super(context, {logLevels: logLevels});
+    super(context, { logLevels: logLevels });
   }
 
   protected formatContext(context: string): string {
@@ -24,6 +24,11 @@ export class CustomLogger extends ConsoleLogger {
       return chalk.cyan('[AmbientHue]');
     }
     return chalk.cyan(`[AmbientHue:${chalk.green(context)}]`);
+  }
+
+  protected getTimestamp(): string {
+    const date = new Date();
+    return date.toLocaleString();
   }
 
   protected formatMessage(
