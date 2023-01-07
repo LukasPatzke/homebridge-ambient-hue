@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { forwardRef, Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AccessoryModule } from '../accessory/accessory.module';
 import { CurveModule } from '../curve/curve.module';
@@ -12,9 +12,9 @@ import { LightService } from './light.service';
   imports: [
     TypeOrmModule.forFeature([Light]),
     CurveModule,
-    GroupModule,
-    AccessoryModule,
-    HueModule,
+    forwardRef(() => GroupModule),
+    forwardRef(() => AccessoryModule),
+    forwardRef(() => HueModule),
   ],
   controllers: [LightController],
   providers: [LightService],
@@ -22,4 +22,4 @@ import { LightService } from './light.service';
     LightService,
   ],
 })
-export class LightModule {}
+export class LightModule { }

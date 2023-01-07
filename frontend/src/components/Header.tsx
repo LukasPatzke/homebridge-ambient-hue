@@ -11,7 +11,7 @@ const useStyles = createStyles((theme) => ({
 }));
 
 interface HeaderProps {
-  title: string;
+  title?: string;
   editable?: boolean;
   onChange?: (value: string) => Promise<void>;
   rightElement?: ReactNode;

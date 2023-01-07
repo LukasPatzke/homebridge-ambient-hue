@@ -54,13 +54,7 @@ export const LightHeader: React.FC<LightHeaderProps> = ({ lightId }) => {
   };
 
   return (
-    <Header
-      title={
-        light?.name || (
-          <Skeleton height={theme.headings.sizes.h1.fontSize} width={350} />
-        )
-      }
-    >
+    <Header title={light?.name}>
       <HeaderItem label="Type">
         <Text tt="capitalize">
           {light?.archetype.replace('_', ' ') || (

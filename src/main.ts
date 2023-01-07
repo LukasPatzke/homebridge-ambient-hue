@@ -4,8 +4,6 @@ import {
   NestFastifyApplication,
 } from '@nestjs/platform-fastify';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
-import { FastifyReply, FastifyRequest } from 'fastify';
-import * as fs from 'fs-extra';
 import * as path from 'path';
 import { AppModule } from './app.module';
 import { ConfigService } from './modules/config/config.service';
@@ -21,29 +19,6 @@ export async function bootstrap() {
     { logger: new CustomLogger('Root') },
   );
   const config = app.get(ConfigService);
-
-  // serve index.html without a cache
-  app
-    .getHttpAdapter()
-    .get('/', async (req: FastifyRequest, res: FastifyReply) => {
-      res.type('text/html');
-      res.header('Cache-Control', 'no-cache, no-store, must-revalidate');
-      res.header('Pragma', 'no-cache');
-      res.header('Expires', '0');
-      res.send(
-        await fs.readFile(
-          path.resolve(process.env.HAH_BASE_PATH || '', 'public/index.html'),
-        ),
-      );
-    });
-
-  // serve static assest with a long cache timeout
-  app.useStaticAssets({
-    root: path.resolve(__dirname, '../public'),
-    setHeaders(res) {
-      res.setHeader('Cache-Control', 'public,max-age=31536000,immutable');
-    },
-  });
 
   // set prefix
   app.setGlobalPrefix('api');

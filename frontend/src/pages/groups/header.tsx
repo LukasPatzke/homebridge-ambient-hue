@@ -53,13 +53,7 @@ export const GroupHeader: React.FC<GroupHeaderProps> = ({ groupId }) => {
   };
 
   return (
-    <Header
-      title={
-        group?.name || (
-          <Skeleton height={theme.headings.sizes.h1.fontSize} width={350} />
-        )
-      }
-    >
+    <Header title={group?.name}>
       <HeaderItem label="Type">
         <Text tt="capitalize">
           {group?.type || <Skeleton height={theme.fontSizes.md} width={100} />}

@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsc && vite build",
+    "build": "tsc && vite build && rm -rf ../public && mv dist ../public",
     "preview": "vite preview"
   },
   "dependencies": {
@@ -37,6 +37,7 @@
     "@vitejs/plugin-react": "^3.0.0",
     "typescript": "^4.9.3",
     "vite": "^4.0.0",
+    "vite-plugin-favicons-inject": "^2.1.0",
     "vite-plugin-svgr": "^2.4.0"
   }
 }

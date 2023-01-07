@@ -17,21 +17,21 @@ const useStyles = createStyles((theme) => ({
   },
 }));
 interface EditableTextProps {
-  value: string;
+  value?: string;
   editable?: boolean;
   rightElement?: ReactNode;
   onChange?: (value: string) => Promise<void>;
 }
 
 export const EditableTitle: FC<EditableTextProps> = ({
-  value,
+  value = '',
   editable,
   rightElement,
   onChange,
 }) => {
   const { classes } = useStyles();
   const [isEditable, setEditable] = useState(false);
-  const [inputValue, setInputValue] = useState(value);
+  const [inputValue, setInputValue] = useState<string>(value);
   const ref = useClickOutside<HTMLInputElement>(() => finish());
 
   useEffect(() => {
