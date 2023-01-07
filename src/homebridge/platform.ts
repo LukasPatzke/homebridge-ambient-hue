@@ -1,14 +1,13 @@
 import axios from 'axios';
-import * as child_process from 'child_process';
 import {
   API, Characteristic, DynamicPlatformPlugin,
   Logger,
   PlatformAccessory,
   PlatformConfig,
-  Service
+  Service,
 } from 'homebridge';
-import * as path from 'path';
 import { io, Socket } from 'socket.io-client';
+import { bootstrap } from '../main';
 import { ConfigService } from '../modules/config/config.service';
 import { Group } from '../modules/group/entities/group.entity';
 import { Light } from '../modules/light/entities/light.entity';
@@ -51,7 +50,7 @@ export class AmbientHueHomebridgePlatform implements DynamicPlatformPlugin {
 
     process.env.AMBIENTHUE_DEBUG = this.configService.debugLog?'TRUE':'FALSE';
 
-    this.fork();
+    const app = bootstrap();
 
     this.socket = io(`ws://localhost:${this.configService.uiPort}`, {
       transports: ['websocket'],
@@ -86,7 +85,6 @@ export class AmbientHueHomebridgePlatform implements DynamicPlatformPlugin {
         this.log.debug('Finished initializing platform:', this.config.name);
         this.discoverDevices();
       });
-  }
 
   /**
    * Run plugin as a seperate node.js process

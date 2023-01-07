@@ -1,7 +1,7 @@
 import { NestFactory } from '@nestjs/core';
 import {
   FastifyAdapter,
-  NestFastifyApplication
+  NestFastifyApplication,
 } from '@nestjs/platform-fastify';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { FastifyReply, FastifyRequest } from 'fastify';
@@ -18,7 +18,7 @@ export async function bootstrap() {
   const app = await NestFactory.create<NestFastifyApplication>(
     AppModule,
     fAdapter,
-    { logger: new CustomLogger('Root')},
+    { logger: new CustomLogger('Root') },
   );
   const config = app.get(ConfigService);
 
@@ -54,11 +54,11 @@ export async function bootstrap() {
     .build();
 
   const document = SwaggerModule.createDocument(app, options);
-  SwaggerModule.setup('swagger', app, document);
+  SwaggerModule.setup('docs', app, document);
 
   await app.listen(config.uiPort, config.uiHost);
 
   return app;
 }
 
-export const app = bootstrap();
+// export const app = bootstrap();
