@@ -74,7 +74,7 @@ const getElement = (
   }
 };
 
-function roundValue(value: number, step: number) {
+export function roundValue(value: number, step: number) {
   if (value === undefined) {
     return 0;
   }

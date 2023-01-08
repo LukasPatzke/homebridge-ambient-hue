@@ -101,7 +101,7 @@ export const CurveChart: React.FC<CurveChartProps> = ({
               min: 0,
               max: 1440,
               ticks: {
-                stepSize: 180,
+                stepSize: 240,
                 callback: (value) => formatX(Number(value)),
                 padding: 10,
               },
