@@ -3,9 +3,11 @@ import { closeAllModals, openModal } from '@mantine/modals';
 import { IconChevronDown } from '@tabler/icons';
 import React, { createRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { preload } from 'swr';
 
 import { Curve, curvekind } from '../../api.types';
 import { useCurves } from '../../data/curves';
+import { fetcher } from '../../data/fetcher';
 
 interface CurvePickerProps {
   kind: curvekind;
@@ -108,10 +110,9 @@ export const CurvePicker: React.FC<CurvePickerProps> = ({
             compact
             style={{ pointerEvents: 'all' }}
             component={Link}
-            to={`/curves/${
-              kind === 'bri' ? 'brightness' : 'colorTemperature'
-            }/${value.id}`}
+            to={value.resource}
             disabled={disabled}
+            onMouseOver={() => preload(value.resource, fetcher)}
           >
             Edit Curve
           </Button>
