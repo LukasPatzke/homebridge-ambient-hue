@@ -110,7 +110,7 @@ export const CurvePicker: React.FC<CurvePickerProps> = ({
             compact
             style={{ pointerEvents: 'all' }}
             component={Link}
-            to={value.resource}
+            to={`/${value.resource}`}
             disabled={disabled}
             onMouseOver={() => preload(value.resource, fetcher)}
           >
