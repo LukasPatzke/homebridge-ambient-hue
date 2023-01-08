@@ -34,7 +34,11 @@ export class LightService {
   }
 
   findAll(): Promise<Light[]> {
-    return this.lightsRepository.find();
+    return this.lightsRepository.find({
+      order: {
+        name: 'ASC',
+      },
+    });
   }
 
   findOne(id: number): Promise<Light> {

@@ -35,6 +35,10 @@ export class Group {
   @Column({ type: 'varchar' })
   type: 'room' | 'zone';
 
+  /** Group archetype in hue */
+  @Column()
+  archetype: string;
+
   /** Whether the group is published */
   @Column({ default: true })
   published: boolean;

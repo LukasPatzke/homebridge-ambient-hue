@@ -7,6 +7,7 @@ export class CreateGroupDto {
   accessoryId: string;
   name: string;
   type: 'room' | 'zone';
+  archetype: string;
   lights: Light[];
   published?: boolean;
 }

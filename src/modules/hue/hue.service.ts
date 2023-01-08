@@ -243,27 +243,31 @@ export class HueService {
    */
   async update() {
     this.logger.debug('Running update');
-    const lights = await this.lightService.findAll();
+    try {
+      const lights = await this.lightService.findAll();
 
-    const updates = lights.map(
-      async (light): Promise<number> => {
-        const nextState = await this.lightService.nextState(light);
+      const updates = lights.map(
+        async (light): Promise<number> => {
+          const nextState = await this.lightService.nextState(light);
 
-        if (Object.keys(nextState).length > 0) {
-          await this.setLightState(light.hueId, nextState);
-          this.lightService.resetSmartOff(light);
-          return 1;
-        }
-        return 0;
-      },
-    );
+          if (Object.keys(nextState).length > 0) {
+            await this.setLightState(light.hueId, nextState);
+            this.lightService.resetSmartOff(light);
+            return 1;
+          }
+          return 0;
+        },
+      );
 
-    const countUpdated = (await Promise.all(updates)).reduce(
-      (accumulator, current) => accumulator + current,
-      0,
-    );
-    this.logger.debug(`${countUpdated} lights updated`);
-    return countUpdated;
+      const countUpdated = (await Promise.all(updates)).reduce(
+        (accumulator, current) => accumulator + current,
+        0,
+      );
+      this.logger.debug(`${countUpdated} lights updated`);
+      return countUpdated;
+    } catch (error) {
+      this.logger.error(error);
+    }
   }
 
   /**
@@ -405,6 +409,7 @@ export class HueService {
             accessoryId: this.generateUuid(hueRoom.id),
             name: hueRoom.metadata.name,
             type: hueRoom.type,
+            archetype: hueRoom.metadata.archetype,
             lights: lights,
           });
         } else {
@@ -414,6 +419,7 @@ export class HueService {
             legacyId: hueRoom.id_v1,
             name: hueRoom.metadata.name,
             type: hueRoom.type,
+            archetype: hueRoom.metadata.archetype,
             lights: lights,
           });
         }
@@ -436,6 +442,7 @@ export class HueService {
             accessoryId: this.generateUuid(hueZone.id),
             name: hueZone.metadata.name,
             type: hueZone.type,
+            archetype: hueZone.metadata.archetype,
             lights: lights,
           });
         } else {
@@ -445,6 +452,7 @@ export class HueService {
             legacyId: hueZone.id_v1,
             name: hueZone.metadata.name,
             type: hueZone.type,
+            archetype: hueZone.metadata.archetype,
             lights: lights,
           });
         }

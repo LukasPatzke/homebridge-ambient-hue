@@ -43,10 +43,10 @@ export class v21672495111704 implements MigrationInterface {
     await queryRunner.query(`DROP TABLE "light"`);
     await queryRunner.query(`ALTER TABLE "temporary_light" RENAME TO "light"`);
     await queryRunner.query(
-      `CREATE TABLE "temporary_group" ( "id" integer PRIMARY KEY NOT NULL, "hueId" varchar, "legacyId" varchar, "accessoryId" varchar NOT NULL, "name" varchar NOT NULL, "type" varchar NOT NULL, "published" boolean NOT NULL DEFAULT (1) )`,
+      `CREATE TABLE "temporary_group" ( "id" integer PRIMARY KEY NOT NULL, "hueId" varchar, "legacyId" varchar, "accessoryId" varchar NOT NULL, "name" varchar NOT NULL, "archetype" varchar NOT NULL, "type" varchar NOT NULL, "published" boolean NOT NULL DEFAULT (1) )`,
     );
     await queryRunner.query(
-      `INSERT INTO "temporary_group" ( "id", "legacyId", "accessoryId", "name", "type", "published" ) SELECT "id", '/groups/' || "id", "uniqueId", "name", LOWER("type"), "published" FROM "group"`,
+      `INSERT INTO "temporary_group" ( "id", "legacyId", "accessoryId", "name", "archetype", "type", "published" ) SELECT "id", '/groups/' || "id", "uniqueId", "name", '', LOWER("type"), "published" FROM "group"`,
     );
     await queryRunner.query(`DROP TABLE "group"`);
     await queryRunner.query(`ALTER TABLE "temporary_group" RENAME TO "group"`);

@@ -165,7 +165,7 @@ export const RootPage: FC = () => {
                             classNames={{ root: classes.link }}
                             label={light.name}
                             icon={<LightIcon lightId={light.id} />}
-                            to={`groups/${group.id}/${light.id}`}
+                            to={`/${light.resource}`}
                             preloadKey={`/api/${light.resource}`}
                           />
                         ))}

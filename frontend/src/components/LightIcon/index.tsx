@@ -1,6 +1,5 @@
 import {
   ActionIcon,
-  Avatar,
   Indicator,
   Skeleton,
   useMantineTheme,
@@ -27,23 +26,23 @@ export const LightIcon: React.FC<LightIconProps> = ({ lightId }) => {
 
   if (isLoading) {
     return (
-      <Avatar>
+      <ActionIcon>
         <Skeleton height={30} circle />
-      </Avatar>
+      </ActionIcon>
     );
   }
   if (error) {
     return (
-      <Avatar color="red">
+      <ActionIcon color="red">
         <IconExclamationMark />
-      </Avatar>
+      </ActionIcon>
     );
   }
   if (!light) {
     return (
-      <Avatar>
+      <ActionIcon>
         <ClassicBulb fill="currentColor" height={30} />
-      </Avatar>
+      </ActionIcon>
     );
   }
 

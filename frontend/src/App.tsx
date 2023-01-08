@@ -38,7 +38,7 @@ const routes = [
         errorElement: <ErrorPage />,
       },
       {
-        path: 'groups/:groupId/:lightId',
+        path: 'lights/:lightId',
         element: <LightPage />,
         errorElement: <ErrorPage />,
       },

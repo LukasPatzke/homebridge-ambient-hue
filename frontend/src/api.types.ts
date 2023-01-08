@@ -114,6 +114,47 @@ export interface Group {
   accessoryId: string;
   name: string;
   type: 'room' | 'zone';
+  archetype:
+    | 'living_room'
+    | 'kitchen'
+    | 'dining'
+    | 'bedroom'
+    | 'kids_bedroom'
+    | 'bathroom'
+    | 'nursery'
+    | 'recreation'
+    | 'office'
+    | 'gym'
+    | 'hallway'
+    | 'toilet'
+    | 'front_door'
+    | 'garage'
+    | 'terrace'
+    | 'garden'
+    | 'driveway'
+    | 'carport'
+    | 'home'
+    | 'downstairs'
+    | 'upstairs'
+    | 'top_floor'
+    | 'attic'
+    | 'guest_room'
+    | 'staircase'
+    | 'lounge'
+    | 'man_cave'
+    | 'computer'
+    | 'studio'
+    | 'music'
+    | 'tv'
+    | 'reading'
+    | 'closet'
+    | 'storage'
+    | 'laundry_room'
+    | 'balcony'
+    | 'porch'
+    | 'barbecue'
+    | 'pool'
+    | 'other';
   published: boolean;
   lights: Light[];
   on: boolean;
@@ -129,6 +170,7 @@ export interface Group {
   colorTemperatureCurve: Curve;
   colorTemperatureCurveId: number;
   resource: string;
+  smartOff: boolean;
 }
 
 export type Accessory = Group | Light;
