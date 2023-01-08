@@ -63,7 +63,6 @@ export const ErrorPage: React.FC<ErrorPageProps> = ({ error }) => {
 
   return (
     <Container className={classes.root}>
-      <div className={classes.label}>{error?.status}</div>
       <Illustration />
       <Title className={classes.title}>Oops!</Title>
       <Text
