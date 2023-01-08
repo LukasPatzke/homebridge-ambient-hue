@@ -1,8 +1,8 @@
 import {
   Accordion,
+  ActionIcon,
   AppShell,
   Burger,
-  Button,
   createStyles,
   Flex,
   Group,
@@ -111,17 +111,13 @@ export const RootPage: FC = () => {
                   onClick={() => setOpened((o) => !o)}
                   size="sm"
                   color={theme.colors.gray[6]}
-                  mr="xl"
                 />
               </Group>
             </MediaQuery>
             <Group>
-              <Button
-                component={Link}
-                to="/"
-                variant="subtle"
-                leftIcon={<AppIconColor height={30} />}
-              ></Button>
+              <ActionIcon size="lg" component={Link} to="/" variant="subtle">
+                <AppIconColor height={30} />
+              </ActionIcon>
             </Group>
             <Group>
               <ColorSchemeToggle />
@@ -213,7 +209,6 @@ export const RootPage: FC = () => {
                     <NavLink
                       classNames={{ root: cx(classes.link, classes.mainLink) }}
                       label="Brightness"
-                      to="/curves/brightness"
                     />
                     {brightness.curves?.map((curve) => (
                       <NavLink
@@ -229,7 +224,6 @@ export const RootPage: FC = () => {
                     <NavLink
                       classNames={{ root: cx(classes.link, classes.mainLink) }}
                       label="Color Temperature"
-                      to="/curves/colorTemperature"
                     />
                     {colorTemperature.curves?.map((curve) => (
                       <NavLink

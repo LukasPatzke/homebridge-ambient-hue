@@ -7,7 +7,7 @@ import { preload } from 'swr';
 import { fetcher } from '../data/fetcher';
 
 interface NavLinkProps extends Omit<MantineNavLinkProps, 'active'> {
-  to: string;
+  to?: string;
   preloadKey?: string;
 }
 
@@ -16,18 +16,22 @@ export const NavLink: React.FC<NavLinkProps> = ({
   preloadKey,
   ...props
 }) => {
-  const match = useMatch(to);
-  return (
-    <MantineNavLink
-      component={Link}
-      active={match !== null}
-      to={to}
-      onMouseOver={() => {
-        if (preloadKey) {
-          preload(preloadKey, fetcher);
-        }
-      }}
-      {...props}
-    />
-  );
+  const match = useMatch(to || '');
+  if (to) {
+    return (
+      <MantineNavLink
+        component={Link}
+        active={match !== null}
+        to={to}
+        onMouseOver={() => {
+          if (preloadKey) {
+            preload(preloadKey, fetcher);
+          }
+        }}
+        {...props}
+      />
+    );
+  }
+
+  return <MantineNavLink {...props} />;
 };
