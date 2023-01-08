@@ -50,7 +50,7 @@ interface PointSettingsProps {
   rightPoint?: Point;
   onChange: (value: Partial<Point>) => void;
   onChangeEnd: (value: Partial<Point>) => void;
-  onDelete: () => void;
+  onDelete: (value?: Point) => void;
   onInsert: (poistion: 'before' | 'after') => void;
 }
 
@@ -152,7 +152,7 @@ export const PointSettings: FC<PointSettingsProps> = ({
                   },
                   confirmProps: { color: 'red' },
                   onCancel: () => console.log('Cancel'),
-                  onConfirm: onDelete,
+                  onConfirm: () => onDelete(point),
                 });
               }}
               className={classes.button}

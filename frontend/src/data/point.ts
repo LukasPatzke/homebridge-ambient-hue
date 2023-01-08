@@ -11,12 +11,8 @@ export const update = async (point: Partial<Point>, resource: string) => {
   }) as Promise<Point>;
 };
 
-export const deletePoint = async (point: Partial<Point>, resource: string) => {
+export const deletePoint = async (resource: string) => {
   return fetcher(`/api/${resource}`, {
-    method: 'PATCH',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(point),
+    method: 'DELETE',
   }) as Promise<Point>;
 };

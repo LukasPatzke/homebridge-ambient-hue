@@ -64,8 +64,15 @@ export const CurvePage: React.FC<CurvePageProps> = ({ kind }) => {
   const { classes: TabClasses } = useTabStyles();
   const { classes } = useStyles();
   const { curveId } = useParams();
-  const { curve, error, isLoading, deleteCurve, updateName, insertPoint } =
-    useCurve(kind, curveId);
+  const {
+    curve,
+    error,
+    isLoading,
+    deleteCurve,
+    mutate,
+    updateName,
+    insertPoint,
+  } = useCurve(kind, curveId);
 
   const points = useComplexState(curve?.points || []);
   const [y, setY] = useState(0);
@@ -229,8 +236,12 @@ export const CurvePage: React.FC<CurvePageProps> = ({ kind }) => {
                   points.partialUpdate(value, selectedIndex);
                 }}
                 onChangeEnd={update}
-                onDelete={async () => {
-                  await deletePoint;
+                onDelete={async (value) => {
+                  if (!value) {
+                    return;
+                  }
+                  await deletePoint(value.resource);
+                  mutate();
                   setSelectedIndex(undefined);
                 }}
                 onInsert={async (position) => {
