@@ -8,7 +8,14 @@ import {
 } from '@nestjs/common';
 import { AxiosError, AxiosRequestConfig } from 'axios';
 import EventSource from 'eventsource';
-import { catchError, debounceTime, lastValueFrom, map, Subject } from 'rxjs';
+import {
+  catchError,
+  debounceTime,
+  lastValueFrom,
+  map,
+  retry,
+  Subject,
+} from 'rxjs';
 import { v5 as uuidv5 } from 'uuid';
 import { ConfigService } from '../config/config.service';
 import { Group } from '../group/entities/group.entity';
@@ -55,6 +62,14 @@ export class HueService {
     private groupService: GroupService,
   ) {
     this.updateQueue = new Subject();
+    this.httpService.axiosRef.interceptors.request.use((request) => {
+      this.logger.debug(
+        `${request.method} ${request.url} ${
+          request.data ? `::${JSON.stringify(request.data)}` : ''
+        }`,
+      );
+      return request;
+    });
   }
 
   async onModuleInit() {
@@ -134,11 +149,6 @@ export class HueService {
    * @returns the response data
    */
   private request<T, D = any>(config: AxiosRequestConfig<D>) {
-    this.logger.debug(
-      `${config.method} ${config.url} ${
-        config.data ? `::${JSON.stringify(config.data)}` : ''
-      }`,
-    );
     return lastValueFrom(
       this.httpService
         .request<T>({
@@ -149,6 +159,7 @@ export class HueService {
           },
         })
         .pipe(
+          retry({ count: 3, delay: 1000 }),
           catchError((err: AxiosError) => {
             //this.logger.error(err);
             throw new InternalServerErrorException(err.message);
