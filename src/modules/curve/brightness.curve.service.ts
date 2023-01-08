@@ -11,8 +11,10 @@ import { CreatePointDto } from '../point/dto/create-point.dto';
 import { PointService } from '../point/point.service';
 import { CreateCurveDto } from './dto/create-curve.dto';
 import { UpdateCurveDto } from './dto/update-curve.dto';
-import { BrightnessCurve, isBrightnessCurveWithPoints } from './entities/brightness.curve.entity';
-
+import {
+  BrightnessCurve,
+  isBrightnessCurveWithPoints,
+} from './entities/brightness.curve.entity';
 
 @Injectable()
 export class BrightnessCurveService {
@@ -22,7 +24,7 @@ export class BrightnessCurveService {
     @InjectRepository(BrightnessCurve)
     private curveRepository: Repository<BrightnessCurve>,
     private pointService: PointService,
-  ) { }
+  ) {}
 
   async onModuleInit() {
     this.findDefault().catch(async (reason) => {
@@ -89,7 +91,9 @@ export class BrightnessCurveService {
     if (isBrightnessCurveWithPoints(curve)) {
       return curve;
     }
-    throw new InternalServerErrorException(`Brightness curve ${id} has no points!`);
+    throw new InternalServerErrorException(
+      `Brightness curve ${id} has no points!`,
+    );
   }
 
   async findDefault() {
@@ -109,7 +113,9 @@ export class BrightnessCurveService {
     if (isBrightnessCurveWithPoints(curve)) {
       return curve;
     }
-    throw new InternalServerErrorException(`Brightness curve ${curve.id} has no points!`);
+    throw new InternalServerErrorException(
+      `Brightness curve ${curve.id} has no points!`,
+    );
   }
 
   async update(id: number, updateCurveDto: UpdateCurveDto) {

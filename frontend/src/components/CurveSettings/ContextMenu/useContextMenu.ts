@@ -3,21 +3,12 @@ import { Chart } from 'chart.js';
 import { RefObject, useState } from 'react';
 import { usePopper } from 'react-popper';
 
-
 export function useContextMenu(chartRef: RefObject<Chart>) {
   const [isOpen, setOpen] = useState(false);
-  const [
-    referenceElement,
-    setReferenceElement,
-  ] = useState<VirtualElement | null>(null);
-  const [element, setElement] = useState<HTMLDivElement | null>(
-    null,
-  );
-  const [
-    arrowElement,
-    setArrowElement,
-  ] = useState<HTMLDivElement | null>(null);
-
+  const [referenceElement, setReferenceElement] =
+    useState<VirtualElement | null>(null);
+  const [element, setElement] = useState<HTMLDivElement | null>(null);
+  const [arrowElement, setArrowElement] = useState<HTMLDivElement | null>(null);
 
   const { styles, attributes } = usePopper(referenceElement, element, {
     placement: 'right',
@@ -29,12 +20,16 @@ export function useContextMenu(chartRef: RefObject<Chart>) {
     ],
   });
 
-  const openContextMenu = (x: number, y: number, width: number, height: number) => {
-
+  const openContextMenu = (
+    x: number,
+    y: number,
+    width: number,
+    height: number,
+  ) => {
     if (chartRef.current) {
       const bounding = chartRef.current.canvas.getBoundingClientRect();
-      x += bounding.x - (width / 2);
-      y += bounding.y - (height / 2);
+      x += bounding.x - width / 2;
+      y += bounding.y - height / 2;
     }
 
     setReferenceElement({
@@ -70,5 +65,4 @@ export function useContextMenu(chartRef: RefObject<Chart>) {
     openContextMenu,
     closeContextMenu,
   };
-
 }

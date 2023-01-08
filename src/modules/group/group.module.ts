@@ -18,4 +18,4 @@ import { GroupService } from './group.service';
   providers: [GroupService],
   exports: [GroupService],
 })
-export class GroupModule { }
+export class GroupModule {}

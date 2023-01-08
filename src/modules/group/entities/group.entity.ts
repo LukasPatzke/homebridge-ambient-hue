@@ -2,7 +2,11 @@ import { Expose } from 'class-transformer';
 import { BrightnessCurve } from 'src/modules/curve/entities/brightness.curve.entity';
 import { ColorTemperatureCurve } from 'src/modules/curve/entities/colorTemperature.curve.entity';
 import {
-  Column, Entity, JoinTable, ManyToMany, PrimaryGeneratedColumn,
+  Column,
+  Entity,
+  JoinTable,
+  ManyToMany,
+  PrimaryGeneratedColumn,
 } from 'typeorm';
 import { Light } from '../../light/entities/light.entity';
 
@@ -45,13 +49,19 @@ export class Group {
   /** Whether all lights in the group are On in ambientHUE */
   @Expose()
   get on(): boolean {
-    return this.lights.reduce((accumulator, current) => accumulator && current.on, true);
+    return this.lights.reduce(
+      (accumulator, current) => accumulator && current.on,
+      true,
+    );
   }
 
   /** Whether amientHUE controls the On/Off state of all lights in the group */
   @Expose()
   get onControlled(): boolean {
-    return this.lights.reduce((accumulator, current) => accumulator && current.onControlled, true);
+    return this.lights.reduce(
+      (accumulator, current) => accumulator && current.onControlled,
+      true,
+    );
   }
 
   /** The onThreshold of the first light in the group */
@@ -66,7 +76,10 @@ export class Group {
   /** Whether amientHUE controls the brightness of all lights in the group */
   @Expose()
   get brightnessControlled(): boolean {
-    return this.lights.reduce((accumulator, current) => accumulator && current.brightnessControlled, true);
+    return this.lights.reduce(
+      (accumulator, current) => accumulator && current.brightnessControlled,
+      true,
+    );
   }
 
   /** The brightnessFactor of the first light in the group */
@@ -81,25 +94,39 @@ export class Group {
   /** Whether amientHUE controls the color temperature of all lights in the group */
   @Expose()
   get colorTemperatureControlled(): boolean {
-    return this.lights.reduce((accumulator, current) => accumulator && current.colorTemperatureControlled, true);
+    return this.lights.reduce(
+      (accumulator, current) =>
+        accumulator && current.colorTemperatureControlled,
+      true,
+    );
   }
 
   /** Whether smartoff is active for any light in the group */
   @Expose()
   get smartOff(): boolean {
-    return this.lights.reduce((accumulator, current) => accumulator && current.smartOff, true);
+    return this.lights.reduce(
+      (accumulator, current) => accumulator && current.smartOff,
+      true,
+    );
   }
 
   /** Whether any of the lights in the group is capable to display brightness */
   @Expose()
   get isBrightnessCapable(): boolean {
-    return this.lights.reduce((accumulator, current) => accumulator || current.isBrightnessCapable, false);
+    return this.lights.reduce(
+      (accumulator, current) => accumulator || current.isBrightnessCapable,
+      false,
+    );
   }
 
   /** Whether any of the the lights in the group is capable to display color temperature */
   @Expose()
   get isColorTemperatureCapable(): boolean {
-    return this.lights.reduce((accumulator, current) => accumulator || current.isColorTemperatureCapable, false);
+    return this.lights.reduce(
+      (accumulator, current) =>
+        accumulator || current.isColorTemperatureCapable,
+      false,
+    );
   }
 
   /** The brightnessCurve of the first light in the group */

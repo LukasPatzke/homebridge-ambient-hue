@@ -21,9 +21,11 @@ export class UpdateInterceptor implements NestInterceptor {
   intercept(context: ExecutionContext, next: CallHandler): Observable<any> {
     const ctx = context.switchToHttp();
     const request = ctx.getRequest<Request>();
-    return next.handle().pipe(tap(async () => {
-      this.logger.log(`Running update for intercepted route ${request.url}`);
-      this.hueService.queueUpdate();
-    }));
+    return next.handle().pipe(
+      tap(async () => {
+        this.logger.log(`Running update for intercepted route ${request.url}`);
+        this.hueService.queueUpdate();
+      }),
+    );
   }
 }

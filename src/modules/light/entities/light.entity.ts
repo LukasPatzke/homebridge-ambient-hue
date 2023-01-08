@@ -1,5 +1,11 @@
 import { Expose } from 'class-transformer';
-import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  Column,
+  Entity,
+  JoinColumn,
+  ManyToOne,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
 import { BrightnessCurve } from '../../curve/entities/brightness.curve.entity';
 import { ColorTemperatureCurve } from '../../curve/entities/colorTemperature.curve.entity';
 
@@ -122,10 +128,8 @@ export class Light {
     if (!this.onControlled) {
       return false;
     }
-    return this.lastOn !== null &&
-      this.lastOn !== this.currentOn;
+    return this.lastOn !== null && this.lastOn !== this.currentOn;
   }
-
 
   /** Whether the brightness property was changed by a third party */
   @Expose()
@@ -133,11 +137,12 @@ export class Light {
     if (!this.brightnessControlled) {
       return false;
     }
-    return this.lastBrightness !== null &&
+    return (
+      this.lastBrightness !== null &&
       this.currentBrightness !== null &&
-      Math.abs(this.lastBrightness - this.currentBrightness) >= 1;
+      Math.abs(this.lastBrightness - this.currentBrightness) >= 1
+    );
   }
-
 
   /** Whether the color temperature property was changed by a third party */
   @Expose()
@@ -145,15 +150,21 @@ export class Light {
     if (!this.colorTemperatureControlled) {
       return false;
     }
-    return this.lastColorTemperature !== null &&
+    return (
+      this.lastColorTemperature !== null &&
       this.currentColorTemperature !== null &&
-      Math.abs(this.lastColorTemperature - this.currentColorTemperature) >= 1;
+      Math.abs(this.lastColorTemperature - this.currentColorTemperature) >= 1
+    );
   }
 
   /** Whether any property was changed by a third party */
   @Expose()
   get smartOff(): boolean {
-    return this.smartOffOn || this.smartOffBrightness || this.smartOffColorTemperature;
+    return (
+      this.smartOffOn ||
+      this.smartOffBrightness ||
+      this.smartOffColorTemperature
+    );
   }
 
   @Expose()

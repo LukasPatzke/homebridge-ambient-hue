@@ -18,8 +18,6 @@ import { LightService } from './light.service';
   ],
   controllers: [LightController],
   providers: [LightService],
-  exports: [
-    LightService,
-  ],
+  exports: [LightService],
 })
-export class LightModule { }
+export class LightModule {}

@@ -1,6 +1,8 @@
 import axios from 'axios';
 import {
-  API, Characteristic, DynamicPlatformPlugin,
+  API,
+  Characteristic,
+  DynamicPlatformPlugin,
   Logger,
   PlatformAccessory,
   PlatformConfig,
@@ -47,7 +49,9 @@ export class AmbientHueHomebridgePlatform implements DynamicPlatformPlugin {
       this.configService.homebridge,
     );
 
-    process.env.AMBIENTHUE_DEBUG = this.configService.debugLog ? 'TRUE' : 'FALSE';
+    process.env.AMBIENTHUE_DEBUG = this.configService.debugLog
+      ? 'TRUE'
+      : 'FALSE';
 
     const app = bootstrap();
 
@@ -87,16 +91,28 @@ export class AmbientHueHomebridgePlatform implements DynamicPlatformPlugin {
 
     // Register handler for publishing / unpublishing
     this.socket.on('publish', (device: Light | Group) => {
-      this.log.debug(`Recieved publish update for ${device.name}: ${JSON.stringify(device.published, null, 2)}`);
-      const accessory = this.accessories.find(a => a.UUID === device.accessoryId);
+      this.log.debug(
+        `Recieved publish update for ${device.name}: ${JSON.stringify(
+          device.published,
+          null,
+          2,
+        )}`,
+      );
+      const accessory = this.accessories.find(
+        (a) => a.UUID === device.accessoryId,
+      );
 
       if (device.published === true && accessory === undefined) {
-        this.log.info(`Register accessory ${device.accessoryId} for device ${device.name}`);
+        this.log.info(
+          `Register accessory ${device.accessoryId} for device ${device.name}`,
+        );
         this.registerDevice(device);
       }
 
       if (device.published === false && accessory !== undefined) {
-        this.log.warn(`Unregister accessory ${device.accessoryId} for device ${device.name}`);
+        this.log.warn(
+          `Unregister accessory ${device.accessoryId} for device ${device.name}`,
+        );
         this.unregisterDevice(device);
       }
     });
@@ -121,7 +137,7 @@ export class AmbientHueHomebridgePlatform implements DynamicPlatformPlugin {
   async discoverDevices() {
     const accessories = await axios
       .get<(Light | Group)[]>(`${this.serverUri}/api/accessories`)
-      .then((res) => res.data.filter(a => a.published));
+      .then((res) => res.data.filter((a) => a.published));
 
     this.log.debug('discovered ', accessories.length, ' accessories.');
 
@@ -131,13 +147,14 @@ export class AmbientHueHomebridgePlatform implements DynamicPlatformPlugin {
     }
 
     // Remove stale accessories
-    const staleAccessories = this.accessories.filter((accessory) => (
-      !accessories.map(i => i.accessoryId).includes(accessory.UUID)
-    ));
+    const staleAccessories = this.accessories.filter(
+      (accessory) =>
+        !accessories.map((i) => i.accessoryId).includes(accessory.UUID),
+    );
     if (staleAccessories.length > 0) {
       this.log.warn(
         'Removing stale accessories: ',
-        JSON.stringify(staleAccessories.map(a => a.displayName)),
+        JSON.stringify(staleAccessories.map((a) => a.displayName)),
       );
       for (const accessory of staleAccessories) {
         this.unregisterDevice(accessory.context);
@@ -151,8 +168,12 @@ export class AmbientHueHomebridgePlatform implements DynamicPlatformPlugin {
     );
 
     if (existingAccessory) {
-      this.api.unregisterPlatformAccessories(PLUGIN_NAME, PLATFORM_NAME, [existingAccessory]);
-      this.accessories = this.accessories.filter(accessory => accessory.UUID !== device.accessoryId);
+      this.api.unregisterPlatformAccessories(PLUGIN_NAME, PLATFORM_NAME, [
+        existingAccessory,
+      ]);
+      this.accessories = this.accessories.filter(
+        (accessory) => accessory.UUID !== device.accessoryId,
+      );
     }
   }
 

@@ -1,10 +1,14 @@
-import { forwardRef, Inject, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  forwardRef,
+  Inject,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { Group } from '../group/entities/group.entity';
 import { GroupService } from '../group/group.service';
 import { UpdateLightDto } from '../light/dto/update-light.dto';
 import { Light } from '../light/entities/light.entity';
 import { LightService } from '../light/light.service';
-
 
 /**
  * Typeguard to differenciate lights and groups

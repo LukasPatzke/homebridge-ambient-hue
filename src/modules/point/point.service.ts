@@ -1,7 +1,7 @@
 import {
   BadRequestException,
   Injectable,
-  NotFoundException
+  NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -31,7 +31,7 @@ export class PointService {
   }
 
   findOne(id: number) {
-    return this.pointRepository.findOneBy({id: id}).then((point) => {
+    return this.pointRepository.findOneBy({ id: id }).then((point) => {
       if (point === null) {
         throw new NotFoundException(`Point with id ${id} not found.`);
       }

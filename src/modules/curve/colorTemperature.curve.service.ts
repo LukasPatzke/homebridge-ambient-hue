@@ -11,7 +11,10 @@ import { CreatePointDto } from '../point/dto/create-point.dto';
 import { PointService } from '../point/point.service';
 import { CreateCurveDto } from './dto/create-curve.dto';
 import { UpdateCurveDto } from './dto/update-curve.dto';
-import { ColorTemperatureCurve, isColorTemperatureCurveWithPoints } from './entities/colorTemperature.curve.entity';
+import {
+  ColorTemperatureCurve,
+  isColorTemperatureCurveWithPoints,
+} from './entities/colorTemperature.curve.entity';
 
 @Injectable()
 export class ColorTemperatureCurveService {
@@ -21,7 +24,7 @@ export class ColorTemperatureCurveService {
     @InjectRepository(ColorTemperatureCurve)
     private curveRepository: Repository<ColorTemperatureCurve>,
     private pointService: PointService,
-  ) { }
+  ) {}
 
   async onModuleInit() {
     this.findDefault().catch(async (reason) => {
@@ -85,12 +88,16 @@ export class ColorTemperatureCurveService {
       },
     });
     if (curve === null) {
-      throw new NotFoundException(`Color Temperature curve with id ${id} not found.`);
+      throw new NotFoundException(
+        `Color Temperature curve with id ${id} not found.`,
+      );
     }
     if (isColorTemperatureCurveWithPoints(curve)) {
       return curve;
     }
-    throw new InternalServerErrorException(`Color Temperature curve ${id} has no points!`);
+    throw new InternalServerErrorException(
+      `Color Temperature curve ${id} has no points!`,
+    );
   }
 
   async findDefault() {
@@ -111,7 +118,9 @@ export class ColorTemperatureCurveService {
     if (isColorTemperatureCurveWithPoints(curve)) {
       return curve;
     }
-    throw new InternalServerErrorException(`Color Temperature curve ${curve.id} has no points!`);
+    throw new InternalServerErrorException(
+      `Color Temperature curve ${curve.id} has no points!`,
+    );
   }
 
   async update(id: number, updateCurveDto: UpdateCurveDto) {

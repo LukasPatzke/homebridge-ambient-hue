@@ -1,4 +1,3 @@
-
 export interface Error {
   description: string;
 }
@@ -16,32 +15,32 @@ export interface StreamingResponse<T = any> {
 }
 
 export type ResourceType =
-      'device'
-    | 'bridge_home'
-    | 'room'
-    | 'zone'
-    | 'light'
-    | 'button'
-    | 'temperature'
-    | 'light_level'
-    | 'motion'
-    | 'entertainment'
-    | 'grouped_light'
-    | 'device_power'
-    | 'zigbee_bridge_connectivity'
-    | 'zigbee_connectivity'
-    | 'zgp_connectivity'
-    | 'bridge'
-    | 'homekit'
-    | 'scene'
-    | 'entertainment_configuration'
-    | 'public_image'
-    | 'auth_v1'
-    | 'behavior_script'
-    | 'behavior_instance'
-    | 'geofence'
-    | 'geofence_client'
-    | 'geolocation';
+  | 'device'
+  | 'bridge_home'
+  | 'room'
+  | 'zone'
+  | 'light'
+  | 'button'
+  | 'temperature'
+  | 'light_level'
+  | 'motion'
+  | 'entertainment'
+  | 'grouped_light'
+  | 'device_power'
+  | 'zigbee_bridge_connectivity'
+  | 'zigbee_connectivity'
+  | 'zgp_connectivity'
+  | 'bridge'
+  | 'homekit'
+  | 'scene'
+  | 'entertainment_configuration'
+  | 'public_image'
+  | 'auth_v1'
+  | 'behavior_script'
+  | 'behavior_instance'
+  | 'geofence'
+  | 'geofence_client'
+  | 'geolocation';
 
 interface Resource {
   id: string;
@@ -189,7 +188,6 @@ export interface LightEvent extends Partial<LightGet> {
   id: string;
   type: 'light';
 }
-
 
 export function isLightGet(resource: any): resource is LightGet {
   return (resource as LightGet).type === 'light';

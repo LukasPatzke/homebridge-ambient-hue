@@ -20,7 +20,7 @@
     "lint": "eslint src/**.ts --max-warnings=0",
     "build": "npm run build --prefix frontend && rimraf ./dist && tsc -p tsconfig.build.json",
     "prepublishOnly": "npm run lint && npm run build",
-    "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
+    "format": "prettier --write \"src/**/*.ts\"",
     "watch:server": "nest start --watch",
     "watch": "nodemon",
     "start:server": "nest start",

@@ -11,9 +11,17 @@ import { BrightnessCurve } from './entities/brightness.curve.entity';
 import { ColorTemperatureCurve } from './entities/colorTemperature.curve.entity';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([BrightnessCurve, ColorTemperatureCurve]), PointModule, forwardRef(() => HueModule)],
+  imports: [
+    TypeOrmModule.forFeature([BrightnessCurve, ColorTemperatureCurve]),
+    PointModule,
+    forwardRef(() => HueModule),
+  ],
   controllers: [BrightnessCurveController, ColorTemperatureCurveController],
-  providers: [CurveService, BrightnessCurveService, ColorTemperatureCurveService],
+  providers: [
+    CurveService,
+    BrightnessCurveService,
+    ColorTemperatureCurveService,
+  ],
   exports: [CurveService, BrightnessCurveService, ColorTemperatureCurveService],
 })
-export class CurveModule { }
+export class CurveModule {}

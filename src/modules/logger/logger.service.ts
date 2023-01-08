@@ -10,7 +10,6 @@ export const enum LogLevels {
 }
 
 export class CustomLogger extends ConsoleLogger {
-
   constructor(protected context: string) {
     const logLevels: LogLevel[] = ['log', 'error', 'warn'];
     if (process.env.AMBIENTHUE_DEBUG === 'TRUE') {
@@ -37,7 +36,8 @@ export class CustomLogger extends ConsoleLogger {
     pidMessage: string,
     formattedLogLevel: string,
     contextMessage: string,
-    timestampDiff: string): string {
+    timestampDiff: string,
+  ): string {
     const output = this.stringifyMessage(message, logLevel);
     return `[${this.getTimestamp()}] ${contextMessage} ${output} ${timestampDiff}\n`;
   }

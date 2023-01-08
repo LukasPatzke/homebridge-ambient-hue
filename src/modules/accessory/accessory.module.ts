@@ -16,4 +16,4 @@ import { AccessoryService } from './accessory.service';
   providers: [AccessoryService, AccessoryGateway],
   exports: [AccessoryGateway],
 })
-export class AccessoryModule { }
+export class AccessoryModule {}

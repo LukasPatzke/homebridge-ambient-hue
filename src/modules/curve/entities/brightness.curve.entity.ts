@@ -22,6 +22,8 @@ export class BrightnessCurveWithPoints extends BrightnessCurve {
   points: Point[];
 }
 
-export function isBrightnessCurveWithPoints(curve: BrightnessCurve): curve is BrightnessCurveWithPoints {
+export function isBrightnessCurveWithPoints(
+  curve: BrightnessCurve,
+): curve is BrightnessCurveWithPoints {
   return (curve as BrightnessCurveWithPoints).points !== undefined;
 }

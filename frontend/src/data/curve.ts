@@ -3,8 +3,14 @@ import useSWR, { mutate as mutateGlobal, SWRConfiguration } from 'swr';
 import { Curve, curvekind } from '../api.types';
 import { ErrorType, fetcher } from './fetcher';
 
-export function useCurve(kind: curvekind, id?: number | string, options?: SWRConfiguration) {
-  const key = `/api/curves/${kind === 'bri' ? 'brightness' : 'colorTemperature'}/${id}`;
+export function useCurve(
+  kind: curvekind,
+  id?: number | string,
+  options?: SWRConfiguration,
+) {
+  const key = `/api/curves/${
+    kind === 'bri' ? 'brightness' : 'colorTemperature'
+  }/${id}`;
   const { data, error, isLoading, mutate } = useSWR<Curve, ErrorType>(
     id ? key : null,
     fetcher,

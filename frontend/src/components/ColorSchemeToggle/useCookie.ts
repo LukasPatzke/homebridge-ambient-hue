@@ -1,6 +1,4 @@
-
 import { useState } from 'react';
-
 
 export type Options = {
   // The number of days the cookie is stored (defaults to 7)
@@ -50,17 +48,22 @@ export const setCookie = (name: string, value: string, options: Options) => {
     stringifyOptions(optionsWithDefaults);
 };
 
-export function getCookie<T extends string = string>(name: string, initialValue: T) {
+export function getCookie<T extends string = string>(
+  name: string,
+  initialValue: T,
+) {
   return (
-    document.cookie.split('; ').reduce((r, v) => {
+    (document.cookie.split('; ').reduce((r, v) => {
       const parts = v.split('=');
       return parts[0] === name ? decodeURIComponent(parts[1]) : r;
-    }, '') as T ||
-    initialValue
+    }, '') as T) || initialValue
   );
 }
 
-export default function <T extends string = string>(key: string, initialValue: T) {
+export default function <T extends string = string>(
+  key: string,
+  initialValue: T,
+) {
   const [item, setItem] = useState<T>(() => {
     return getCookie(key, initialValue);
   });

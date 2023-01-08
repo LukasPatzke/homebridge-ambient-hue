@@ -85,9 +85,12 @@ export class Device<T extends Light | Group> {
     this.platform.log.debug('Set Characteristic On ->', value);
 
     axios
-      .patch(`${this.platform.serverUri}/api/accessories/${this.accessory.UUID}`, {
-        on: value,
-      })
+      .patch(
+        `${this.platform.serverUri}/api/accessories/${this.accessory.UUID}`,
+        {
+          on: value,
+        },
+      )
       .catch(this.platform.log.error);
   }
 
@@ -108,7 +111,9 @@ export class Device<T extends Light | Group> {
     // implement your own code to check if the device is on
 
     return axios
-      .get<T>(`${this.platform.serverUri}/api/accessories/${this.accessory.UUID}`)
+      .get<T>(
+        `${this.platform.serverUri}/api/accessories/${this.accessory.UUID}`,
+      )
       .catch((err) => {
         this.platform.log.error(err);
         throw new this.platform.api.hap.HapStatusError(

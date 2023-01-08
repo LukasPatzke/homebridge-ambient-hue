@@ -1,9 +1,14 @@
 import { useClickOutside } from '@mantine/hooks';
 import { VirtualElement } from '@popperjs/core';
-import { Chart, PointElement, PointHoverOptions, PointOptions, PointProps } from 'chart.js';
+import {
+  Chart,
+  PointElement,
+  PointHoverOptions,
+  PointOptions,
+  PointProps,
+} from 'chart.js';
 import React, { useState } from 'react';
 import { usePopper } from 'react-popper';
-
 
 interface PopoverProps {
   children?: React.ReactNode;
@@ -12,25 +17,39 @@ interface PopoverProps {
   activePoint?: PointElement<PointProps, PointOptions & PointHoverOptions>;
 }
 
-
-export const Popover: React.FC<PopoverProps> = ({children, chartRef, activePoint}) => {
+export const Popover: React.FC<PopoverProps> = ({
+  children,
+  chartRef,
+  activePoint,
+}) => {
   const [isOpen, setOpen] = useState(false);
-  const popperInnerRef = useClickOutside(()=>setOpen(false));
-  const [popperReferenceElement, setPoperReferenceElement] = useState<VirtualElement | null>(null);
-  const [popperElement, setPopperElement] = useState<HTMLDivElement | null>(null);
-  const [popperArrowElement, setPopperArrowElement] = useState<HTMLDivElement | null>(null);
+  const popperInnerRef = useClickOutside(() => setOpen(false));
+  const [popperReferenceElement, setPoperReferenceElement] =
+    useState<VirtualElement | null>(null);
+  const [popperElement, setPopperElement] = useState<HTMLDivElement | null>(
+    null,
+  );
+  const [popperArrowElement, setPopperArrowElement] =
+    useState<HTMLDivElement | null>(null);
 
-  const { styles, attributes } = usePopper(popperReferenceElement, popperElement, {
-    placement: 'right',
-    modifiers: [
-      { name: 'arrow', options: { element: popperArrowElement } },
-      { name: 'preventOverflow', options: { altAxis: true,
-        // boundary: chartRef.current?.canvas
-      }},
-      { name: 'flip'},
-    ],
-  });
-
+  const { styles, attributes } = usePopper(
+    popperReferenceElement,
+    popperElement,
+    {
+      placement: 'right',
+      modifiers: [
+        { name: 'arrow', options: { element: popperArrowElement } },
+        {
+          name: 'preventOverflow',
+          options: {
+            altAxis: true,
+            // boundary: chartRef.current?.canvas
+          },
+        },
+        { name: 'flip' },
+      ],
+    },
+  );
 
   if (activePoint) {
     const chart = chartRef.current;
@@ -47,11 +66,11 @@ export const Popover: React.FC<PopoverProps> = ({children, chartRef, activePoint
             left: x,
             bottom: y,
             right: x,
-            width: radius*2,
-            height: radius*2,
+            width: radius * 2,
+            height: radius * 2,
             x: 0,
             y: 0,
-            toJSON: ()=>'',
+            toJSON: () => '',
           };
         },
       });
@@ -61,14 +80,11 @@ export const Popover: React.FC<PopoverProps> = ({children, chartRef, activePoint
     setOpen(false);
   }
 
-
   if (isOpen) {
     return (
       <div ref={setPopperElement} style={styles.popper} {...attributes.popper}>
-        <div ref={popperInnerRef}>
-          {children}
-        </div>
-        <div ref={setPopperArrowElement} style={styles.arrow}/>
+        <div ref={popperInnerRef}>{children}</div>
+        <div ref={setPopperArrowElement} style={styles.arrow} />
       </div>
     );
   }

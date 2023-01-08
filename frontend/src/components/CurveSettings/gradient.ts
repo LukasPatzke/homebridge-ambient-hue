@@ -35,7 +35,6 @@ const createGradient = (
   return gradient;
 };
 
-
 export function useGradient(kind: curvekind) {
   const theme = useMantineTheme();
   const chartRef = useRef<Chart<'scatter', Point[]>>(null);
@@ -60,5 +59,4 @@ export function useGradient(kind: curvekind) {
     gradient,
     drawGradient,
   };
-
 }

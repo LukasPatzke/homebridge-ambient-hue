@@ -23,10 +23,12 @@ export class GroupService {
     @Inject(forwardRef(() => LightService))
     private lightService: LightService,
     private accessoryGateway: AccessoryGateway,
-  ) { }
+  ) {}
 
   async create(createGroupDto: CreateGroupDto): Promise<Group> {
-    this.logger.debug(`Update group ${createGroupDto.name}: ${JSON.stringify(createGroupDto)}`);
+    this.logger.debug(
+      `Update group ${createGroupDto.name}: ${JSON.stringify(createGroupDto)}`,
+    );
     const group = this.groupsRepository.create(createGroupDto);
     return this.groupsRepository.save(group);
   }
@@ -43,7 +45,7 @@ export class GroupService {
       order: {
         name: 'ASC',
         lights: {
-          'name': 'ASC',
+          name: 'ASC',
         },
       },
     });
@@ -67,7 +69,9 @@ export class GroupService {
       .findOneBy({ accessoryId: accessoryId })
       .then((group) => {
         if (group === null) {
-          throw new NotFoundException(`Group with accessoryId ${accessoryId} not found.`);
+          throw new NotFoundException(
+            `Group with accessoryId ${accessoryId} not found.`,
+          );
         }
         return group;
       });
@@ -85,7 +89,7 @@ export class GroupService {
       },
     });
     // The second query return all lights for the group
-    return this.findByIds(groups.map(i => i.id));
+    return this.findByIds(groups.map((i) => i.id));
   }
 
   async updateByHueId(hueId: string, updateGroupDto: UpdateGroupDto) {
@@ -101,7 +105,9 @@ export class GroupService {
   async update(id: number, updateGroupDto: UpdateGroupDto) {
     let group = await this.findOne(id);
 
-    const isPublishedChanged = (updateGroupDto.published !== group.published) && (updateGroupDto.published !== undefined);
+    const isPublishedChanged =
+      updateGroupDto.published !== group.published &&
+      updateGroupDto.published !== undefined;
 
     this.groupsRepository.merge(group, updateGroupDto);
     group = await this.groupsRepository.save(group);

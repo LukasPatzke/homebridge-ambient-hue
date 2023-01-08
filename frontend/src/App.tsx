@@ -60,9 +60,8 @@ const router = createBrowserRouter(routes);
 
 export default function App() {
   const systemColorScheme = useColorScheme();
-  const [colorScheme, setColorScheme] = useState<ColorScheme>(
-    systemColorScheme,
-  );
+  const [colorScheme, setColorScheme] =
+    useState<ColorScheme>(systemColorScheme);
 
   const toggleColorScheme = (value?: ColorScheme) =>
     setColorScheme(value || (colorScheme === 'dark' ? 'light' : 'dark'));
@@ -81,7 +80,7 @@ export default function App() {
           <ModalsProvider>
             <SWRConfig
               value={{
-                onError(err, key, config) {
+                onError(err) {
                   showNotification({
                     title: err.message,
                     message: err.description || err.status,

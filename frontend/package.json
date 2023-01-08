@@ -6,7 +6,9 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build && rm -rf ../public && mv dist ../public",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "format": "prettier --write \"src/**/*.ts\" \"src/**/*.tsx\"",
+    "lint": "eslint src/**.tsx --max-warnings=0"
   },
   "dependencies": {
     "@emotion/react": "^11.10.5",
@@ -35,6 +37,7 @@
     "@types/react": "^18.0.26",
     "@types/react-dom": "^18.0.9",
     "@vitejs/plugin-react": "^3.0.0",
+    "prettier": "^2.8.2",
     "typescript": "^4.9.3",
     "vite": "^4.0.0",
     "vite-plugin-favicons-inject": "^2.1.0",

@@ -18,7 +18,8 @@ import { LightService } from '../light/light.service';
 import {
   BridgeConfig,
   DeviceGet,
-  isLightEvent, JSONResponse,
+  isLightEvent,
+  JSONResponse,
   LightGet,
   ResourceIdentifier,
   RoomGet,
@@ -36,7 +37,6 @@ interface HueUserResponse {
     description: string;
   };
 }
-
 
 @Injectable()
 export class HueService {
@@ -80,19 +80,23 @@ export class HueService {
     if (await this.isApiv2Available()) {
       this.logger.log('CLIPv2 API is available.');
     } else {
-      this.logger.error('CLIPv2 API is not available. The hue bridge is not supported an has to be updated.');
+      this.logger.error(
+        'CLIPv2 API is not available. The hue bridge is not supported an has to be updated.',
+      );
       throw new InternalServerErrorException(
         'CLIPv2 API is not available. The hue bridge is not supported an has to be updated.',
       );
     }
 
     // Setup the queue for updates
-    this.updateQueue.pipe(
-      // updates are called only every 250ms
-      debounceTime(250),
-    ).subscribe(() => {
-      this.update();
-    });
+    this.updateQueue
+      .pipe(
+        // updates are called only every 250ms
+        debounceTime(250),
+      )
+      .subscribe(() => {
+        this.update();
+      });
 
     // Setup the eventstream for updates from hue
     this.eventSource = new EventSource(`https://${host}/eventstream/clip/v2`, {
@@ -106,9 +110,9 @@ export class HueService {
     this.eventSource.onmessage = (event) => {
       const data: StreamingResponse[] = JSON.parse(event.data);
 
-      data.forEach(event => {
+      data.forEach((event) => {
         if (event.type === 'update') {
-          event.data.forEach(eventData => {
+          event.data.forEach((eventData) => {
             if (isLightEvent(eventData)) {
               // this.logger.debug(JSON.stringify(eventData, null, 2));
               this.lightService.updateByHueId(eventData.id, {
@@ -130,20 +134,28 @@ export class HueService {
    * @returns the response data
    */
   private request<T, D = any>(config: AxiosRequestConfig<D>) {
-    this.logger.debug(`${config.method} ${config.url} ${config.data ? `::${JSON.stringify(config.data)}` : ''}`);
-    return lastValueFrom(this.httpService.request<T>({
-      ...config,
-      headers: {
-        ...config.headers,
-        'hue-application-key': this.apiKey,
-      },
-    }).pipe(
-      catchError((err: AxiosError) => {
-        //this.logger.error(err);
-        throw new InternalServerErrorException(err.message);
-      }),
-      map(response => response.data),
-    ));
+    this.logger.debug(
+      `${config.method} ${config.url} ${
+        config.data ? `::${JSON.stringify(config.data)}` : ''
+      }`,
+    );
+    return lastValueFrom(
+      this.httpService
+        .request<T>({
+          ...config,
+          headers: {
+            ...config.headers,
+            'hue-application-key': this.apiKey,
+          },
+        })
+        .pipe(
+          catchError((err: AxiosError) => {
+            //this.logger.error(err);
+            throw new InternalServerErrorException(err.message);
+          }),
+          map((response) => response.data),
+        ),
+    );
   }
 
   private get<T = any>(url: string): Promise<T> {
@@ -151,35 +163,51 @@ export class HueService {
   }
 
   findAllLights(): Promise<LightGet[]> {
-    return this.get<JSONResponse<LightGet>>(`${this.baseurl}/resource/light`).then(res => res.data);
+    return this.get<JSONResponse<LightGet>>(
+      `${this.baseurl}/resource/light`,
+    ).then((res) => res.data);
   }
 
   findOneLight(id: string): Promise<LightGet> {
-    return this.get<JSONResponse<LightGet>>(`${this.baseurl}/resource/light/${id}`).then(res => res.data[0]);
+    return this.get<JSONResponse<LightGet>>(
+      `${this.baseurl}/resource/light/${id}`,
+    ).then((res) => res.data[0]);
   }
 
   findAllRooms(): Promise<RoomGet[]> {
-    return this.get<JSONResponse<RoomGet>>(`${this.baseurl}/resource/room`).then(res => res.data);
+    return this.get<JSONResponse<RoomGet>>(
+      `${this.baseurl}/resource/room`,
+    ).then((res) => res.data);
   }
 
   findOneRoom(id: string): Promise<RoomGet> {
-    return this.get<JSONResponse<RoomGet>>(`${this.baseurl}/resource/room/${id}`).then(res => res.data[0]);
+    return this.get<JSONResponse<RoomGet>>(
+      `${this.baseurl}/resource/room/${id}`,
+    ).then((res) => res.data[0]);
   }
 
   findAllZones(): Promise<ZoneGet[]> {
-    return this.get<JSONResponse<ZoneGet>>(`${this.baseurl}/resource/zone`).then(res => res.data);
+    return this.get<JSONResponse<ZoneGet>>(
+      `${this.baseurl}/resource/zone`,
+    ).then((res) => res.data);
   }
 
   findOneZone(id: string): Promise<ZoneGet> {
-    return this.get<JSONResponse<ZoneGet>>(`${this.baseurl}/resource/zone/${id}`).then(res => res.data[0]);
+    return this.get<JSONResponse<ZoneGet>>(
+      `${this.baseurl}/resource/zone/${id}`,
+    ).then((res) => res.data[0]);
   }
 
   findAllDevices(): Promise<DeviceGet[]> {
-    return this.get<JSONResponse<DeviceGet>>(`${this.baseurl}/resource/device`).then(res => res.data);
+    return this.get<JSONResponse<DeviceGet>>(
+      `${this.baseurl}/resource/device`,
+    ).then((res) => res.data);
   }
 
   findOneDevice(id: string): Promise<DeviceGet> {
-    return this.get<JSONResponse<DeviceGet>>(`${this.baseurl}/resource/device/${id}`).then(res => res.data[0]);
+    return this.get<JSONResponse<DeviceGet>>(
+      `${this.baseurl}/resource/device/${id}`,
+    ).then((res) => res.data[0]);
   }
 
   setLightState(id: string, state: Partial<LightGet>) {
@@ -187,7 +215,7 @@ export class HueService {
       url: `${this.baseurl}/resource/light/${id}`,
       method: 'PUT',
       data: state,
-    }).then(response => {
+    }).then((response) => {
       this.lightService.updateByHueId(id, {
         currentOn: state.on?.on,
         currentBrightness: state.dimming?.brightness,
@@ -231,7 +259,8 @@ export class HueService {
     );
 
     const countUpdated = (await Promise.all(updates)).reduce(
-      (accumulator, current) => accumulator + current, 0,
+      (accumulator, current) => accumulator + current,
+      0,
     );
     this.logger.debug(`${countUpdated} lights updated`);
     return countUpdated;
@@ -241,14 +270,17 @@ export class HueService {
    *  Determine the light ids for a room from the device children
    * @param room
    */
-  async findLightIdsByRoom(room: RoomGet, hueDevices: DeviceGet[]): Promise<string[]> {
+  async findLightIdsByRoom(
+    room: RoomGet,
+    hueDevices: DeviceGet[],
+  ): Promise<string[]> {
     const lightIds: string[] = [];
 
     // Determine the light ids from the device children
-    room.children.forEach(child => {
+    room.children.forEach((child) => {
       if (child.rtype === 'device') {
-        const device = hueDevices.find(device => device.id === child.rid);
-        return device?.services.map(service => {
+        const device = hueDevices.find((device) => device.id === child.rid);
+        return device?.services.map((service) => {
           if (service.rtype === 'light') {
             if (!lightIds.includes(service.rid)) {
               lightIds.push(service.rid);
@@ -268,7 +300,7 @@ export class HueService {
     const lightIds: string[] = [];
 
     // Determine the light ids from the children
-    zone.children.forEach(child => {
+    zone.children.forEach((child) => {
       if (child.rtype === 'light') {
         if (!lightIds.includes(child.rid)) {
           lightIds.push(child.rid);
@@ -291,134 +323,144 @@ export class HueService {
     const hueZones = await this.findAllZones();
     const hueDevices = await this.findAllDevices();
 
-    const compareLights = (light: Light, hueLight: LightGet) => (
-      (light.hueId === hueLight.id) || (light.legacyId === hueLight.id_v1)
-    );
+    const compareLights = (light: Light, hueLight: LightGet) =>
+      light.hueId === hueLight.id || light.legacyId === hueLight.id_v1;
 
     /** Create/Update Lights
      *  Wait for all lights to be updated
      *  Groups need access to the updated lights
-    */
-    await Promise.all(hueLights.map(hueLight => {
-      const light = lights.find(light => compareLights(light, hueLight));
+     */
+    await Promise.all(
+      hueLights.map((hueLight) => {
+        const light = lights.find((light) => compareLights(light, hueLight));
 
-      if (light === undefined) {
-        // Create a new light
-        return this.lightService.create({
-          hueId: hueLight.id,
-          legacyId: hueLight.id_v1,
-          accessoryId: this.generateUuid(hueLight.id),
-          deviceId: hueLight.owner.rid,
-          name: hueLight.metadata.name,
-          archetype: hueLight.metadata.archetype,
-          currentOn: hueLight.on.on,
-          currentBrightness: hueLight.dimming?.brightness,
-          currentColorTemperature: hueLight.color_temperature?.mirek,
-          lastOn: null,
-          lastBrightness: null,
-          lastColorTemperature: null,
-          isBrightnessCapable: !(hueLight.dimming === undefined),
-          isColorTemperatureCapable: !(hueLight.color_temperature === undefined),
-        });
-      } else {
-        // Update an existing light
-        return this.lightService.update(light.id, {
-          hueId: hueLight.id,
-          legacyId: hueLight.id_v1,
-          name: hueLight.metadata.name,
-          archetype: hueLight.metadata.archetype,
-          currentOn: hueLight.on.on,
-          currentBrightness: hueLight.dimming?.brightness,
-          currentColorTemperature: hueLight.color_temperature?.mirek,
-          lastOn: null,
-          lastBrightness: null,
-          lastColorTemperature: null,
-          isBrightnessCapable: !(hueLight.dimming === undefined),
-          isColorTemperatureCapable: !(hueLight.color_temperature === undefined),
-        });
-      }
-    }));
-
-
-    // Delete lights that don't exist in the bridge
-    await Promise.all(lights.map((light) => {
-      const hueLight = hueLights.find(l => compareLights(light, l));
-      if (hueLight === undefined) {
-        return this.lightService.remove(light.id);
-      }
-    }));
-
-    const compareGroups = (group: Group, hueGroup: RoomGet | ZoneGet) => (
-      (group.hueId === hueGroup.id) || (group.legacyId === hueGroup.id_v1)
+        if (light === undefined) {
+          // Create a new light
+          return this.lightService.create({
+            hueId: hueLight.id,
+            legacyId: hueLight.id_v1,
+            accessoryId: this.generateUuid(hueLight.id),
+            deviceId: hueLight.owner.rid,
+            name: hueLight.metadata.name,
+            archetype: hueLight.metadata.archetype,
+            currentOn: hueLight.on.on,
+            currentBrightness: hueLight.dimming?.brightness,
+            currentColorTemperature: hueLight.color_temperature?.mirek,
+            lastOn: null,
+            lastBrightness: null,
+            lastColorTemperature: null,
+            isBrightnessCapable: !(hueLight.dimming === undefined),
+            isColorTemperatureCapable: !(
+              hueLight.color_temperature === undefined
+            ),
+          });
+        } else {
+          // Update an existing light
+          return this.lightService.update(light.id, {
+            hueId: hueLight.id,
+            legacyId: hueLight.id_v1,
+            name: hueLight.metadata.name,
+            archetype: hueLight.metadata.archetype,
+            currentOn: hueLight.on.on,
+            currentBrightness: hueLight.dimming?.brightness,
+            currentColorTemperature: hueLight.color_temperature?.mirek,
+            lastOn: null,
+            lastBrightness: null,
+            lastColorTemperature: null,
+            isBrightnessCapable: !(hueLight.dimming === undefined),
+            isColorTemperatureCapable: !(
+              hueLight.color_temperature === undefined
+            ),
+          });
+        }
+      }),
     );
 
+    // Delete lights that don't exist in the bridge
+    await Promise.all(
+      lights.map((light) => {
+        const hueLight = hueLights.find((l) => compareLights(light, l));
+        if (hueLight === undefined) {
+          return this.lightService.remove(light.id);
+        }
+      }),
+    );
+
+    const compareGroups = (group: Group, hueGroup: RoomGet | ZoneGet) =>
+      group.hueId === hueGroup.id || group.legacyId === hueGroup.id_v1;
+
     /** Create/Update Rooms */
-    await Promise.all(hueRooms.map(async hueRoom => {
-      const group = groups.find(group => compareGroups(group, hueRoom));
+    await Promise.all(
+      hueRooms.map(async (hueRoom) => {
+        const group = groups.find((group) => compareGroups(group, hueRoom));
 
-      const lightIds = await this.findLightIdsByRoom(hueRoom, hueDevices);
-      const lights = await this.lightService.findByHueIds(lightIds);
+        const lightIds = await this.findLightIdsByRoom(hueRoom, hueDevices);
+        const lights = await this.lightService.findByHueIds(lightIds);
 
-      if (group === undefined) {
-        // Create a new group
-        return this.groupService.create({
-          hueId: hueRoom.id,
-          legacyId: hueRoom.id_v1,
-          accessoryId: this.generateUuid(hueRoom.id),
-          name: hueRoom.metadata.name,
-          type: hueRoom.type,
-          lights: lights,
-        });
-      } else {
-        // Update an existing group
-        return this.groupService.update(group.id, {
-          hueId: hueRoom.id,
-          legacyId: hueRoom.id_v1,
-          name: hueRoom.metadata.name,
-          type: hueRoom.type,
-          lights: lights,
-        });
-      }
-    }));
+        if (group === undefined) {
+          // Create a new group
+          return this.groupService.create({
+            hueId: hueRoom.id,
+            legacyId: hueRoom.id_v1,
+            accessoryId: this.generateUuid(hueRoom.id),
+            name: hueRoom.metadata.name,
+            type: hueRoom.type,
+            lights: lights,
+          });
+        } else {
+          // Update an existing group
+          return this.groupService.update(group.id, {
+            hueId: hueRoom.id,
+            legacyId: hueRoom.id_v1,
+            name: hueRoom.metadata.name,
+            type: hueRoom.type,
+            lights: lights,
+          });
+        }
+      }),
+    );
 
     /** Create/Update Zones */
-    await Promise.all(hueZones.map(async hueZone => {
-      const group = groups.find(group => compareGroups(group, hueZone));
+    await Promise.all(
+      hueZones.map(async (hueZone) => {
+        const group = groups.find((group) => compareGroups(group, hueZone));
 
-      const lightIds: string[] = await this.findLightIdsByZone(hueZone);
-      const lights = await this.lightService.findByHueIds(lightIds);
+        const lightIds: string[] = await this.findLightIdsByZone(hueZone);
+        const lights = await this.lightService.findByHueIds(lightIds);
 
-      if (group === undefined) {
-        // Create a new group
-        return this.groupService.create({
-          hueId: hueZone.id,
-          legacyId: hueZone.id_v1,
-          accessoryId: this.generateUuid(hueZone.id),
-          name: hueZone.metadata.name,
-          type: hueZone.type,
-          lights: lights,
-        });
-      } else {
-        // Update an existing group
-        return this.groupService.update(group.id, {
-          hueId: hueZone.id,
-          legacyId: hueZone.id_v1,
-          name: hueZone.metadata.name,
-          type: hueZone.type,
-          lights: lights,
-        });
-      }
-    }));
-
+        if (group === undefined) {
+          // Create a new group
+          return this.groupService.create({
+            hueId: hueZone.id,
+            legacyId: hueZone.id_v1,
+            accessoryId: this.generateUuid(hueZone.id),
+            name: hueZone.metadata.name,
+            type: hueZone.type,
+            lights: lights,
+          });
+        } else {
+          // Update an existing group
+          return this.groupService.update(group.id, {
+            hueId: hueZone.id,
+            legacyId: hueZone.id_v1,
+            name: hueZone.metadata.name,
+            type: hueZone.type,
+            lights: lights,
+          });
+        }
+      }),
+    );
 
     /** Delete Groups */
-    await Promise.all(groups.map((group) => {
-      const hueRoom = hueRooms.find(r => compareGroups(group, r));
-      const hueZone = hueZones.find(z => compareGroups(group, z));
-      if ((hueRoom === undefined) && (hueZone === undefined)) {
-        return this.groupService.remove(group.id);
-      }
-    }));
+    await Promise.all(
+      groups.map((group) => {
+        const hueRoom = hueRooms.find((r) => compareGroups(group, r));
+        const hueZone = hueZones.find((z) => compareGroups(group, z));
+        if (hueRoom === undefined && hueZone === undefined) {
+          return this.groupService.remove(group.id);
+        }
+      }),
+    );
 
     return {
       lights: await this.lightService.count(),
@@ -437,11 +479,15 @@ export class HueService {
         'No HUE bridge user in config found. Please press the button on the bridge to register a new user.',
       );
 
-      const response = await lastValueFrom(this.httpService
-        .post<HueUserResponse[]>(`https://${this.configService.hueHost}/api`, {
-          devicetype: 'homebridge-ambient-hue',
-        })
-        .pipe(map((response) => response.data[0])),
+      const response = await lastValueFrom(
+        this.httpService
+          .post<HueUserResponse[]>(
+            `https://${this.configService.hueHost}/api`,
+            {
+              devicetype: 'homebridge-ambient-hue',
+            },
+          )
+          .pipe(map((response) => response.data[0])),
       );
 
       if (response.success) {
@@ -464,7 +510,9 @@ export class HueService {
    * Check whether the CLIPv2 API is available on the bridge
    */
   async isApiv2Available() {
-    const config = await this.get<BridgeConfig>(`https://${this.configService.hueHost}/api/config`);
+    const config = await this.get<BridgeConfig>(
+      `https://${this.configService.hueHost}/api/config`,
+    );
     return config.swversion >= '1948086000';
   }
 

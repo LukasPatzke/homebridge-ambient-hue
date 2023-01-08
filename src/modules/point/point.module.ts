@@ -11,4 +11,4 @@ import { PointService } from './point.service';
   providers: [PointService],
   exports: [PointService],
 })
-export class PointModule { }
+export class PointModule {}

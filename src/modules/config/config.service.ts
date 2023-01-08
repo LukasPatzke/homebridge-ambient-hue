@@ -13,7 +13,6 @@ import { Light } from '../light/entities/light.entity';
 import { CustomLogger } from '../logger/logger.service';
 import { Point } from '../point/entities/point.entity';
 
-
 export interface Config {
   host?: string;
   port?: number;
@@ -72,7 +71,8 @@ export class ConfigService {
     this.prefix = config.prefix || '';
     this.suffix = config.suffix || ' Auto';
     this.debugLog = config.debugLog;
-    this.enableSchedule = config.enableSchedule === undefined?true:config.enableSchedule;
+    this.enableSchedule =
+      config.enableSchedule === undefined ? true : config.enableSchedule;
 
     this.homebridge = homebridgeConfig.bridge.username || '0E:67:56:95:CA:D8';
 
@@ -81,25 +81,18 @@ export class ConfigService {
     }
 
     this.logger.debug('Configuration loaded');
-    this.logger.debug(JSON.stringify(config, null, 2).replace(config.user || '', '***'));
+    this.logger.debug(
+      JSON.stringify(config, null, 2).replace(config.user || '', '***'),
+    );
   }
 
   public getTypeOrmConfig(): DataSourceOptions {
     return {
       type: 'sqlite',
       database: this.database,
-      entities: [
-        BrightnessCurve,
-        ColorTemperatureCurve,
-        Group,
-        Light,
-        Point,
-      ],
+      entities: [BrightnessCurve, ColorTemperatureCurve, Group, Light, Point],
       migrationsTableName: 'migration',
-      migrations: [
-        init1618418126240,
-        v21672495111704,
-      ],
+      migrations: [init1618418126240, v21672495111704],
       migrationsRun: true,
       logging: ['error'],
     };

@@ -53,9 +53,8 @@ export const Settings: React.FC<SettingsProps> = ({ accessory }) => {
   const [onThreshold, setOnThreshold] = useState(0);
   const [brightnessControlled, setBrightnessControlled] = useState(false);
   const [brightnessFactor, setBrightnessFactor] = useState(0);
-  const [colorTemperatureControlled, setColorTemperatureControlled] = useState(
-    false,
-  );
+  const [colorTemperatureControlled, setColorTemperatureControlled] =
+    useState(false);
   const [brightnessCurve, setBrightnessCurve] = useState<Curve>(
     accessory.brightnessCurve,
   );

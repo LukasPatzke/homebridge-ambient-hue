@@ -64,14 +64,8 @@ export const CurvePage: React.FC<CurvePageProps> = ({ kind }) => {
   const { classes: TabClasses } = useTabStyles();
   const { classes } = useStyles();
   const { curveId } = useParams();
-  const {
-    curve,
-    error,
-    isLoading,
-    deleteCurve,
-    updateName,
-    insertPoint,
-  } = useCurve(kind, curveId);
+  const { curve, error, isLoading, deleteCurve, updateName, insertPoint } =
+    useCurve(kind, curveId);
 
   const points = useComplexState(curve?.points || []);
   const [y, setY] = useState(0);

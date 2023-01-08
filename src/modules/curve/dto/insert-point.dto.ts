@@ -4,6 +4,6 @@ export class InsertPointDto {
   @ApiProperty()
   index: number;
 
-  @ApiProperty({enum: ['before', 'after']})
+  @ApiProperty({ enum: ['before', 'after'] })
   position: 'before' | 'after';
 }

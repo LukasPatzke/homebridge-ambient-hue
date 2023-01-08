@@ -3,7 +3,10 @@ import { Group } from '../api.types';
 import { ErrorType, fetcher } from './fetcher';
 
 export function useGroups() {
-  const { data, error, isLoading, mutate } = useSWR<Group[], ErrorType>('/api/groups', fetcher);
+  const { data, error, isLoading, mutate } = useSWR<Group[], ErrorType>(
+    '/api/groups',
+    fetcher,
+  );
 
   return {
     groups: data,

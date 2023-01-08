@@ -1,7 +1,6 @@
 import { BrightnessCurve } from '../../curve/entities/brightness.curve.entity';
 import { ColorTemperatureCurve } from '../../curve/entities/colorTemperature.curve.entity';
 
-
 export class CreateLightDto {
   id?: number;
   hueId: string;

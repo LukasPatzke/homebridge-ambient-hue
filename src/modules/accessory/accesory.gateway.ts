@@ -12,13 +12,16 @@ export class AccessoryGateway {
 
   constructor(
     @Inject(forwardRef(() => GroupService))
-    private groupService: GroupService) { }
+    private groupService: GroupService,
+  ) {}
 
   @WebSocketServer()
   server: Server;
 
   async emitUpdate(light: Light) {
-    this.logger.debug(`Emitting light update for light ${light.id} ${light.name}`);
+    this.logger.debug(
+      `Emitting light update for light ${light.id} ${light.name}`,
+    );
     this.server.emit(`update/${light.accessoryId}`, instanceToPlain(light));
 
     const groups = await this.groupService.findByLightId(light.id);
@@ -28,7 +31,9 @@ export class AccessoryGateway {
   }
 
   emitPublish(accessory: Light | Group) {
-    this.logger.debug(`Emitting publish update for accessory ${accessory.id} ${accessory.name}`);
+    this.logger.debug(
+      `Emitting publish update for accessory ${accessory.id} ${accessory.name}`,
+    );
     this.server.emit('publish', instanceToPlain(accessory));
   }
 }

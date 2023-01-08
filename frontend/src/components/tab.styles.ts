@@ -1,12 +1,12 @@
 import { createStyles } from '@mantine/core';
 
-
 export default createStyles((theme) => ({
   tab: {
     paddingLeft: theme.spacing.lg,
     paddingRight: theme.spacing.lg,
     '&[data-active]': {
-      backgroundColor: theme.colorScheme === 'dark' ? theme.colors.dark[7] : theme.white,
+      backgroundColor:
+        theme.colorScheme === 'dark' ? theme.colors.dark[7] : theme.white,
       color: theme.colorScheme === 'dark' ? theme.white : theme.black,
     },
   },
@@ -18,11 +18,13 @@ export default createStyles((theme) => ({
     paddingLeft: theme.spacing.lg,
   },
   panel: {
-    backgroundColor: theme.colorScheme === 'dark' ? theme.colors.dark[7] : theme.white,
+    backgroundColor:
+      theme.colorScheme === 'dark' ? theme.colors.dark[7] : theme.white,
   },
   tabsListWrapper: {
-    borderBottom: `1px solid ${theme.colorScheme === 'dark' ? theme.colors.dark[4] : theme.colors.gray[3]
-      }`,
+    borderBottom: `1px solid ${
+      theme.colorScheme === 'dark' ? theme.colors.dark[4] : theme.colors.gray[3]
+    }`,
   },
   content: {
     width: '100%',

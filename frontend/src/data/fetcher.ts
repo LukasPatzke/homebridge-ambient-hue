@@ -1,7 +1,6 @@
-
 class FetchError extends Error {
   public status: number;
-  public description: string|undefined;
+  public description: string | undefined;
 
   constructor(message: string, status: number, description?: string) {
     super(message);
@@ -16,7 +15,10 @@ export type ErrorType = {
   description?: string;
 };
 
-export const fetcher = async (input: RequestInfo | URL, init?: RequestInit | undefined) => {
+export const fetcher = async (
+  input: RequestInfo | URL,
+  init?: RequestInit | undefined,
+) => {
   const res = await fetch(input, init);
 
   if (!res.ok) {
@@ -27,7 +29,6 @@ export const fetcher = async (input: RequestInfo | URL, init?: RequestInit | und
       error.description = info.message;
     }
     throw error;
-
   }
 
   return res.json();

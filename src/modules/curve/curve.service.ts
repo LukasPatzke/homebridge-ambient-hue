@@ -1,7 +1,4 @@
-import {
-  BadRequestException,
-  Injectable,
-} from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { PointService } from '../point/point.service';
 import { InsertPointDto } from './dto/insert-point.dto';
 import { BrightnessCurveWithPoints } from './entities/brightness.curve.entity';
@@ -10,14 +7,12 @@ import { monospline } from './interpolation';
 
 @Injectable()
 export class CurveService {
+  constructor(private pointService: PointService) {}
 
-  constructor(
-    private pointService: PointService,
-  ) { }
-
-
-  async insertPoint(curve: BrightnessCurveWithPoints | ColorTemperatureCurveWithPoints, insertPointDto: InsertPointDto) {
-
+  async insertPoint(
+    curve: BrightnessCurveWithPoints | ColorTemperatureCurveWithPoints,
+    insertPointDto: InsertPointDto,
+  ) {
     const points = curve.points;
     const point = points[insertPointDto.index];
 
@@ -58,7 +53,10 @@ export class CurveService {
    * @param x Time in Seconds, defaults to now
    * @returns new y value
    */
-  async calcValue(curve: BrightnessCurveWithPoints | ColorTemperatureCurveWithPoints, x?: number): Promise<number> {
+  async calcValue(
+    curve: BrightnessCurveWithPoints | ColorTemperatureCurveWithPoints,
+    x?: number,
+  ): Promise<number> {
     const points = curve.points;
     const spline = monospline(
       points.map((point) => point.x),

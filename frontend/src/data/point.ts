@@ -2,7 +2,6 @@ import { Point } from '../api.types';
 import { fetcher } from './fetcher';
 
 export const update = async (point: Partial<Point>, resource: string) => {
-
   return fetcher(`/api/${resource}`, {
     method: 'PATCH',
     headers: {

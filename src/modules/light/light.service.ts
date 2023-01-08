@@ -1,6 +1,4 @@
-import {
-  Injectable, Logger, NotFoundException,
-} from '@nestjs/common';
+import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { In, Repository } from 'typeorm';
 import { AccessoryGateway } from '../accessory/accesory.gateway';
@@ -25,10 +23,12 @@ export class LightService {
     private brightnessCurveService: BrightnessCurveService,
     private colorTemperatureCurveService: ColorTemperatureCurveService,
     private accessoryGateway: AccessoryGateway,
-  ) { }
+  ) {}
 
   async create(createLightDto: CreateLightDto): Promise<Light> {
-    this.logger.debug(`Create light ${createLightDto.name}: ${JSON.stringify(createLightDto)}`);
+    this.logger.debug(
+      `Create light ${createLightDto.name}: ${JSON.stringify(createLightDto)}`,
+    );
     const light = this.lightsRepository.create(createLightDto);
     return this.lightsRepository.save(light);
   }
@@ -51,12 +51,16 @@ export class LightService {
   }
 
   findByAccessoryId(accessoryId: string): Promise<Light> {
-    return this.lightsRepository.findOneBy({ accessoryId: accessoryId }).then((light) => {
-      if (light === null) {
-        throw new NotFoundException(`Light with accessoryId ${accessoryId} not found.`);
-      }
-      return light;
-    });
+    return this.lightsRepository
+      .findOneBy({ accessoryId: accessoryId })
+      .then((light) => {
+        if (light === null) {
+          throw new NotFoundException(
+            `Light with accessoryId ${accessoryId} not found.`,
+          );
+        }
+        return light;
+      });
   }
 
   async updateByHueId(hueId: string, updateLightDto: UpdateLightDto) {
@@ -86,8 +90,11 @@ export class LightService {
       );
     }
 
-    const isOnChanged = (updateLightDto.on !== light.on) && (updateLightDto.on !== undefined);
-    const isPublishedChanged = (updateLightDto.published !== light.published) && (updateLightDto.published !== undefined);
+    const isOnChanged =
+      updateLightDto.on !== light.on && updateLightDto.on !== undefined;
+    const isPublishedChanged =
+      updateLightDto.published !== light.published &&
+      updateLightDto.published !== undefined;
 
     this.lightsRepository.merge(light, updateLightDto);
 
@@ -120,7 +127,9 @@ export class LightService {
     if (isBrightnessCurveWithPoints(light.brightnessCurve)) {
       value = await this.curveService.calcValue(light.brightnessCurve);
     } else {
-      const curve = await this.brightnessCurveService.findOne(light.brightnessCurve.id);
+      const curve = await this.brightnessCurveService.findOne(
+        light.brightnessCurve.id,
+      );
       value = await this.curveService.calcValue(curve);
     }
     return Math.min(100, Math.floor((light.brightnessFactor / 100) * value));
@@ -134,7 +143,9 @@ export class LightService {
     if (isColorTemperatureCurveWithPoints(light.colorTemperatureCurve)) {
       return this.curveService.calcValue(light.colorTemperatureCurve);
     } else {
-      const curve = await this.colorTemperatureCurveService.findOne(light.colorTemperatureCurve.id);
+      const curve = await this.colorTemperatureCurveService.findOne(
+        light.colorTemperatureCurve.id,
+      );
       return this.curveService.calcValue(curve);
     }
   }
@@ -159,9 +170,7 @@ export class LightService {
    * @param light the light to calculate for
    * @returns the data that can be sent to the hue bridge
    */
-  async nextState(
-    light: Light,
-  ): Promise<Partial<LightGet>> {
+  async nextState(light: Light): Promise<Partial<LightGet>> {
     let state: Partial<LightGet> = {};
 
     const brightness = await this.brightness(light);
@@ -189,10 +198,18 @@ export class LightService {
       }
     }
 
-    if (light.colorTemperatureControlled && !light.smartOffColorTemperature && light.currentColorTemperature !== colorTemp) {
+    if (
+      light.colorTemperatureControlled &&
+      !light.smartOffColorTemperature &&
+      light.currentColorTemperature !== colorTemp
+    ) {
       state.color_temperature = { mirek: colorTemp };
     }
-    if (light.brightnessControlled && !light.smartOffBrightness && light.currentBrightness !== brightness) {
+    if (
+      light.brightnessControlled &&
+      !light.smartOffBrightness &&
+      light.currentBrightness !== brightness
+    ) {
       state.dimming = { brightness: brightness };
     }
 

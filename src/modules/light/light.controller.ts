@@ -1,6 +1,9 @@
 import {
-  Body, ClassSerializerInterceptor, Controller,
-  Get, Param,
+  Body,
+  ClassSerializerInterceptor,
+  Controller,
+  Get,
+  Param,
   Patch,
   Post,
   UseInterceptors,
@@ -12,7 +15,7 @@ import { LightService } from './light.service';
 @Controller('lights')
 @UseInterceptors(ClassSerializerInterceptor)
 export class LightController {
-  constructor(private readonly lightService: LightService) { }
+  constructor(private readonly lightService: LightService) {}
 
   @Get()
   findAll() {
@@ -35,9 +38,7 @@ export class LightController {
 
   @Post(':id/reset')
   @UseInterceptors(UpdateInterceptor)
-  async reset(
-    @Param('id') id: string,
-  ) {
+  async reset(@Param('id') id: string) {
     const light = await this.lightService.findOne(+id);
     return this.lightService.resetSmartOff(light);
   }

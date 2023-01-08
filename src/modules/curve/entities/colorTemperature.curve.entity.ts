@@ -22,6 +22,8 @@ export class ColorTemperatureCurveWithPoints extends ColorTemperatureCurve {
   points: Point[];
 }
 
-export function isColorTemperatureCurveWithPoints(curve: ColorTemperatureCurve): curve is ColorTemperatureCurveWithPoints {
+export function isColorTemperatureCurveWithPoints(
+  curve: ColorTemperatureCurve,
+): curve is ColorTemperatureCurveWithPoints {
   return (curve as ColorTemperatureCurveWithPoints).points !== undefined;
 }
