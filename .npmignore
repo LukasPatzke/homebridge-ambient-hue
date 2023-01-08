@@ -1,6 +1,21 @@
+# frontend
+ui
+frontend
+
+# icons
+hass-hue-icons
+
+# docs
+docs 
+
+# nest
+nest-cli.json
+
+#prettier
+.prettierrc
+
 # Ignore source code
 src
-
 # ------------- Defaults ------------- #
 
 # gitHub actions
@@ -11,6 +26,7 @@ src
 
 # typescript
 tsconfig.json
+tsconfig.build.json
 
 # vscode
 .vscode
