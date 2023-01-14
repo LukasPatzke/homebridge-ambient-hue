@@ -17,7 +17,7 @@
   },
   "main": "dist/index.js",
   "scripts": {
-    "lint": "npm run line --prefix frontend && eslint src/**.ts --max-warnings=0",
+    "lint": "npm run lint --prefix frontend && eslint src/**.ts --max-warnings=0",
     "build": "npm run build --prefix frontend && rimraf ./dist && tsc -p tsconfig.build.json",
     "prepublishOnly": "npm run lint && npm run build",
     "format": "prettier --write \"src/**/*.ts\"",
