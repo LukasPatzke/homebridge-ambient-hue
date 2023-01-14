@@ -257,23 +257,19 @@ export class HueService {
     try {
       const lights = await this.lightService.findAll();
 
-      const updates = lights.map(
-        async (light): Promise<number> => {
-          const nextState = await this.lightService.nextState(light);
+      let countUpdated = 0;
 
-          if (Object.keys(nextState).length > 0) {
-            await this.setLightState(light.hueId, nextState);
-            this.lightService.resetSmartOff(light);
-            return 1;
-          }
-          return 0;
-        },
-      );
+      // Sequential for loop to ensure sequential requests to the bridge
+      for (let i = 0; i < lights.length; i++) {
+        const light = lights[i];
+        const nextState = await this.lightService.nextState(light);
+        if (Object.keys(nextState).length > 0) {
+          await this.setLightState(light.hueId, nextState);
+          this.lightService.resetSmartOff(light);
+          countUpdated += 1;
+        }
+      }
 
-      const countUpdated = (await Promise.all(updates)).reduce(
-        (accumulator, current) => accumulator + current,
-        0,
-      );
       this.logger.debug(`${countUpdated} lights updated`);
       return countUpdated;
     } catch (error) {
