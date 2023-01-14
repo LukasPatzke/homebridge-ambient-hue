@@ -1,0 +1,30 @@
+name: Publish
+
+on:
+  push:
+    tags:
+      - 'v**'
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - uses: actions/setup-node@v3
+        with:
+          node-version: current
+
+      - name: Publish beta
+        uses: JS-DevTools/npm-publish@v1
+        if: contains(github.ref, 'beta')
+        with:
+          token: ${{ secrets.NPM_TOKEN }}
+          tag: 'beta'
+
+      - name: Publish
+        uses: JS-DevTools/npm-publish@v1
+        if: ${{ !contains(github.ref, 'beta') }}
+        with:
+          token: ${{ secrets.NPM_TOKEN }}
