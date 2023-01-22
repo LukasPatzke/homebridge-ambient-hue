@@ -22,6 +22,7 @@
     "prepublishOnly": "npm run lint && npm run build",
     "format": "prettier --write \"src/**/*.ts\"",
     "watch": "nodemon",
+    "start": "tsc && homebridge -I -D",
     "typeorm": "typeorm-ts-node-esm",
     "typeorm:migration:generate": "npm run typeorm -- migration:generate -d ./src/typeOrm.config.ts ./src/migration/$npm_config_name",
     "typeorm:migration:create": "npm run typeorm -- migration:create ./src/migration/$npm_config_name",
