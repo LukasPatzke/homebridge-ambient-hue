@@ -108,17 +108,18 @@ export const CurvePage: React.FC<CurvePageProps> = ({ kind }) => {
     points.partialUpdate({ x: x }, selectedIndex);
   }, [x]);
 
-  const update = async (point: Partial<Point>) => {
-    if (selectedIndex === undefined) {
+  const update = async (point: Partial<Point>, index?: number) => {
+    const updateIndex = selectedIndex || index;
+    if (updateIndex === undefined) {
       return;
     }
 
     const updatedPoint = await updatePoint(
       point,
-      points.value[selectedIndex].resource,
+      point.resource || points.value[updateIndex].resource,
     );
 
-    points.update(updatedPoint, selectedIndex);
+    points.update(updatedPoint, updateIndex);
   };
 
   if (error) {
