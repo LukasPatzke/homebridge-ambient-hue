@@ -157,7 +157,17 @@ export class AmbientHueHomebridgePlatform implements DynamicPlatformPlugin {
         JSON.stringify(staleAccessories.map((a) => a.displayName)),
       );
       for (const accessory of staleAccessories) {
-        this.unregisterDevice(accessory.context);
+        if (accessory.context.id) {
+          this.unregisterDevice(accessory.context);
+        } else {
+          // remove legacy updateAccessory
+          this.api.unregisterPlatformAccessories(PLUGIN_NAME, PLATFORM_NAME, [
+            accessory,
+          ]);
+          this.accessories = this.accessories.filter(
+            (a) => a.UUID !== accessory.UUID,
+          );
+        }
       }
     }
   }
