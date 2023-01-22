@@ -265,7 +265,6 @@ export class HueService {
         const nextState = await this.lightService.nextState(light);
         if (Object.keys(nextState).length > 0) {
           await this.setLightState(light.hueId, nextState);
-          this.lightService.resetSmartOff(light);
           countUpdated += 1;
         }
       }
