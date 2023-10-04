@@ -26,24 +26,22 @@ export class BrightnessCurveService {
     private pointService: PointService,
   ) {}
 
-  async onModuleInit() {
-    this.findDefault().catch(async (reason) => {
-      if (reason.name === 'EntityNotFound') {
-        this.logger.log('Initializing default brightness curve.');
-        const curve = this.curveRepository.create({
-          id: 0,
-          name: 'Default Brightness Curve',
-          points: await this.pointService.createMany([
-            { x: 0, y: 100, first: true },
-            { x: 360, y: 85 },
-            { x: 660, y: 70 },
-            { x: 900, y: 87 },
-            { x: 1080, y: 10 },
-            { x: 1440, y: 5, last: true },
-          ]),
-        });
-        this.curveRepository.save(curve);
-      }
+  async createDefault() {
+    await this.findDefault().catch(async () => {
+      this.logger.log('Initializing default brightness curve.');
+      const curve = this.curveRepository.create({
+        id: 0,
+        name: 'Default Brightness Curve',
+        points: await this.pointService.createMany([
+          { x: 0, y: 100, first: true },
+          { x: 360, y: 85 },
+          { x: 660, y: 70 },
+          { x: 900, y: 87 },
+          { x: 1080, y: 10 },
+          { x: 1440, y: 5, last: true },
+        ]),
+      });
+      await this.curveRepository.save(curve);
     });
   }
 

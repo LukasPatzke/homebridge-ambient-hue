@@ -26,23 +26,21 @@ export class ColorTemperatureCurveService {
     private pointService: PointService,
   ) {}
 
-  async onModuleInit() {
-    this.findDefault().catch(async (reason) => {
-      if (reason.name === 'EntityNotFound') {
-        this.logger.log('Initializing default Color Temperature curve.');
-        const curve = this.curveRepository.create({
-          id: 0,
-          name: 'Default Color Temperature Curve',
-          points: await this.pointService.createMany([
-            { x: 0, y: 153, first: true },
-            { x: 420, y: 324 },
-            { x: 900, y: 347 },
-            { x: 1080, y: 475 },
-            { x: 1440, y: 500, last: true },
-          ]),
-        });
-        this.curveRepository.save(curve);
-      }
+  async createDefault() {
+    await this.findDefault().catch(async () => {
+      this.logger.log('Initializing default Color Temperature curve.');
+      const curve = this.curveRepository.create({
+        id: 0,
+        name: 'Default Color Temperature Curve',
+        points: await this.pointService.createMany([
+          { x: 0, y: 153, first: true },
+          { x: 420, y: 324 },
+          { x: 900, y: 347 },
+          { x: 1080, y: 475 },
+          { x: 1440, y: 500, last: true },
+        ]),
+      });
+      await this.curveRepository.save(curve);
     });
   }
 

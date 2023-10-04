@@ -2,6 +2,7 @@ import { HttpModule } from '@nestjs/axios';
 import { forwardRef, Module } from '@nestjs/common';
 import { Agent } from 'https';
 import { ConfigModule } from '../config/config.module';
+import { CurveModule } from '../curve/curve.module';
 import { GroupModule } from '../group/group.module';
 import { LightModule } from '../light/light.module';
 import { HueController } from './hue.controller';
@@ -19,6 +20,7 @@ import { UpdateInterceptor } from './update.interceptor';
     ConfigModule,
     forwardRef(() => LightModule),
     forwardRef(() => GroupModule),
+    forwardRef(() => CurveModule),
   ],
   controllers: [HueController],
   providers: [HueService, UpdateInterceptor],

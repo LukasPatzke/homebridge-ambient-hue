@@ -18,6 +18,8 @@ import {
 } from 'rxjs';
 import { v5 as uuidv5 } from 'uuid';
 import { ConfigService } from '../config/config.service';
+import { BrightnessCurveService } from '../curve/brightness.curve.service';
+import { ColorTemperatureCurveService } from '../curve/colorTemperature.curve.service';
 import { Group } from '../group/entities/group.entity';
 import { GroupService } from '../group/group.service';
 import { Light } from '../light/entities/light.entity';
@@ -60,6 +62,10 @@ export class HueService {
     private lightService: LightService,
     @Inject(forwardRef(() => GroupService))
     private groupService: GroupService,
+    @Inject(forwardRef(() => BrightnessCurveService))
+    private brightnessCurveService: BrightnessCurveService,
+    @Inject(forwardRef(() => ColorTemperatureCurveService))
+    private colorTemperatureCurveService: ColorTemperatureCurveService,
   ) {
     this.updateQueue = new Subject();
     this.httpService.axiosRef.interceptors.request.use((request) => {
@@ -335,6 +341,9 @@ export class HueService {
 
     const compareLights = (light: Light, hueLight: LightGet) =>
       light.hueId === hueLight.id || light.legacyId === hueLight.id_v1;
+
+    await this.brightnessCurveService.createDefault();
+    await this.colorTemperatureCurveService.createDefault();
 
     /** Create/Update Lights
      *  Wait for all lights to be updated
