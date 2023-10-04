@@ -328,6 +328,21 @@ export class HueService {
   }
 
   /**
+   * Find the device that a given light ID is part of
+   * @param lightId A light ID to search for
+   * @param hueDevices A list of all devices
+   * @returns The parent device
+   */
+  findDeviceByLightId(lightId: string, hueDevices: DeviceGet[]): DeviceGet|undefined {
+    return hueDevices.find(
+      device=>device.services.filter(
+        service=>service.rtype==='light',
+      ).find(
+        service=>service.rid===lightId,
+      ) !== undefined);
+  }
+
+  /**
    * Synchronize database with hue bridge
    * @returns Count of lights and groups
    */
@@ -352,6 +367,7 @@ export class HueService {
     await Promise.all(
       hueLights.map((hueLight) => {
         const light = lights.find((light) => compareLights(light, hueLight));
+        const device = this.findDeviceByLightId(hueLight.id, hueDevices);
 
         if (light === undefined) {
           // Create a new light
@@ -360,8 +376,8 @@ export class HueService {
             legacyId: hueLight.id_v1,
             accessoryId: this.generateUuid(hueLight.id),
             deviceId: hueLight.owner.rid,
-            name: hueLight.metadata.name,
-            archetype: hueLight.metadata.archetype,
+            name: device?.metadata.name || hueLight.metadata.name,
+            archetype: device?.metadata.archetype || hueLight.metadata.archetype,
             currentOn: hueLight.on.on,
             currentBrightness: hueLight.dimming?.brightness,
             currentColorTemperature: hueLight.color_temperature?.mirek,
@@ -378,8 +394,8 @@ export class HueService {
           return this.lightService.update(light.id, {
             hueId: hueLight.id,
             legacyId: hueLight.id_v1,
-            name: hueLight.metadata.name,
-            archetype: hueLight.metadata.archetype,
+            name: device?.metadata.name || hueLight.metadata.name,
+            archetype: device?.metadata.archetype || hueLight.metadata.archetype,
             currentOn: hueLight.on.on,
             currentBrightness: hueLight.dimming?.brightness,
             currentColorTemperature: hueLight.color_temperature?.mirek,
