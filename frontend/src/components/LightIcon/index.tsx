@@ -14,7 +14,14 @@ import { ReactComponent as FliamentBulb } from './icons/bulb-filament.svg';
 import { ReactComponent as GolfballE14Bulb } from './icons/bulb-golfball-e14.svg';
 import { ReactComponent as SpotBulb } from './icons/bulb-spot.svg';
 import { ReactComponent as SultanBulb } from './icons/bulb-sultan.svg';
+import { ReactComponent as CeilingRound } from './icons/ceiling-round.svg';
+import { ReactComponent as CeilingSquare } from './icons/ceiling-square.svg';
+import { ReactComponent as DeskLamp } from './icons/desk-lamp.svg';
 import { ReactComponent as LightStrip } from './icons/lightstrip.svg';
+import { ReactComponent as PendantRound } from './icons/pendant-round.svg';
+import { ReactComponent as SingleSpot } from './icons/single-spot.svg';
+import { ReactComponent as TableShade } from './icons/table-shade.svg';
+import { ReactComponent as TableWash } from './icons/table-wash.svg';
 
 interface LightIconProps {
   lightId: number;
@@ -71,7 +78,20 @@ export const LightIcon: React.FC<LightIconProps> = ({ lightId }) => {
         return <CandleBulb fill={color()} height={30} />;
       case 'hue_lightstrip':
         return <LightStrip fill={color()} height={30} />;
-
+      case 'ceiling_round':
+        return <CeilingRound fill={color()} height={30} />;
+      case 'ceiling_square':
+        return <CeilingSquare fill={color()} height={30} />;
+      case 'flexible_lamp':
+        return <DeskLamp fill={color()} height={30} />;
+      case 'pendant_round':
+        return <PendantRound fill={color()} height={30} />;
+      case 'single_spot':
+        return <SingleSpot fill={color()} height={30} />;
+      case 'table_shade':
+        return <TableShade fill={color()} height={30} />;
+      case 'table_wash':
+        return <TableWash fill={color()} height={30} />;
       default:
         return light.archetype.split('_').map((i) => i[0]);
     }
