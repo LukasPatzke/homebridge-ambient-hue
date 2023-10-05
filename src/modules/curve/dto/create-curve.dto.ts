@@ -1,11 +1,15 @@
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { IsNumber, IsOptional, IsString } from 'class-validator';
 
 export type curveKind = 'ct' | 'bri';
 
 export class CreateCurveDto {
   @ApiProperty()
+  @IsString()
   name: string;
 
-  @ApiProperty({ type: Number, required: false, default: 2 })
+  @ApiPropertyOptional({ type: Number, default: 2 })
+  @IsNumber()
+  @IsOptional()
   count = 2;
 }

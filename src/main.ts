@@ -1,3 +1,4 @@
+import { ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import {
   FastifyAdapter,
@@ -18,6 +19,17 @@ export async function bootstrap() {
     fAdapter,
     { logger: new CustomLogger('Root') },
   );
+
+  // enable global input validation
+  app.useGlobalPipes(
+    new ValidationPipe({
+      transform: true,
+      whitelist: true,
+      forbidNonWhitelisted: true,
+      forbidUnknownValues: true,
+    }),
+  );
+
   const config = app.get(ConfigService);
 
   // set prefix
