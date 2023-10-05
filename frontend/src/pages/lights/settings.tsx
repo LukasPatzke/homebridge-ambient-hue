@@ -69,7 +69,7 @@ export const Settings: React.FC<SettingsProps> = ({ accessory }) => {
       setOnThreshold(accessory.onThreshold);
       setBrightnessControlled(accessory.brightnessControlled);
       setBrightnessFactor(accessory.brightnessFactor);
-      setColorTemperatureControlled(accessory.colorTempertureControlled);
+      setColorTemperatureControlled(accessory.colorTemperatureControlled);
       setBrightnessCurve(accessory.brightnessCurve);
       setColorTemperatureCurve(accessory.colorTemperatureCurve);
     }
@@ -225,7 +225,7 @@ export const Settings: React.FC<SettingsProps> = ({ accessory }) => {
           onChange={(event) => {
             setColorTemperatureControlled(event.currentTarget.checked);
             onChange({
-              colorTempertureControlled: event.currentTarget.checked,
+              colorTemperatureControlled: event.currentTarget.checked,
             });
           }}
           disabled={!accessory.isColorTemperatureCapable}

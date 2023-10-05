@@ -86,7 +86,7 @@ export interface Light {
   onThreshold: number;
   brightnessControlled: boolean;
   brightnessFactor: number;
-  colorTempertureControlled: boolean;
+  colorTemperatureControlled: boolean;
   lastOn?: boolean;
   lastBrightness?: number;
   lastColorTemperature?: number;
@@ -162,7 +162,7 @@ export interface Group {
   onThreshold: number;
   brightnessControlled: boolean;
   brightnessFactor: number;
-  colorTempertureControlled: boolean;
+  colorTemperatureControlled: boolean;
   isBrightnessCapable: boolean;
   isColorTemperatureCapable: boolean;
   brightnessCurve: Curve;
