@@ -7,7 +7,7 @@ export const update = async (point: Partial<Point>, resource: string) => {
     headers: {
       'Content-Type': 'application/json',
     },
-    body: JSON.stringify(point),
+    body: JSON.stringify({ x: point.x, y: point.y }),
   }) as Promise<Point>;
 };
 
